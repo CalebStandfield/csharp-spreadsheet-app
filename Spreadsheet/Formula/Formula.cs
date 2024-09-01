@@ -104,7 +104,7 @@ public class Formula
     /// <returns> the set of variables (string names) representing the variables referenced by the formula. </returns>
     public ISet<string> GetVariables()
     {
-        // FIXME: implement your code here
+        
         return new HashSet<string>();
     }
 
@@ -178,7 +178,7 @@ public class Formula
     /// </summary>
     /// <param name="formula"> A string representing an infix formula such as 1*B1/3.0. </param>
     /// <returns> The ordered list of tokens in the formula. </returns>
-    private static List<string> GetTokens(string formula)
+    public static List<string> GetTokens(string formula)
     {
         List<string> results = [];
 
