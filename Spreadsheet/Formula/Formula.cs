@@ -120,7 +120,7 @@ public class Formula
     ///     will be such that this.ToString() == f.ToString().
     ///   </para>
     ///   <para>
-    ///     All of the variables in the string will be normalized.  This
+    ///     All the variables in the string will be normalized.  This
     ///     means capital letters.
     ///   </para>
     ///   <para>
@@ -132,7 +132,7 @@ public class Formula
     ///   </code>
     ///   <para>
     ///     This code should execute in O(1) time.
-    ///   <para>
+    ///   </para>
     /// </summary>
     /// <returns>
     ///   A canonical version (string) of the formula. All "equal" formulas
