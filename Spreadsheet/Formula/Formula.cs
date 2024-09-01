@@ -86,7 +86,6 @@ public class Formula
     /// <param name="formula"> The string representation of the formula to be created.</param>
     public Formula(string formula)
     {
-        _tokens.Clear();
         _tokens = GetTokens(formula);
         // FIXME: implement your code here
     }
@@ -115,6 +114,7 @@ public class Formula
         {
             variables.Add(str);
         }
+
         return variables;
     }
 
@@ -159,13 +159,62 @@ public class Formula
     ///   followed by one or more numbers.
     /// </summary>
     /// <param name="token"> A token that may be a variable. </param>
-    /// <returns> true if the string matches the requirements, e.g., A1 or a1. </returns>
+    /// <returns> True if the string matches the requirements, e.g., A1 or a1. </returns>
     private static bool IsVar(string token)
     {
         // notice the use of ^ and $ to denote that the entire string being matched is just the variable
         string standaloneVarPattern = $"^{VariableRegExPattern}$";
         return Regex.IsMatch(token, standaloneVarPattern);
     }
+
+    /// <summary>
+    ///   Reports whether "token" is an opening parenthesis.  
+    /// </summary>
+    /// <param name="token"> A token that may be an opening Parenthesis. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool OpenPar(string token)
+    {
+        return token.Equals("(");
+    }
+
+    /// <summary>
+    ///   Reports whether "token" is a closing parenthesis.  
+    /// </summary>
+    /// <param name="token"> A token that may be a closing Parenthesis. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool ClosingPar(string token)
+    {
+        return token.Equals(")");
+    }
+
+    /// <summary>
+    ///   Reports whether "token" is a valid operator.
+    ///   Valid operators are +,-,/,*.
+    /// </summary>
+    /// <param name="token"> A token that may be a valid operator. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool ValidOp(string token)
+    {
+        return token switch
+        {
+            "+" or "-" or "/" or "*" => true,
+            _ => false
+        };
+    }
+    
+    /// <summary>
+    ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
+    ///   Valid operators are +,-,/,*.
+    /// </summary>
+    /// <param name="token"> A token that may be a valid number. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool validNumber(string token)
+    {
+        // TO-DO
+        return false;
+    }
+    
+    
 
     /// <summary>
     ///   <para>
@@ -209,7 +258,7 @@ public class Formula
             spacePattern);
 
         // Enumerate matching tokens that don't consist solely of white space.
-        foreach (string s in Regex.Split(formula, pattern, RegexOptions.IgnorePatternWhitespace))
+        foreach (var s in Regex.Split(formula, pattern, RegexOptions.IgnorePatternWhitespace))
         {
             if (!Regex.IsMatch(s, @"^\s*$", RegexOptions.Singleline))
             {
