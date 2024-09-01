@@ -163,7 +163,7 @@ public class Formula
     private static bool IsVar(string token)
     {
         // notice the use of ^ and $ to denote that the entire string being matched is just the variable
-        string standaloneVarPattern = $"^{VariableRegExPattern}$";
+        var standaloneVarPattern = $"^{VariableRegExPattern}$";
         return Regex.IsMatch(token, standaloneVarPattern);
     }
 
@@ -208,7 +208,7 @@ public class Formula
     /// </summary>
     /// <param name="token"> A token that may be a valid number. </param>
     /// <returns> True if the string matches the requirements</returns>
-    private static bool validNumber(string token)
+    private static bool ValidNumber(string token)
     {
         // TO-DO
         return false;
@@ -221,7 +221,17 @@ public class Formula
     /// <returns> True if the string matches the requirements</returns>
     private static bool FirstToken(string token)
     {
-        return OpenPar(token) || validNumber(token) || IsVar(token);
+        return OpenPar(token) || ValidNumber(token) || IsVar(token);
+    }
+    
+    /// <summary>
+    ///   Checks if the token is a valid last token.
+    /// </summary>
+    /// <param name="token"> A token that may be a valid last token. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool LastToken(string token)
+    {
+        return ClosingPar(token) || ValidNumber(token) || IsVar(token);
     }
     
     
