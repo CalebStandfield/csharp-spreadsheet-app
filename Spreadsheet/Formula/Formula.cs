@@ -214,6 +214,18 @@ public class Formula
         return false;
     }
     
+    /// <summary>
+    ///   Checks if the token is a valid first token.
+    /// </summary>
+    /// <param name="token"> A token that may be a valid first token. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool FirstToken(string token)
+    {
+        return OpenPar(token) || validNumber(token) || IsVar(token);
+    }
+    
+    
+    
     
 
     /// <summary>
