@@ -22,7 +22,7 @@ using System.Text.RegularExpressions;
 ///   <para>
 ///     This class represents formulas written in standard infix notation using standard precedence
 ///     rules.  The allowed symbols are non-negative numbers written using double-precision
-///     floating-point syntax; variables that consist of one ore more letters followed by
+///     floating-point syntax; variables that consist of one or more letters followed by
 ///     one or more numbers; parentheses; and the four operator symbols +, -, *, and /.
 ///   </para>
 ///   <para>
@@ -62,7 +62,7 @@ public class Formula
     ///     specifications for the syntax rules you are to implement.
     ///   </para>
     ///   <para>
-    ///     Non Exhaustive Example Errors:
+    ///     Non-Exhaustive Example Errors:
     ///   </para>
     ///   <list type="bullet">
     ///     <item>
