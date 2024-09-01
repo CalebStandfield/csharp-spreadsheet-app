@@ -14,6 +14,8 @@
 //   </para>
 // </summary>
 
+using System.Collections;
+
 namespace CS3500.Formula;
 
 using System.Text.RegularExpressions;
@@ -53,6 +55,8 @@ public class Formula
     /// </summary>
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
+    private readonly List<string> _tokens;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="Formula"/> class.
     ///   <para>
@@ -82,6 +86,8 @@ public class Formula
     /// <param name="formula"> The string representation of the formula to be created.</param>
     public Formula(string formula)
     {
+        _tokens.Clear();
+        _tokens = GetTokens(formula);
         // FIXME: implement your code here
     }
 
@@ -104,8 +110,12 @@ public class Formula
     /// <returns> the set of variables (string names) representing the variables referenced by the formula. </returns>
     public ISet<string> GetVariables()
     {
-        
-        return new HashSet<string>();
+        var variables = new HashSet<string>();
+        foreach (var str in _tokens.Where(IsVar))
+        {
+            variables.Add(str);
+        }
+        return variables;
     }
 
     /// <summary>
