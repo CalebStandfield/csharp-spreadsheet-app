@@ -166,27 +166,24 @@ public class Formula
         var standaloneVarPattern = $"^{VariableRegExPattern}$";
         return Regex.IsMatch(token, standaloneVarPattern);
     }
-
+    
+    // --- One Token Rule 1 ---
+    
+    
+    
+    // --- Valid Tokens 2 ---
+    
     /// <summary>
-    ///   Reports whether "token" is an opening parenthesis.  
+    ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
     /// </summary>
-    /// <param name="token"> A token that may be an opening Parenthesis. </param>
+    /// <param name="token"> A token that may be a valid number. </param>
     /// <returns> True if the string matches the requirements</returns>
-    private static bool OpenPar(string token)
+    private static bool ValidNumber(string token)
     {
-        return token.Equals("(");
+        var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
+        return Regex.IsMatch(token, doublePattern);
     }
-
-    /// <summary>
-    ///   Reports whether "token" is a closing parenthesis.  
-    /// </summary>
-    /// <param name="token"> A token that may be a closing Parenthesis. </param>
-    /// <returns> True if the string matches the requirements</returns>
-    private static bool ClosingPar(string token)
-    {
-        return token.Equals(")");
-    }
-
+    
     /// <summary>
     ///   Reports whether "token" is a valid operator.
     ///   Valid operators are +,-,/,*.
@@ -201,18 +198,37 @@ public class Formula
             _ => false
         };
     }
-
+    
     /// <summary>
-    ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
+    ///   Reports whether "token" is an opening parenthesis.  
     /// </summary>
-    /// <param name="token"> A token that may be a valid number. </param>
+    /// <param name="token"> A token that may be an opening Parenthesis. </param>
     /// <returns> True if the string matches the requirements</returns>
-    private static bool ValidNumber(string token)
+    private static bool OpenPar(string token)
     {
-        var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
-        return Regex.IsMatch(token, doublePattern);
+        return token.Equals("(");
     }
-
+    
+    /// <summary>
+    ///   Reports whether "token" is a closing parenthesis.  
+    /// </summary>
+    /// <param name="token"> A token that may be a closing Parenthesis. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool ClosingPar(string token)
+    {
+        return token.Equals(")");
+    }
+    
+    // --- Closing Parentheses Rule 3 ---
+    
+    
+    
+    // --- Balanced Parentheses Rule 4 ---
+    
+    
+    
+    // --- First Token Rule 5 ---
+    
     /// <summary>
     ///   Checks if the token is a valid first token.
     /// </summary>
@@ -222,6 +238,8 @@ public class Formula
     {
         return OpenPar(token) || ValidNumber(token) || IsVar(token);
     }
+    
+    // --- Last Token Rule 6 ---
 
     /// <summary>
     ///   Checks if the token is a valid last token.
@@ -233,6 +251,11 @@ public class Formula
         return ClosingPar(token) || ValidNumber(token) || IsVar(token);
     }
 
+    // --- Parenthesis/Operator Following Rule 7 ---
+    
+    
+    
+    // --- Extra Following Rule 8 ---
 
     /// <summary>
     ///   <para>
