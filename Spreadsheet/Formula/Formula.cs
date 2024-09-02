@@ -201,19 +201,18 @@ public class Formula
             _ => false
         };
     }
-    
+
     /// <summary>
     ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
-    ///   Valid operators are +,-,/,*.
     /// </summary>
     /// <param name="token"> A token that may be a valid number. </param>
     /// <returns> True if the string matches the requirements</returns>
     private static bool ValidNumber(string token)
     {
-        // TO-DO
-        return false;
+        var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
+        return Regex.IsMatch(token, doublePattern);
     }
-    
+
     /// <summary>
     ///   Checks if the token is a valid first token.
     /// </summary>
@@ -223,7 +222,7 @@ public class Formula
     {
         return OpenPar(token) || ValidNumber(token) || IsVar(token);
     }
-    
+
     /// <summary>
     ///   Checks if the token is a valid last token.
     /// </summary>
@@ -233,10 +232,7 @@ public class Formula
     {
         return ClosingPar(token) || ValidNumber(token) || IsVar(token);
     }
-    
-    
-    
-    
+
 
     /// <summary>
     ///   <para>
