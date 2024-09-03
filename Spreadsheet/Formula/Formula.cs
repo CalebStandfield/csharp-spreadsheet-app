@@ -56,6 +56,8 @@ public class Formula
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
     private readonly List<string> _tokens;
+    private int numbOpen = 0;
+    private int numbClose = 0;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="Formula"/> class.
@@ -87,7 +89,27 @@ public class Formula
     public Formula(string formula)
     {
         _tokens = GetTokens(formula);
-        // FIXME: implement your code here
+        var numbToken = _tokens.Count;
+        if (numbToken == 0) // Rule 1
+        {
+            throw new FormatException("There must be at least one token in the formula.");
+        }
+        var parFollow = false;
+        var opFollow = false;
+
+        for (int i = 0; i < numbToken; i++)
+        {
+            if (i == 1)
+            {
+                FirstToken(_tokens[i]);
+            }
+    }
+        // Rule 5
+        if (!FirstToken(_tokens[0]))
+        {
+            throw new FormulaFormatException("The first token is not either an opening parenthesis, number, or variable.");
+        }
+        //
     }
 
     /// <summary>
@@ -153,7 +175,39 @@ public class Formula
         // FIXME: add your code here.
         return string.Empty;
     }
-
+    
+    /// <summary>
+    ///   Parenthesis or operator following rule.
+    ///   Any token that immediately follows an opening parenthesis or an operator must be either a number, a variable, or an opening parenthesis.
+    /// </summary>
+    /// <param name="token"> A token that may be a valid number. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool ParOrOper(string token)
+    {
+        return ValidNumber(token) || IsVar(token) || OpenPar(token);
+    }
+    
+    /// <summary>
+    ///   Extra following rule.
+    ///   Any token that immediately follows a number, a variable, or a closing parenthesis must be either an operator or a closing parenthesis.    /// </summary>
+    /// <param name="token"> A token that may be a valid number. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool ExtraFollowing(string token)
+    {
+        return ValidOp(token) || ClosingPar(token);
+    }
+    
+    /// <summary>
+    ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
+    /// </summary>
+    /// <param name="token"> A token that may be a valid number. </param>
+    /// <returns> True if the string matches the requirements</returns>
+    private static bool ValidNumber(string token)
+    {
+        var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
+        return Regex.IsMatch(token, doublePattern);
+    }
+    
     /// <summary>
     ///   Reports whether "token" is a variable.  It must be one or more letters
     ///   followed by one or more numbers.
@@ -165,23 +219,6 @@ public class Formula
         // notice the use of ^ and $ to denote that the entire string being matched is just the variable
         var standaloneVarPattern = $"^{VariableRegExPattern}$";
         return Regex.IsMatch(token, standaloneVarPattern);
-    }
-    
-    // --- One Token Rule 1 ---
-    
-    
-    
-    // --- Valid Tokens 2 ---
-    
-    /// <summary>
-    ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
-    /// </summary>
-    /// <param name="token"> A token that may be a valid number. </param>
-    /// <returns> True if the string matches the requirements</returns>
-    private static bool ValidNumber(string token)
-    {
-        var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
-        return Regex.IsMatch(token, doublePattern);
     }
     
     /// <summary>
@@ -206,7 +243,13 @@ public class Formula
     /// <returns> True if the string matches the requirements</returns>
     private static bool OpenPar(string token)
     {
-        return token.Equals("(");
+        if (token == "(")
+        {
+            numbOpen++;
+            return true;
+        }
+
+        return false;
     }
     
     /// <summary>
