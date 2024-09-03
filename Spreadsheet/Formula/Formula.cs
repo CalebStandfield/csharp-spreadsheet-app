@@ -86,17 +86,27 @@ public class Formula
     /// <param name="formula"> The string representation of the formula to be created.</param>
     public Formula(string formula)
     {
-        if (_tokens != null) {_tokens.Clear();}
+        _tokens?.Clear();
+        var openPar = 0;
+        var closePar = 0;
         _tokens = GetTokens(formula);
-        var numbToken = _tokens.Count;
         // Rule 1
         OneToken(_tokens);
-        // Rule 5
-        if (!FirstToken(_tokens[0]))
+
+        for (var i = 0; i < _tokens.Count; i++)
         {
-            throw new FormulaFormatException("The first token is not either an opening parenthesis, number, or variable.");
+            if (i == 0)
+            {
+                FirstToken(_tokens[0]);
+            }
+            _tokens[i]
         }
-        //
+        
+        // Rule 5
+        FirstToken(_tokens[0]);
+        //Rule 6
+        if (_tokens.Count > 1) {LastToken(_tokens[_tokens.Count]);}
+    //
     }
 
     /// <summary>
@@ -167,7 +177,7 @@ public class Formula
     {
         if (tokens.Count == 0)
         {
-            throw new FormatException("There must be at least one token in the formula.");
+            throw new FormulaFormatException("There must be at least one token in the formula.");
         }
     }
     
@@ -230,17 +240,23 @@ public class Formula
             _ => false
         };
     }
-    
+
     /// <summary>
     ///   Reports whether "token" is an opening parenthesis.  
     /// </summary>
     /// <param name="token"> A token that may be an opening Parenthesis. </param>
     /// <returns> True if the string matches the requirements</returns>
-    private static bool OpenPar(string token)
+    private static bool OpenPar(string token, int numbOfPar)
     {
-        return token.Equals("(");
+        if (token.Equals("("))
+        {
+            numbOfPar++;
+            return true;
+        }
+
+        return false;
     }
-    
+
     /// <summary>
     ///   Reports whether "token" is a closing parenthesis.  
     /// </summary>
@@ -268,7 +284,9 @@ public class Formula
     /// <returns> True if the string matches the requirements</returns>
     private static bool FirstToken(string token)
     {
-        return OpenPar(token) || ValidNumber(token) || IsVar(token);
+        if (OpenPar(token) || ValidNumber(token) || IsVar(token))
+            return true;
+        throw new FormulaFormatException("The first token is not either an opening parenthesis, number or variable.");
     }
     
     // --- Last Token Rule 6 ---
@@ -280,7 +298,11 @@ public class Formula
     /// <returns> True if the string matches the requirements</returns>
     private static bool LastToken(string token)
     {
-        return ClosingPar(token) || ValidNumber(token) || IsVar(token);
+        if (ClosingPar(token) || ValidNumber(token) || IsVar(token))
+        {
+            return true;
+        }
+        throw new FormulaFormatException("The last token is not either a closing parenthesis, number or variable.");
     }
 
     // --- Parenthesis/Operator Following Rule 7 ---

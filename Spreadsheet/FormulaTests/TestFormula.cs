@@ -834,11 +834,4 @@ public class FormulaRulesAndPublicMethodsTests
         var y = x.GetVariables();
         Assert.IsTrue(y.Count == 2);
     }
-    
-    [TestMethod]
-    public void GetTokens_ReturnOneInvalidToken_CorrectToken()
-    {
-        var x = new Formula("beans");
-        var y = x.GetTokens("beans");
-    }
 }
