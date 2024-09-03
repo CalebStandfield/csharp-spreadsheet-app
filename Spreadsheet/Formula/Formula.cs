@@ -246,15 +246,9 @@ public class Formula
     /// </summary>
     /// <param name="token"> A token that may be an opening Parenthesis. </param>
     /// <returns> True if the string matches the requirements</returns>
-    private static bool OpenPar(string token, int numbOfPar)
+    private static bool OpenPar(string token)
     {
-        if (token.Equals("("))
-        {
-            numbOfPar++;
-            return true;
-        }
-
-        return false;
+        return token.Equals("(");
     }
 
     /// <summary>
