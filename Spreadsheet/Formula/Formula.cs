@@ -56,8 +56,6 @@ public class Formula
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
     private readonly List<string> _tokens;
-    private int numbOpen = 0;
-    private int numbClose = 0;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="Formula"/> class.
@@ -88,22 +86,11 @@ public class Formula
     /// <param name="formula"> The string representation of the formula to be created.</param>
     public Formula(string formula)
     {
+        if (_tokens != null) {_tokens.Clear();}
         _tokens = GetTokens(formula);
         var numbToken = _tokens.Count;
-        if (numbToken == 0) // Rule 1
-        {
-            throw new FormatException("There must be at least one token in the formula.");
-        }
-        var parFollow = false;
-        var opFollow = false;
-
-        for (int i = 0; i < numbToken; i++)
-        {
-            if (i == 1)
-            {
-                FirstToken(_tokens[i]);
-            }
-    }
+        // Rule 1
+        OneToken(_tokens);
         // Rule 5
         if (!FirstToken(_tokens[0]))
         {
@@ -175,6 +162,14 @@ public class Formula
         // FIXME: add your code here.
         return string.Empty;
     }
+
+    private static void OneToken(List<string> tokens)
+    {
+        if (tokens.Count == 0)
+        {
+            throw new FormatException("There must be at least one token in the formula.");
+        }
+    }
     
     /// <summary>
     ///   Parenthesis or operator following rule.
@@ -243,13 +238,7 @@ public class Formula
     /// <returns> True if the string matches the requirements</returns>
     private static bool OpenPar(string token)
     {
-        if (token == "(")
-        {
-            numbOpen++;
-            return true;
-        }
-
-        return false;
+        return token.Equals("(");
     }
     
     /// <summary>

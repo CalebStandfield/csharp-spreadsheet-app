@@ -815,3 +815,30 @@ public class FormulaSyntaxTests
         _ = new Formula("c2 c2");
     }
 }
+
+[TestClass]
+public class FormulaRulesAndPublicMethodsTests
+{
+    [TestMethod]
+    public void GetVariables_NoVariables_Count0()
+    {
+        var x = new Formula("2 + 2");
+        var y = x.GetVariables();
+        Assert.IsTrue(y.Count == 0);
+    }
+    
+    [TestMethod]
+    public void GetVariables_DifferentVariables_Count2()
+    {
+        var x = new Formula("c2 + n2");
+        var y = x.GetVariables();
+        Assert.IsTrue(y.Count == 2);
+    }
+    
+    [TestMethod]
+    public void GetTokens_ReturnOneInvalidToken_CorrectToken()
+    {
+        var x = new Formula("beans");
+        var y = x.GetTokens("beans");
+    }
+}
