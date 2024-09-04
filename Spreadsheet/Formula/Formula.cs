@@ -87,6 +87,8 @@ public class Formula
     public Formula(string formula)
     {
         _tokens?.Clear();
+        var preCheckTokens = GetTokens(formula);
+
         var openPar = 0;
         var closePar = 0;
         _tokens = GetTokens(formula);
@@ -99,14 +101,15 @@ public class Formula
             {
                 FirstToken(_tokens[0]);
             }
-            _tokens[i]
         }
-        
+
         // Rule 5
         FirstToken(_tokens[0]);
         //Rule 6
-        if (_tokens.Count > 1) {LastToken(_tokens[_tokens.Count]);}
-    //
+        if (_tokens.Count > 1)
+        {
+            LastToken(_tokens[_tokens.Count]);
+        }
     }
 
     /// <summary>
@@ -173,6 +176,38 @@ public class Formula
         return string.Empty;
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Checks if each token in an array of tokens is valid.
+    ///   </para>
+    /// <returns>
+    ///   a boolean if the token is valid.
+    /// </returns>
+    /// </summary>
+    private static string CheckValidityOfTokens(string token)
+    {
+        // Number normalizer
+        if (ValidNumber(token))
+        {
+            if (double.TryParse(token, out var number))
+            {
+                return number.ToString("G");
+            }
+        }
+        // Make each char in token uppercase
+        else if (IsVar(token))
+        {
+            return new string(token.Select(c => char.IsLetter(c) ? char.ToUpper(c) : c).ToArray());
+        }
+        // Check if its operator or parenthesis; can return without modification 
+        else if (OpenPar(token) || ClosingPar(token) || ValidOp(token))
+        {
+            return token;
+        }
+        // If reached then it is an invalid token and throw exception
+        throw new FormatException("Invalid token:" + token);
+    }
+
     private static void OneToken(List<string> tokens)
     {
         if (tokens.Count == 0)
@@ -180,7 +215,7 @@ public class Formula
             throw new FormulaFormatException("There must be at least one token in the formula.");
         }
     }
-    
+
     /// <summary>
     ///   Parenthesis or operator following rule.
     ///   Any token that immediately follows an opening parenthesis or an operator must be either a number, a variable, or an opening parenthesis.
@@ -191,7 +226,7 @@ public class Formula
     {
         return ValidNumber(token) || IsVar(token) || OpenPar(token);
     }
-    
+
     /// <summary>
     ///   Extra following rule.
     ///   Any token that immediately follows a number, a variable, or a closing parenthesis must be either an operator or a closing parenthesis.    /// </summary>
@@ -201,7 +236,7 @@ public class Formula
     {
         return ValidOp(token) || ClosingPar(token);
     }
-    
+
     /// <summary>
     ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
     /// </summary>
@@ -212,7 +247,7 @@ public class Formula
         var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
         return Regex.IsMatch(token, doublePattern);
     }
-    
+
     /// <summary>
     ///   Reports whether "token" is a variable.  It must be one or more letters
     ///   followed by one or more numbers.
@@ -225,7 +260,7 @@ public class Formula
         var standaloneVarPattern = $"^{VariableRegExPattern}$";
         return Regex.IsMatch(token, standaloneVarPattern);
     }
-    
+
     /// <summary>
     ///   Reports whether "token" is a valid operator.
     ///   Valid operators are +,-,/,*.
@@ -260,17 +295,15 @@ public class Formula
     {
         return token.Equals(")");
     }
-    
+
     // --- Closing Parentheses Rule 3 ---
-    
-    
-    
+
+
     // --- Balanced Parentheses Rule 4 ---
-    
-    
-    
+
+
     // --- First Token Rule 5 ---
-    
+
     /// <summary>
     ///   Checks if the token is a valid first token.
     /// </summary>
@@ -282,7 +315,7 @@ public class Formula
             return true;
         throw new FormulaFormatException("The first token is not either an opening parenthesis, number or variable.");
     }
-    
+
     // --- Last Token Rule 6 ---
 
     /// <summary>
@@ -296,13 +329,13 @@ public class Formula
         {
             return true;
         }
+
         throw new FormulaFormatException("The last token is not either a closing parenthesis, number or variable.");
     }
 
     // --- Parenthesis/Operator Following Rule 7 ---
-    
-    
-    
+
+
     // --- Extra Following Rule 8 ---
 
     /// <summary>
@@ -351,7 +384,7 @@ public class Formula
         {
             if (!Regex.IsMatch(s, @"^\s*$", RegexOptions.Singleline))
             {
-                results.Add(s);
+                results.Add(CheckValidityOfTokens(s));
             }
         }
 
