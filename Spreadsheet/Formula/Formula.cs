@@ -91,7 +91,8 @@ public class Formula
     public Formula(string formula)
     {
         _tokens?.Clear();
-        _tokens = GetTokens(formula);
+        var tempList = GetTokens(formula);
+        _tokens = CreateNormalizedTokenList(tempList);
         _formulaString = StandardizedStringCreation(_tokens);
         openPar = 0;
         closePar = 0;
@@ -206,7 +207,7 @@ public class Formula
     ///   If a token is not valid an exception will be thrown.
     /// <exception cref="FormulaFormatException">Will be thrown when an invalid token is passed through</exception>
     /// </returns>
-    private static string NormalizeToken(string token)
+    private static string NormalizedToken(string token)
     {
         // Number normalizer
         if (ValidNumber(token))
@@ -362,10 +363,20 @@ public class Formula
         throw new FormulaFormatException("The last token is not either a closing parenthesis, number or variable.");
     }
 
-    // --- Parenthesis/Operator Following Rule 7 ---
+    /// <summary>
+    ///   <para>
+    ///     Passing in a list of invalid and valid tokens, this method will normalize each one, or throw an exception if invalid.
+    ///   </para>
+    /// </summary>
+    /// <param name="tokens">A list of valid or invalid tokens </param>
+    /// <returns> A normalized token list. </returns>
+    /// <exception cref="FormulaFormatException">Will throw an exception if an invalid token exists in the param list</exception>
+    public static List<string> CreateNormalizedTokenList(List<string> tokens)
+    {
+        return tokens.Select(NormalizedToken).ToList();
+    }
 
 
-    // --- Extra Following Rule 8 ---
 
     /// <summary>
     ///   <para>
@@ -413,7 +424,7 @@ public class Formula
         {
             if (!Regex.IsMatch(s, @"^\s*$", RegexOptions.Singleline))
             {
-                results.Add(NormalizeToken(s));
+                results.Add(s);
             }
         }
 

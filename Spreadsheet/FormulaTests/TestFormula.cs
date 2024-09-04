@@ -842,4 +842,11 @@ public class FormulaRulesAndPublicMethodsTests
         var str = "C2+N2";
         Assert.IsTrue(x.ToString().Equals(str));
     }
+
+    [TestMethod] public void ToString_DoesNotIncludeSpaces_CorrectString()
+    {
+        var x = new Formula("C2+N2 + 5/ C8");
+        var str = "C2+N2+5/C8";
+        Assert.IsTrue(x.ToString().Equals(str));
+    }
 }
