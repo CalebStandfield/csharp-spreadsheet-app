@@ -57,6 +57,9 @@ public class Formula
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
     private readonly List<string> _tokens;
+    private readonly string _formulaString;
+    private int openPar;
+    private int closePar;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="Formula"/> class.
@@ -88,28 +91,27 @@ public class Formula
     public Formula(string formula)
     {
         _tokens?.Clear();
-
-        var openPar = 0;
-        var closePar = 0;
         _tokens = GetTokens(formula);
+        _formulaString = StandardizedStringCreation(_tokens);
+        openPar = 0;
+        closePar = 0;
+        
         // Rule 1
         OneToken(_tokens);
+    }
 
-        for (var i = 0; i < _tokens.Count; i++)
-        {
-            if (i == 0)
-            {
-                FirstToken(_tokens[0]);
-            }
-        }
-
-        // Rule 5
-        FirstToken(_tokens[0]);
-        //Rule 6
-        if (_tokens.Count > 1)
-        {
-            LastToken(_tokens[_tokens.Count]);
-        }
+    /// <summary>
+    /// Represents the different states the formula can exist in
+    /// </summary>
+    enum StateOfFormula
+    {
+        First,
+        NumberOrVar,
+        Operator,
+        OpenParenthesis,
+        CloseParenthesis,
+        Last,
+        Invalid
     }
 
     /// <summary>
@@ -172,8 +174,7 @@ public class Formula
     /// </returns>
     public override string ToString()
     {
-        // FIXME: add your code here.
-        return string.Empty;
+        return _formulaString;
     }
 
     /// <summary>
@@ -227,7 +228,7 @@ public class Formula
         }
 
         // If reached then it is an invalid token and throw exception
-        throw new FormatException("Invalid token:" + token);
+        throw new FormulaFormatException("Invalid token:" + token);
     }
 
     /// <summary>
@@ -271,8 +272,9 @@ public class Formula
     /// <returns> True if the string matches the requirements</returns>
     private static bool ValidNumber(string token)
     {
-        var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
-        return Regex.IsMatch(token, doublePattern);
+        return double.TryParse(token, out _);
+        // var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
+        // return Regex.IsMatch(token, doublePattern);
     }
 
     /// <summary>

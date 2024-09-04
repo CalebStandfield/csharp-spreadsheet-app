@@ -834,4 +834,12 @@ public class FormulaRulesAndPublicMethodsTests
         var y = x.GetVariables();
         Assert.IsTrue(y.Count == 2);
     }
+    
+    [TestMethod]
+    public void ToString_NormalExpression_CorrectString()
+    {
+        var x = new Formula("c2 + n2");
+        var str = "C2+N2";
+        Assert.IsTrue(x.ToString().Equals(str));
+    }
 }
