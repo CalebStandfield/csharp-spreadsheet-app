@@ -15,6 +15,7 @@
 // </summary>
 
 using System.Collections;
+using System.Text;
 
 namespace CS3500.Formula;
 
@@ -87,7 +88,6 @@ public class Formula
     public Formula(string formula)
     {
         _tokens?.Clear();
-        var preCheckTokens = GetTokens(formula);
 
         var openPar = 0;
         var closePar = 0;
@@ -178,12 +178,33 @@ public class Formula
 
     /// <summary>
     ///   <para>
-    ///     Checks if each token in an array of tokens is valid.
+    ///     Makes a standardized string expression of the tokens in a passed in list.
     ///   </para>
-    /// <returns>
-    ///   a boolean if the token is valid.
-    /// </returns>
     /// </summary>
+    /// <param name="tokens">The list of tokens to create a string of.</param>
+    /// <returns>
+    ///   A string of the standardized formula.
+    /// </returns>
+    private string StandardizedStringCreation(List<string> tokens)
+    {
+        var builder = new StringBuilder();
+        foreach (var str in tokens)
+        {
+            builder.Append(str);
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    ///   Normalizes the given token..
+    /// </summary>
+    /// <param name="token">The token to be normalized.</param>
+    /// <returns>
+    ///   A normalized string representation of the token. If the token is valid and can be normalized.
+    ///   If a token is not valid an exception will be thrown.
+    /// <exception cref="FormulaFormatException">Will be thrown when an invalid token is passed through</exception>
+    /// </returns>
     private static string NormalizeToken(string token)
     {
         // Number normalizer
@@ -204,10 +225,16 @@ public class Formula
         {
             return token;
         }
+
         // If reached then it is an invalid token and throw exception
         throw new FormatException("Invalid token:" + token);
     }
 
+    /// <summary>
+    ///   Checks if there is at least 1 token in the tokens list
+    /// </summary>
+    /// <param name="tokens">The list of tokens to pass in for a size check</param>
+    /// <exception cref="FormulaFormatException">Will be thrown if there are no tokens in the list</exception>
     private static void OneToken(List<string> tokens)
     {
         if (tokens.Count == 0)
