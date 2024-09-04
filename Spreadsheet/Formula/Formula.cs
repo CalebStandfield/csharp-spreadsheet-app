@@ -184,7 +184,7 @@ public class Formula
     ///   a boolean if the token is valid.
     /// </returns>
     /// </summary>
-    private static string CheckValidityOfTokens(string token)
+    private static string NormalizeToken(string token)
     {
         // Number normalizer
         if (ValidNumber(token))
@@ -384,7 +384,7 @@ public class Formula
         {
             if (!Regex.IsMatch(s, @"^\s*$", RegexOptions.Singleline))
             {
-                results.Add(CheckValidityOfTokens(s));
+                results.Add(NormalizeToken(s));
             }
         }
 
