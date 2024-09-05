@@ -837,7 +837,7 @@ public class FormulaRulesAndPublicMethodsTests
     [TestMethod]
     public void ToString_VariableCapitalization_CorrectString()
     {
-        var x = new Formula("c2 + n2");
+        var x = new Formula("c2+n2");
         var str = "C2+N2";
         Assert.IsTrue(x.ToString().Equals(str));
     }
