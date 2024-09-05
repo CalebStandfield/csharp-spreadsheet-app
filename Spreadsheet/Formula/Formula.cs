@@ -143,7 +143,7 @@ public class Formula
             // Call GetNextState method to throw exception as the currentState is invalid
             GetNextState(currentState, string.Empty, ref openPar, ref closePar);
         }
-        
+
         // Closing and opening parenthesis check
         BalanceCheck(openPar, closePar);
     }
@@ -290,20 +290,17 @@ public class Formula
     private static string NormalizedToken(string token)
     {
         // Number normalizer
-        if (ValidNumber(token))
+        if (double.TryParse(token, out var number))
         {
-            if (double.TryParse(token, out var number))
-            {
-                return number.ToString("G");
-            }
+            return number.ToString("G");
         }
         // Make each char in token uppercase
-        else if (IsVar(token))
+        if (IsVar(token))
         {
             return new string(token.Select(c => char.IsLetter(c) ? char.ToUpper(c) : c).ToArray());
         }
         // Check if its operator or parenthesis; can return without modification 
-        else if (OpenPar(token) || ClosingPar(token) || ValidOp(token))
+        if (OpenPar(token) || ClosingPar(token) || ValidOp(token))
         {
             return token;
         }
