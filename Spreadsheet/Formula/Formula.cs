@@ -91,7 +91,9 @@ public class Formula
     public Formula(string formula)
     {
         _tokens?.Clear();
+        // As to not change GetTokens make a temp list
         var tempList = GetTokens(formula);
+        // Normalize temp list
         _tokens = CreateNormalizedTokenList(tempList);
         _formulaString = StandardizedStringCreation(_tokens);
         var openPar = 0;
@@ -101,7 +103,7 @@ public class Formula
     }
 
     /// <summary>
-    /// Represents the different states the formula can exist in
+    /// Represents the different states each token and subsequent state can exist in
     /// </summary>
     enum StateOfFormula
     {
