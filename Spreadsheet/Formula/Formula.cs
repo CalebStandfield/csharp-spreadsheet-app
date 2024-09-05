@@ -58,7 +58,7 @@ public class Formula
     // The normalized list of tokens
     private readonly List<string> _tokens;
 
-    // The normalized string version of the tokens
+    // The normalized string of the tokens
     private readonly string _formulaString;
 
     /// <summary>
@@ -103,9 +103,9 @@ public class Formula
     }
 
     /// <summary>
-    /// Represents the different states each token and subsequent state can exist in
+    /// Represents the different states each token and subsequent state can exist in.
     /// </summary>
-    enum StateOfFormula
+    private enum StateOfFormula
     {
         First,
         NumberOrVariable,
@@ -124,6 +124,7 @@ public class Formula
     /// <exception cref="FormulaFormatException">Throws if the formula does not follow each rule</exception>
     private static void CheckRulesOfFormula(List<string> tokens, ref int openPar, ref int closePar)
     {
+        // Start on First 
         var currentState = StateOfFormula.First;
         foreach (var token in tokens)
         {
@@ -264,10 +265,8 @@ public class Formula
     ///     Makes a standardized string expression of the tokens in a passed in list.
     ///   </para>
     /// </summary>
-    /// <param name="tokens">The list of tokens to create a string of.</param>
-    /// <returns>
-    ///   A string of the standardized formula.
-    /// </returns>
+    /// <param name="tokens">The list of tokens used to create the string</param>
+    /// <returns>A string of the standardized formula</returns>
     private static string StandardizedStringCreation(List<string> tokens)
     {
         var builder = new StringBuilder();
@@ -286,8 +285,8 @@ public class Formula
     /// <returns>
     ///   A normalized string representation of the token. If the token is valid and can be normalized.
     ///   If a token is not valid an exception will be thrown.
-    /// <exception cref="FormulaFormatException">Will be thrown when an invalid token is passed through</exception>
     /// </returns>
+    /// <exception cref="FormulaFormatException">Will be thrown when an invalid token is passed through</exception>
     private static string NormalizedToken(string token)
     {
         // Number normalizer
@@ -295,11 +294,13 @@ public class Formula
         {
             return number.ToString("G");
         }
+
         // Make each char in token uppercase
         if (IsVar(token))
         {
             return new string(token.Select(c => char.IsLetter(c) ? char.ToUpper(c) : c).ToArray());
         }
+
         // Check if its operator or parenthesis; can return without modification 
         if (OpenPar(token) || ClosingPar(token) || ValidOp(token))
         {
@@ -311,7 +312,7 @@ public class Formula
     }
 
     /// <summary>
-    ///   Checks if there is at least 1 token in the tokens list
+    ///   Checks if there is at least 1 token in the tokens list.
     /// </summary>
     /// <param name="tokenCount">The list of tokens to pass in for a size check</param>
     /// <exception cref="FormulaFormatException">Will be thrown if there are no tokens in the list</exception>
@@ -324,7 +325,7 @@ public class Formula
     }
 
     /// <summary>
-    ///   Check is the amount of closing parenthesis is greater than the amount of opening parenthesis
+    ///   Check is the amount of closing parenthesis is greater than the amount of opening parenthesis or vise versa.
     /// </summary>
     /// <param name="opening">The amount of opening parenthesis</param>
     /// <param name="closing">The amount of closing parenthesis</param>
@@ -356,8 +357,8 @@ public class Formula
     /// <summary>
     ///   Reports whether "token" is a valid number, decimal number, or scientific notation number.
     /// </summary>
-    /// <param name="token"> A token that may be a valid number. </param>
-    /// <returns> True if the string matches the requirements</returns>
+    /// <param name="token">A token that may be a valid number</param>
+    /// <returns>True if the string matches the requirements</returns>
     private static bool ValidNumber(string token)
     {
         return double.TryParse(token, out _);
@@ -367,8 +368,8 @@ public class Formula
     ///   Reports whether "token" is a variable.  It must be one or more letters
     ///   followed by one or more numbers.
     /// </summary>
-    /// <param name="token"> A token that may be a variable. </param>
-    /// <returns> True if the string matches the requirements, e.g., A1 or a1. </returns>
+    /// <param name="token">A token that may be a variable. </param>
+    /// <returns>True if the string matches the requirements, e.g., A1 or a1. </returns>
     private static bool IsVar(string token)
     {
         var standaloneVarPattern = $"^{VariableRegExPattern}$";
@@ -379,8 +380,8 @@ public class Formula
     ///   Reports whether "token" is a valid operator.
     ///   Valid operators are +,-,/,*.
     /// </summary>
-    /// <param name="token"> A token that may be a valid operator. </param>
-    /// <returns> True if the string matches the requirements</returns>
+    /// <param name="token">A token that may be a valid operator. </param>
+    /// <returns>True if the string matches the requirements</returns>
     private static bool ValidOp(string token)
     {
         return token switch
@@ -393,8 +394,8 @@ public class Formula
     /// <summary>
     ///   Reports whether "token" is an opening parenthesis.  
     /// </summary>
-    /// <param name="token"> A token that may be an opening Parenthesis. </param>
-    /// <returns> True if the string matches the requirements</returns>
+    /// <param name="token">A token that may be an opening Parenthesis. </param>
+    /// <returns>True if the string matches the requirements</returns>
     private static bool OpenPar(string token)
     {
         return token.Equals("(");
@@ -403,8 +404,8 @@ public class Formula
     /// <summary>
     ///   Reports whether "token" is a closing parenthesis.  
     /// </summary>
-    /// <param name="token"> A token that may be a closing Parenthesis. </param>
-    /// <returns> True if the string matches the requirements</returns>
+    /// <param name="token">A token that may be a closing Parenthesis</param>
+    /// <returns>True if the string matches the requirements</returns>
     private static bool ClosingPar(string token)
     {
         return token.Equals(")");
