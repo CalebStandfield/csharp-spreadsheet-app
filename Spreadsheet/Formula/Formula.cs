@@ -94,7 +94,7 @@ public class Formula
         _tokens = GetTokens(formula);
         _formulaString = StandardizedStringCreation(_tokens);
         var differenceInPar = 0;
-        OneToken(_tokens.Count);
+        // Ensures that all 8 rules are followed
         CheckRulesOfFormula(_tokens, ref differenceInPar);
     }
 
@@ -119,6 +119,8 @@ public class Formula
     /// <exception cref="FormulaFormatException">Throws if the formula does not follow each rule</exception>
     private static void CheckRulesOfFormula(List<string> tokens, ref int differenceInPar)
     {
+        // Check for at least one token
+        OneToken(tokens.Count);
         // Start on First 
         var currentState = StateOfFormula.First;
         foreach (var token in tokens)
