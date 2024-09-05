@@ -296,7 +296,7 @@ public class FormulaSyntaxTests
     [TestMethod]
     public void FormulaConstructor_ValidTokenVariableMultiLetter_Valid()
     {
-        _ = new Formula("cccc2");
+        _ = new Formula("caleb");
     }
 
     /// <summary>
