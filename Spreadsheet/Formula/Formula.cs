@@ -91,10 +91,7 @@ public class Formula
     public Formula(string formula)
     {
         _tokens?.Clear();
-        // As to not change GetTokens make a temp list
-        var tempList = GetTokens(formula);
-        // Normalize temp list
-        _tokens = CreateNormalizedTokenList(tempList);
+        _tokens = GetTokens(formula);
         _formulaString = StandardizedStringCreation(_tokens);
         var differenceInPar = 0;
         OneToken(_tokens.Count);
@@ -407,19 +404,6 @@ public class Formula
 
     /// <summary>
     ///   <para>
-    ///     Passing in a list of invalid and valid tokens, this method will normalize each one, or throw an exception if invalid.
-    ///   </para>
-    /// </summary>
-    /// <param name="tokens">A list of valid or invalid tokens </param>
-    /// <returns> A normalized token list. </returns>
-    /// <exception cref="FormulaFormatException">Will throw an exception if an invalid token exists in the param list</exception>
-    private static List<string> CreateNormalizedTokenList(List<string> tokens)
-    {
-        return tokens.Select(NormalizedToken).ToList();
-    }
-
-    /// <summary>
-    ///   <para>
     ///     Given an expression, enumerates the tokens that compose it.
     ///   </para>
     ///   <para>
@@ -439,7 +423,7 @@ public class Formula
     /// </summary>
     /// <param name="formula"> A string representing an infix formula such as 1*B1/3.0. </param>
     /// <returns> The ordered list of tokens in the formula. </returns>
-    public static List<string> GetTokens(string formula)
+    private static List<string> GetTokens(string formula)
     {
         List<string> results = [];
 
@@ -464,7 +448,7 @@ public class Formula
         {
             if (!Regex.IsMatch(s, @"^\s*$", RegexOptions.Singleline))
             {
-                results.Add(s);
+                results.Add(NormalizedToken(s));
             }
         }
 
