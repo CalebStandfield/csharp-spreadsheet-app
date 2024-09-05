@@ -159,34 +159,34 @@ public class Formula
     {
         switch (currentState)
         {
-            case StateOfFormula.First:
+            case StateOfFormula.First: // Must be either number, variable, or open parenthesis
                 if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
                 if (!OpenPar(token)) return StateOfFormula.Invalid;
                 differenceInPar++;
                 return StateOfFormula.OpenParenthesis;
-            case StateOfFormula.NumberOrVariable:
+            case StateOfFormula.NumberOrVariable: // Must be either an operator or closing parenthesis
                 if (ValidOp(token)) return StateOfFormula.Operator;
                 if (!ClosingPar(token)) return StateOfFormula.Invalid;
                 differenceInPar--;
                 CheckClosingVsOpen(differenceInPar);
                 return StateOfFormula.CloseParenthesis;
-            case StateOfFormula.Operator:
+            case StateOfFormula.Operator: // Must be either a valid number, variable or open parenthesis
                 if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
                 if (!OpenPar(token)) return StateOfFormula.Invalid;
                 differenceInPar++;
                 return StateOfFormula.OpenParenthesis;
-            case StateOfFormula.OpenParenthesis:
+            case StateOfFormula.OpenParenthesis: // Must be either a valid number, variable or open parenthesis
                 if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
                 if (!OpenPar(token)) return StateOfFormula.Invalid;
                 differenceInPar++;
                 return StateOfFormula.OpenParenthesis;
-            case StateOfFormula.CloseParenthesis:
+            case StateOfFormula.CloseParenthesis: // must be either an operator or closing parenthesis
                 if (ValidOp(token)) return StateOfFormula.Operator;
                 if (!ClosingPar(token)) return StateOfFormula.Invalid;
                 differenceInPar--;
                 CheckClosingVsOpen(differenceInPar);
                 return StateOfFormula.CloseParenthesis;
-            case StateOfFormula.Invalid:
+            case StateOfFormula.Invalid: // Fall through to throw the exception
             default:
                 throw new FormulaFormatException("Invalid formula.");
         }
@@ -212,6 +212,7 @@ public class Formula
     public ISet<string> GetVariables()
     {
         var variables = new HashSet<string>();
+        // Filter _tokens based on IsVar
         foreach (var str in _tokens.Where(IsVar))
         {
             variables.Add(str);
@@ -265,6 +266,7 @@ public class Formula
     private static string StandardizedStringCreation(List<string> tokens)
     {
         var builder = new StringBuilder();
+        // Note: tokens has already been filtered and standardized
         foreach (var str in tokens)
         {
             builder.Append(str);
@@ -293,6 +295,7 @@ public class Formula
         // Make each char in token uppercase
         if (IsVar(token))
         {
+            // If a token is a letter then make uppercase
             return new string(token.Select(c => char.IsLetter(c) ? char.ToUpper(c) : c).ToArray());
         }
 
@@ -302,7 +305,7 @@ public class Formula
             return token;
         }
 
-        // If reached then it is an invalid token and throw exception
+        // If reached then it is an invalid token
         throw new FormulaFormatException("Invalid token:" + token);
     }
 
@@ -354,7 +357,7 @@ public class Formula
     /// <returns>True if the string matches the requirements</returns>
     private static bool ValidNumber(string token)
     {
-        return double.TryParse(token, out _);
+        return double.TryParse(token, out _); // out value not needed
     }
 
     /// <summary>
@@ -379,8 +382,7 @@ public class Formula
     {
         return token switch
         {
-            "+" or "-" or "/" or "*" => true,
-            _ => false
+            "+" or "-" or "/" or "*" => true, _ => false
         };
     }
 
