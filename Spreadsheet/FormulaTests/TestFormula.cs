@@ -832,6 +832,10 @@ public class FormulaSyntaxTests
 [TestClass]
 public class FormulaRulesAndPublicMethodsTests
 {
+    // --- Test ToString ---
+    
+    // --- Test GetVariables ---
+    
     [TestMethod]
     public void GetVariables_NoVariables_Count0()
     {
