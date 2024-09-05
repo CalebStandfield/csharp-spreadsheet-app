@@ -95,10 +95,7 @@ public class Formula
         var tempList = GetTokens(formula);
         _tokens = CreateNormalizedTokenList(tempList);
         _formulaString = StandardizedStringCreation(_tokens);
-        
-
-        // Rule 1
-        OneToken(_tokens);
+        CheckRulesOfFormula(_tokens);
     }
 
     /// <summary>
@@ -130,6 +127,7 @@ public class Formula
             if (currentState == StateOfFormula.Invalid)
                 return false;
         }
+
         return currentState == StateOfFormula.Last;
     }
 
@@ -179,6 +177,7 @@ public class Formula
                     BalancedCheck(openPar, closePar);
                     return StateOfFormula.NumberOrVariable;
                 }
+
                 if (!ClosingPar(token)) return StateOfFormula.Invalid;
                 closePar++;
                 CheckClosingVsOpen(openPar, closePar);
@@ -433,14 +432,6 @@ public class Formula
         return token.Equals(")");
     }
 
-    // --- Closing Parentheses Rule 3 ---
-
-
-    // --- Balanced Parentheses Rule 4 ---
-
-
-    // --- First Token Rule 5 ---
-
     /// <summary>
     ///   Checks if the token is a valid first token.
     /// </summary>
@@ -452,8 +443,6 @@ public class Formula
             return true;
         throw new FormulaFormatException("The first token is not either an opening parenthesis, number or variable.");
     }
-
-    // --- Last Token Rule 6 ---
 
     /// <summary>
     ///   Checks if the token is a valid last token.
@@ -482,7 +471,6 @@ public class Formula
     {
         return tokens.Select(NormalizedToken).ToList();
     }
-
 
     /// <summary>
     ///   <para>
