@@ -834,24 +834,6 @@ public class FormulaRulesAndPublicMethodsTests
 {
     // --- Test ToString ---
     
-    // --- Test GetVariables ---
-    
-    [TestMethod]
-    public void GetVariables_NoVariables_Count0()
-    {
-        var x = new Formula("2 + 2");
-        var y = x.GetVariables();
-        Assert.IsTrue(y.Count == 0);
-    }
-    
-    [TestMethod]
-    public void GetVariables_DifferentVariables_Count2()
-    {
-        var x = new Formula("c2 + n2");
-        var y = x.GetVariables();
-        Assert.IsTrue(y.Count == 2);
-    }
-    
     [TestMethod]
     public void ToString_NormalExpression_CorrectString()
     {
@@ -865,5 +847,31 @@ public class FormulaRulesAndPublicMethodsTests
         var x = new Formula("C2+N2 + 5/ C8");
         var str = "C2+N2+5/C8";
         Assert.IsTrue(x.ToString().Equals(str));
+    }
+    
+    // --- Test GetVariables ---
+    
+    [TestMethod]
+    public void GetVariables_NoVariables_Count0()
+    {
+        var x = new Formula("2 + 2");
+        var y = x.GetVariables();
+        Assert.IsTrue(y.Count == 0);
+    }
+    
+    [TestMethod]
+    public void GetVariables_SameVariables_Count2()
+    {
+        var x = new Formula("c2 + c2");
+        var y = x.GetVariables();
+        Assert.IsTrue(y.Count == 1);
+    }
+    
+    [TestMethod]
+    public void GetVariables_DifferentVariables_Count2()
+    {
+        var x = new Formula("c2 + n2");
+        var y = x.GetVariables();
+        Assert.IsTrue(y.Count == 2);
     }
 }
