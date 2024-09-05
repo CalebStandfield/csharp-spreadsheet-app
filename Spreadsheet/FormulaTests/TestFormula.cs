@@ -619,7 +619,7 @@ public class FormulaSyntaxTests
     {
         _ = new Formula("(c2 + 2(");
     }
-    
+
     /// <summary>
     /// last token is an opening parenthesis.
     /// <remarks>
@@ -833,24 +833,49 @@ public class FormulaSyntaxTests
 public class FormulaRulesAndPublicMethodsTests
 {
     // --- Test ToString ---
-    
+
     [TestMethod]
-    public void ToString_NormalExpression_CorrectString()
+    public void ToString_VariableCapitalization_CorrectString()
     {
         var x = new Formula("c2 + n2");
         var str = "C2+N2";
         Assert.IsTrue(x.ToString().Equals(str));
     }
 
-    [TestMethod] public void ToString_DoesNotIncludeSpaces_CorrectString()
+    [TestMethod]
+    public void ToString_DoesNotIncludeSpaces_CorrectString()
     {
-        var x = new Formula("C2+N2 + 5/ C8");
+        var x = new Formula("C2 + N2 + 5 / C8");
         var str = "C2+N2+5/C8";
+        Assert.IsTrue(x.ToString().Equals(str));
+    }
+
+    [TestMethod]
+    public void ToString_NumbersAreStandardizedNumber_CorrectString()
+    {
+        var x = new Formula("2");
+        var str = "2";
+        Assert.IsTrue(x.ToString().Equals(str));
+    }
+
+    [TestMethod]
+    public void ToString_NumbersAreStandardizedDecimal_CorrectString()
+    {
+        var x = new Formula("2.0");
+        var str = "2";
+        Assert.IsTrue(x.ToString().Equals(str));
+    }
+    
+    [TestMethod]
+    public void ToString_NumbersAreStandardizedScientific_CorrectString()
+    {
+        var x = new Formula("2e0");
+        var str = "2";
         Assert.IsTrue(x.ToString().Equals(str));
     }
     
     // --- Test GetVariables ---
-    
+
     [TestMethod]
     public void GetVariables_NoVariables_Count0()
     {
@@ -858,20 +883,28 @@ public class FormulaRulesAndPublicMethodsTests
         var y = x.GetVariables();
         Assert.IsTrue(y.Count == 0);
     }
-    
+
     [TestMethod]
-    public void GetVariables_SameVariables_Count2()
+    public void GetVariables_SameVariables_Count1()
     {
         var x = new Formula("c2 + c2");
         var y = x.GetVariables();
         Assert.IsTrue(y.Count == 1);
     }
-    
+
     [TestMethod]
     public void GetVariables_DifferentVariables_Count2()
     {
         var x = new Formula("c2 + n2");
         var y = x.GetVariables();
         Assert.IsTrue(y.Count == 2);
+    }
+
+    [TestMethod]
+    public void GetVariables_VariablesBothUpperAndLower_Count1()
+    {
+        var x = new Formula("c2 + C2");
+        var y = x.GetVariables();
+        Assert.IsTrue(y.Count == 1);
     }
 }
