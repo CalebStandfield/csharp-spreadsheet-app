@@ -14,7 +14,6 @@
 //   </para>
 // </summary>
 
-using System.Collections;
 using System.Text;
 
 namespace CS3500.Formula;
