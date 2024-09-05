@@ -96,10 +96,9 @@ public class Formula
         // Normalize temp list
         _tokens = CreateNormalizedTokenList(tempList);
         _formulaString = StandardizedStringCreation(_tokens);
-        var openPar = 0;
-        var closePar = 0;
+        var differenceInPar = 0;
         OneToken(_tokens.Count);
-        CheckRulesOfFormula(_tokens, ref openPar, ref closePar);
+        CheckRulesOfFormula(_tokens, ref differenceInPar);
     }
 
     /// <summary>
@@ -119,20 +118,19 @@ public class Formula
     ///   Ensures the formula follows each and every rule.
     /// </summary>
     /// <param name="tokens">The tokenized formula</param>
-    /// <param name="openPar">Amount of opening parenthesis</param>
-    /// <param name="closePar">Amount of closing parenthesis</param>
+    /// <param name="differenceInPar">The difference in opening vs closing parenthesis</param>
     /// <exception cref="FormulaFormatException">Throws if the formula does not follow each rule</exception>
-    private static void CheckRulesOfFormula(List<string> tokens, ref int openPar, ref int closePar)
+    private static void CheckRulesOfFormula(List<string> tokens, ref int differenceInPar)
     {
         // Start on First 
         var currentState = StateOfFormula.First;
         foreach (var token in tokens)
         {
-            currentState = GetNextState(currentState, token, ref openPar, ref closePar);
+            currentState = GetNextState(currentState, token, ref differenceInPar);
             if (currentState == StateOfFormula.Invalid)
             {
                 // Call GetNextState method to throw exception as the currentState is invalid
-                GetNextState(currentState, token, ref openPar, ref closePar);
+                GetNextState(currentState, token, ref differenceInPar);
             }
         }
 
@@ -143,11 +141,11 @@ public class Formula
             // Set state to invalid
             currentState = StateOfFormula.Invalid;
             // Call GetNextState method to throw exception as the currentState is invalid
-            GetNextState(currentState, string.Empty, ref openPar, ref closePar);
+            GetNextState(currentState, string.Empty, ref differenceInPar);
         }
 
         // Closing and opening parenthesis check
-        BalanceCheck(openPar, closePar);
+        BalanceCheck(differenceInPar);
     }
 
     /// <summary>
@@ -155,41 +153,39 @@ public class Formula
     /// </summary>
     /// <param name="currentState">The value of the enum</param>
     /// <param name="token">The string to be checked against</param>
-    /// <param name="openPar">Amount of opening parenthesis</param>
-    /// <param name="closePar">Amount of closing parenthesis</param>
+    /// <param name="differenceInPar">The difference in opening vs closing parenthesis</param>
     /// <returns></returns>
     /// <exception cref="FormulaFormatException">Throws if the formula does not follow each rule</exception>
-    private static StateOfFormula GetNextState(StateOfFormula currentState, string token, ref int openPar,
-        ref int closePar)
+    private static StateOfFormula GetNextState(StateOfFormula currentState, string token, ref int differenceInPar)
     {
         switch (currentState)
         {
             case StateOfFormula.First:
                 if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
                 if (!OpenPar(token)) return StateOfFormula.Invalid;
-                openPar++;
+                differenceInPar++;
                 return StateOfFormula.OpenParenthesis;
             case StateOfFormula.NumberOrVariable:
                 if (ValidOp(token)) return StateOfFormula.Operator;
                 if (!ClosingPar(token)) return StateOfFormula.Invalid;
-                closePar++;
-                CheckClosingVsOpen(openPar, closePar);
+                differenceInPar--;
+                CheckClosingVsOpen(differenceInPar);
                 return StateOfFormula.CloseParenthesis;
             case StateOfFormula.Operator:
                 if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
                 if (!OpenPar(token)) return StateOfFormula.Invalid;
-                openPar++;
+                differenceInPar++;
                 return StateOfFormula.OpenParenthesis;
             case StateOfFormula.OpenParenthesis:
                 if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
                 if (!OpenPar(token)) return StateOfFormula.Invalid;
-                openPar++;
+                differenceInPar++;
                 return StateOfFormula.OpenParenthesis;
             case StateOfFormula.CloseParenthesis:
                 if (ValidOp(token)) return StateOfFormula.Operator;
                 if (!ClosingPar(token)) return StateOfFormula.Invalid;
-                closePar++;
-                CheckClosingVsOpen(openPar, closePar);
+                differenceInPar--;
+                CheckClosingVsOpen(differenceInPar);
                 return StateOfFormula.CloseParenthesis;
             case StateOfFormula.Invalid:
             default:
@@ -327,12 +323,11 @@ public class Formula
     /// <summary>
     ///   Check is the amount of closing parenthesis is greater than the amount of opening parenthesis or vise versa.
     /// </summary>
-    /// <param name="opening">The amount of opening parenthesis</param>
-    /// <param name="closing">The amount of closing parenthesis</param>
-    /// <exception cref="FormulaFormatException">Will be thrown if the amounts are not equal</exception>
-    private static void BalanceCheck(int opening, int closing)
+    /// <param name="differenceInPar">The difference of opening vs closing parenthesis</param>
+    /// <exception cref="FormulaFormatException">Will be thrown if the difference is positive or negative</exception>
+    private static void BalanceCheck(int differenceInPar)
     {
-        if (closing > opening || closing < opening)
+        if (differenceInPar != 0)
         {
             throw new FormulaFormatException(
                 "The amount of opening parenthesis must be equal to the amount closing parenthesis.");
@@ -340,17 +335,16 @@ public class Formula
     }
 
     /// <summary>
-    ///   Checks that there have not been more closing parenthesis than opening parenthesis so far in the formula.
+    ///   Checks that there have been more closing parenthesis than opening parenthesis so far in the formula.
     /// </summary>
-    /// <param name="opening">The amount of opening parenthesis</param>
-    /// <param name="closing">The amount of closing parenthesis</param>
+    /// <param name="differenceInPar">The difference of opening vs closing parenthesis; if negative then there are more closing parenthesis</param>
     /// <exception cref="FormulaFormatException">Will be thrown if the current amount of closing parenthesis is greater than opening parenthesis</exception>
-    private static void CheckClosingVsOpen(int opening, int closing)
+    private static void CheckClosingVsOpen(int differenceInPar)
     {
-        if (closing > opening)
+        if (differenceInPar < 0)
         {
             throw new FormulaFormatException(
-                "The amount of opening parenthesis must be equal to the amount closing parenthesis.");
+                "There can not be more closing parenthesis seen before opening parenthesis.");
         }
     }
 
