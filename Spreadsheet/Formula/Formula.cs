@@ -111,7 +111,6 @@ public class Formula
         Operator,
         OpenParenthesis,
         CloseParenthesis,
-        Last,
         Invalid
     }
 
@@ -129,9 +128,24 @@ public class Formula
         {
             currentState = GetNextState(currentState, token, ref openPar, ref closePar);
             if (currentState == StateOfFormula.Invalid)
+            {
+                // Call GetNextState method to throw exception as the currentState is invalid
                 GetNextState(currentState, token, ref openPar, ref closePar);
+            }
         }
-        BalancedCheck(openPar, closePar);
+
+        // Check if the last token was an operator as that is invalid
+        // If the last token was an opening parenthesis it will be caught by balance check
+        if (currentState == StateOfFormula.Operator)
+        {
+            // Set state to invalid
+            currentState = StateOfFormula.Invalid;
+            // Call GetNextState method to throw exception as the currentState is invalid
+            GetNextState(currentState, string.Empty, ref openPar, ref closePar);
+        }
+        
+        // Closing and opening parenthesis check
+        BalanceCheck(openPar, closePar);
     }
 
     /// <summary>
@@ -174,12 +188,6 @@ public class Formula
                 if (!ClosingPar(token)) return StateOfFormula.Invalid;
                 closePar++;
                 CheckClosingVsOpen(openPar, closePar);
-                return StateOfFormula.CloseParenthesis;
-            case StateOfFormula.Last:
-                if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
-                if (!ClosingPar(token)) return StateOfFormula.Invalid;
-                closePar++;
-                BalancedCheck(openPar, closePar);
                 return StateOfFormula.CloseParenthesis;
             case StateOfFormula.Invalid:
             default:
@@ -323,7 +331,7 @@ public class Formula
     /// <param name="opening">The amount of opening parenthesis</param>
     /// <param name="closing">The amount of closing parenthesis</param>
     /// <exception cref="FormulaFormatException">Will be thrown if the amounts are not equal</exception>
-    private static void BalancedCheck(int opening, int closing)
+    private static void BalanceCheck(int opening, int closing)
     {
         if (closing > opening || closing < opening)
         {
@@ -345,27 +353,6 @@ public class Formula
             throw new FormulaFormatException(
                 "The amount of opening parenthesis must be equal to the amount closing parenthesis.");
         }
-    }
-
-    /// <summary>
-    ///   Parenthesis or operator following rule.
-    ///   Any token that immediately follows an opening parenthesis or an operator must be either a number, a variable, or an opening parenthesis.
-    /// </summary>
-    /// <param name="token"> A token that may be a valid number. </param>
-    /// <returns> True if the string matches the requirements</returns>
-    private static bool ParOrOper(string token)
-    {
-        return ValidNumber(token) || IsVar(token) || OpenPar(token);
-    }
-
-    /// <summary>
-    ///   Extra following rule.
-    ///   Any token that immediately follows a number, a variable, or a closing parenthesis must be either an operator or a closing parenthesis.    /// </summary>
-    /// <param name="token"> A token that may be a valid number. </param>
-    /// <returns> True if the string matches the requirements</returns>
-    private static bool ExtraFollowing(string token)
-    {
-        return ValidOp(token) || ClosingPar(token);
     }
 
     /// <summary>
@@ -423,33 +410,6 @@ public class Formula
     private static bool ClosingPar(string token)
     {
         return token.Equals(")");
-    }
-
-    /// <summary>
-    ///   Checks if the token is a valid first token.
-    /// </summary>
-    /// <param name="token"> A token that may be a valid first token. </param>
-    /// <returns> True if the string matches the requirements</returns>
-    private static bool FirstToken(string token)
-    {
-        if (OpenPar(token) || ValidNumber(token) || IsVar(token))
-            return true;
-        throw new FormulaFormatException("The first token is not either an opening parenthesis, number or variable.");
-    }
-
-    /// <summary>
-    ///   Checks if the token is a valid last token.
-    /// </summary>
-    /// <param name="token"> A token that may be a valid last token. </param>
-    /// <returns> True if the string matches the requirements</returns>
-    private static bool LastToken(string token)
-    {
-        if (ClosingPar(token) || ValidNumber(token) || IsVar(token))
-        {
-            return true;
-        }
-
-        throw new FormulaFormatException("The last token is not either a closing parenthesis, number or variable.");
     }
 
     /// <summary>
