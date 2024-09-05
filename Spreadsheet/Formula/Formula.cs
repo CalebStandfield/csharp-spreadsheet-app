@@ -340,15 +340,13 @@ public class Formula
     /// <param name="opening">The amount of opening parenthesis</param>
     /// <param name="closing">The amount of closing parenthesis</param>
     /// <exception cref="FormulaFormatException">Will be thrown if the current amount of closing parenthesis is greater than opening parenthesis</exception>
-    private static bool CheckClosingVsOpen(int opening, int closing)
+    private static void CheckClosingVsOpen(int opening, int closing)
     {
         if (closing > opening)
         {
             throw new FormulaFormatException(
                 "The amount of opening parenthesis must be equal to the amount closing parenthesis.");
         }
-
-        return true;
     }
 
     /// <summary>
