@@ -615,9 +615,22 @@ public class FormulaSyntaxTests
     /// </summary>
     [TestMethod]
     [ExpectedException(typeof(FormulaFormatException))]
-    public void FormulaConstructor_TestLastTokenOpeningParenthesis_Invalid()
+    public void FormulaConstructor_TestLastTokenAccidentalOpeningParenthesis_Invalid()
     {
         _ = new Formula("(c2 + 2(");
+    }
+    
+    /// <summary>
+    /// last token is an opening parenthesis.
+    /// <remarks>
+    /// Note: also breaks balanced parenthesis rule.
+    /// </remarks>
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(FormulaFormatException))]
+    public void FormulaConstructor_TestLastTokenOpeningParenthesis_Invalid()
+    {
+        _ = new Formula("(c2 + 2) + (");
     }
 
     /// <summary>

@@ -386,7 +386,6 @@ public class Formula
     /// <returns> True if the string matches the requirements, e.g., A1 or a1. </returns>
     private static bool IsVar(string token)
     {
-        // notice the use of ^ and $ to denote that the entire string being matched is just the variable
         var standaloneVarPattern = $"^{VariableRegExPattern}$";
         return Regex.IsMatch(token, standaloneVarPattern);
     }
@@ -461,7 +460,7 @@ public class Formula
     /// <param name="tokens">A list of valid or invalid tokens </param>
     /// <returns> A normalized token list. </returns>
     /// <exception cref="FormulaFormatException">Will throw an exception if an invalid token exists in the param list</exception>
-    public static List<string> CreateNormalizedTokenList(List<string> tokens)
+    private static List<string> CreateNormalizedTokenList(List<string> tokens)
     {
         return tokens.Select(NormalizedToken).ToList();
     }
