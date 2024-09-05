@@ -95,7 +95,10 @@ public class Formula
         var tempList = GetTokens(formula);
         _tokens = CreateNormalizedTokenList(tempList);
         _formulaString = StandardizedStringCreation(_tokens);
-        CheckRulesOfFormula(_tokens);
+        var openPar = 0;
+        var closePar = 0;
+        OneToken(_tokens.Count);
+        CheckRulesOfFormula(_tokens, ref openPar, ref closePar);
     }
 
     /// <summary>
@@ -116,19 +119,19 @@ public class Formula
     ///   Ensures the formula follows each and every rule.
     /// </summary>
     /// <param name="tokens">The tokenized formula</param>
-    /// <returns>True if each rule is followed, false if otherwise</returns>
+    /// <param name="openPar">Amount of opening parenthesis</param>
+    /// <param name="closePar">Amount of closing parenthesis</param>
     /// <exception cref="FormulaFormatException">Throws if the formula does not follow each rule</exception>
-    public bool CheckRulesOfFormula(List<string> tokens)
+    private static void CheckRulesOfFormula(List<string> tokens, ref int openPar, ref int closePar)
     {
         var currentState = StateOfFormula.First;
         foreach (var token in tokens)
         {
-            currentState = GetNextState(currentState, token);
+            currentState = GetNextState(currentState, token, ref openPar, ref closePar);
             if (currentState == StateOfFormula.Invalid)
-                return false;
+                GetNextState(currentState, token, ref openPar, ref closePar);
         }
-
-        return currentState == StateOfFormula.Last;
+        BalancedCheck(openPar, closePar);
     }
 
     /// <summary>
@@ -136,12 +139,13 @@ public class Formula
     /// </summary>
     /// <param name="currentState">The value of the enum</param>
     /// <param name="token">The string to be checked against</param>
+    /// <param name="openPar">Amount of opening parenthesis</param>
+    /// <param name="closePar">Amount of closing parenthesis</param>
     /// <returns></returns>
     /// <exception cref="FormulaFormatException">Throws if the formula does not follow each rule</exception>
-    private static StateOfFormula GetNextState(StateOfFormula currentState, string token)
+    private static StateOfFormula GetNextState(StateOfFormula currentState, string token, ref int openPar,
+        ref int closePar)
     {
-        var openPar = 0;
-        var closePar = 0;
         switch (currentState)
         {
             case StateOfFormula.First:
@@ -172,15 +176,9 @@ public class Formula
                 CheckClosingVsOpen(openPar, closePar);
                 return StateOfFormula.CloseParenthesis;
             case StateOfFormula.Last:
-                if (ValidNumber(token) || IsVar(token))
-                {
-                    BalancedCheck(openPar, closePar);
-                    return StateOfFormula.NumberOrVariable;
-                }
-
+                if (ValidNumber(token) || IsVar(token)) return StateOfFormula.NumberOrVariable;
                 if (!ClosingPar(token)) return StateOfFormula.Invalid;
                 closePar++;
-                CheckClosingVsOpen(openPar, closePar);
                 BalancedCheck(openPar, closePar);
                 return StateOfFormula.CloseParenthesis;
             case StateOfFormula.Invalid:
@@ -309,11 +307,11 @@ public class Formula
     /// <summary>
     ///   Checks if there is at least 1 token in the tokens list
     /// </summary>
-    /// <param name="tokens">The list of tokens to pass in for a size check</param>
+    /// <param name="tokenCount">The list of tokens to pass in for a size check</param>
     /// <exception cref="FormulaFormatException">Will be thrown if there are no tokens in the list</exception>
-    private static void OneToken(List<string> tokens)
+    private static void OneToken(int tokenCount)
     {
-        if (tokens.Count == 0)
+        if (tokenCount < 1)
         {
             throw new FormulaFormatException("There must be at least one token in the formula.");
         }
@@ -327,7 +325,7 @@ public class Formula
     /// <exception cref="FormulaFormatException">Will be thrown if the amounts are not equal</exception>
     private static void BalancedCheck(int opening, int closing)
     {
-        if (closing > opening)
+        if (closing > opening || closing < opening)
         {
             throw new FormulaFormatException(
                 "The amount of opening parenthesis must be equal to the amount closing parenthesis.");
@@ -378,8 +376,6 @@ public class Formula
     private static bool ValidNumber(string token)
     {
         return double.TryParse(token, out _);
-        // var doublePattern = @"(?: \d+\.\d* | \d*\.\d+ | \d+ ) (?: [eE][\+-]?\d+)?";
-        // return Regex.IsMatch(token, doublePattern);
     }
 
     /// <summary>
