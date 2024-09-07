@@ -52,109 +52,109 @@ namespace CS3500.DependencyGraph;
 /// </summary>
 public class DependencyGraph
 {
-  /// <summary>
-  ///   Initializes a new instance of the <see cref="DependencyGraph"/> class.
-  ///   The initial DependencyGraph is empty.
-  /// </summary>
-  public DependencyGraph()
-  {
-  }
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="DependencyGraph"/> class.
+    ///   The initial DependencyGraph is empty.
+    /// </summary>
+    public DependencyGraph()
+    {
+    }
 
-  /// <summary>
-  /// The number of ordered pairs in the DependencyGraph.
-  /// </summary>
-  public int Size
-  {
-    get { return 0; }
-  }
+    /// <summary>
+    /// The number of ordered pairs in the DependencyGraph.
+    /// </summary>
+    public int Size
+    {
+        get { return 0; }
+    }
 
-  /// <summary>
-  ///   Reports whether the given node has dependents (i.e., other nodes depend on it).
-  /// </summary>
-  /// <param name="nodeName"> The name of the node.</param>
-  /// <returns> true if the node has dependents. </returns>
-  public bool HasDependents( string nodeName )
-  {
-    return false;
-  }
+    /// <summary>
+    ///   Reports whether the given node has dependents (i.e., other nodes depend on it).
+    /// </summary>
+    /// <param name="nodeName"> The name of the node.</param>
+    /// <returns> true if the node has dependents. </returns>
+    public bool HasDependents(string nodeName)
+    {
+        return false;
+    }
 
-  /// <summary>
-  ///   Reports whether the given node has dependees (i.e., depends on one or more other nodes).
-  /// </summary>
-  /// <returns> true if the node has dependees.</returns>
-  /// <param name="nodeName">The name of the node.</param>
-  public bool HasDependees( string nodeName )
-  {
-    return false;
-  }
+    /// <summary>
+    ///   Reports whether the given node has dependees (i.e., depends on one or more other nodes).
+    /// </summary>
+    /// <returns> true if the node has dependees.</returns>
+    /// <param name="nodeName">The name of the node.</param>
+    public bool HasDependees(string nodeName)
+    {
+        return false;
+    }
 
-  /// <summary>
-  ///   <para>
-  ///     Returns the dependents of the node with the given name.
-  ///   </para>
-  /// </summary>
-  /// <param name="nodeName"> The node we are looking at.</param>
-  /// <returns> The dependents of nodeName. </returns>
-  public IEnumerable<string> GetDependents( string nodeName )
-  {
-    return new List<string>(); // Choose your own data structure
-  }
+    /// <summary>
+    ///   <para>
+    ///     Returns the dependents of the node with the given name.
+    ///   </para>
+    /// </summary>
+    /// <param name="nodeName"> The node we are looking at.</param>
+    /// <returns> The dependents of nodeName. </returns>
+    public IEnumerable<string> GetDependents(string nodeName)
+    {
+        return new List<string>(); // Choose your own data structure
+    }
 
-  /// <summary>
-  ///   <para>
-  ///     Returns the dependees of the node with the given name.
-  ///   </para>
-  /// </summary>
-  /// <param name="nodeName"> The node we are looking at.</param>
-  /// <returns> The dependees of nodeName. </returns>
-  public IEnumerable<string> GetDependees( string nodeName )
-  {
-    return new List<string>(); // Choose your own data structure
-  }
+    /// <summary>
+    ///   <para>
+    ///     Returns the dependees of the node with the given name.
+    ///   </para>
+    /// </summary>
+    /// <param name="nodeName"> The node we are looking at.</param>
+    /// <returns> The dependees of nodeName. </returns>
+    public IEnumerable<string> GetDependees(string nodeName)
+    {
+        return new List<string>(); // Choose your own data structure
+    }
 
-  /// <summary>
-  /// <para>Adds the ordered pair (dependee, dependent), if it doesn't exist.</para>
-  ///
-  /// <para>
-  ///   This can be thought of as: dependee must be evaluated before dependent
-  /// </para>
-  /// </summary>
-  /// <param name="dependee"> the name of the node that must be evaluated first</param>
-  /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
-  public void AddDependency( string dependee, string dependent )
-  {
-  }
+    /// <summary>
+    /// <para>Adds the ordered pair (dependee, dependent), if it doesn't exist.</para>
+    ///
+    /// <para>
+    ///   This can be thought of as: dependee must be evaluated before dependent
+    /// </para>
+    /// </summary>
+    /// <param name="dependee"> the name of the node that must be evaluated first</param>
+    /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
+    public void AddDependency(string dependee, string dependent)
+    {
+    }
 
-  /// <summary>
-  ///   <para>
-  ///     Removes the ordered pair (dependee, dependent), if it exists.
-  ///   </para>
-  /// </summary>
-  /// <param name="dependee"> The name of the node that must be evaluated first</param>
-  /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
-  public void RemoveDependency( string dependee, string dependent )
-  {
-  }
+    /// <summary>
+    ///   <para>
+    ///     Removes the ordered pair (dependee, dependent), if it exists.
+    ///   </para>
+    /// </summary>
+    /// <param name="dependee"> The name of the node that must be evaluated first</param>
+    /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
+    public void RemoveDependency(string dependee, string dependent)
+    {
+    }
 
-  /// <summary>
-  ///   Removes all existing ordered pairs of the form (nodeName, *).  Then, for each
-  ///   t in newDependents, adds the ordered pair (nodeName, t).
-  /// </summary>
-  /// <param name="nodeName"> The name of the node whose dependents are being replaced </param>
-  /// <param name="newDependents"> The new dependents for nodeName</param>
-  public void ReplaceDependents( string nodeName, IEnumerable<string> newDependents )
-  {
-  }
+    /// <summary>
+    ///   Removes all existing ordered pairs of the form (nodeName, *).  Then, for each
+    ///   t in newDependents, adds the ordered pair (nodeName, t).
+    /// </summary>
+    /// <param name="nodeName"> The name of the node whose dependents are being replaced </param>
+    /// <param name="newDependents"> The new dependents for nodeName</param>
+    public void ReplaceDependents(string nodeName, IEnumerable<string> newDependents)
+    {
+    }
 
-  /// <summary>
-  ///   <para>
-  ///     Removes all existing ordered pairs of the form (*, nodeName).  Then, for each
-  ///     t in newDependees, adds the ordered pair (t, nodeName).
-  ///   </para>
-  /// </summary>
-  /// <param name="nodeName"> The name of the node who's dependees are being replaced</param>
-  /// <param name="newDependees"> The new dependees for nodeName</param>
-  public void ReplaceDependees( string nodeName, IEnumerable<string> newDependees )
-  {
-  }
+    /// <summary>
+    ///   <para>
+    ///     Removes all existing ordered pairs of the form (*, nodeName).  Then, for each
+    ///     t in newDependees, adds the ordered pair (t, nodeName).
+    ///   </para>
+    /// </summary>
+    /// <param name="nodeName"> The name of the node who's dependees are being replaced</param>
+    /// <param name="newDependees"> The new dependees for nodeName</param>
+    public void ReplaceDependees(string nodeName, IEnumerable<string> newDependees)
+    {
+    }
 }
