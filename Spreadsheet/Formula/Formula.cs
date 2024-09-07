@@ -90,7 +90,6 @@ public class Formula
     /// <param name="formula"> The string representation of the formula to be created.</param>
     public Formula(string formula)
     {
-        _tokens?.Clear();
         _tokens = GetTokens(formula);
         _formulaString = StandardizedStringCreation(_tokens);
         var differenceInPar = 0;
