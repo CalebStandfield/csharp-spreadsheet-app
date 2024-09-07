@@ -907,4 +907,37 @@ public class FormulaRulesAndPublicMethodsTests
         var y = x.GetVariables();
         Assert.IsTrue(y.Count == 1);
     }
+    
+    [TestMethod]
+    public void GetVariables_DirectListComparisonOfUpperAndLowerCase_Same()
+    {
+        var x = new Formula("c2 + C2");
+        var y = new HashSet<string>() {"C2"};
+        Assert.IsTrue(x.GetVariables().Contains("C2") && y.Contains("C2"));
+    }
+    
+    [TestMethod]
+    public void GetVariables_GetVariablesReturnValueContainsCorrectTokens_IsTrue()
+    {
+        var x = new Formula("N2 + C2");
+        Assert.IsTrue(x.GetVariables().Contains("C2"));
+        Assert.IsTrue(x.GetVariables().Contains("N2"));
+    }
+    
+    [TestMethod]
+    public void GetVariables_GetVariablesDoesNotContainLowercase_IsFalse()
+    {
+        var x = new Formula("n2 + c2");
+        Assert.IsFalse(x.GetVariables().Contains("c2"));
+        Assert.IsFalse(x.GetVariables().Contains("n2"));
+    }
+    
+    [TestMethod]
+    public void GetVariables_DirectHashSetComparisonNoVariables_IsFalse()
+    {
+        var x = new Formula("2 + 2");
+        Assert.IsFalse(x.GetVariables().Contains("2"));
+    }
+    
+    
 }
