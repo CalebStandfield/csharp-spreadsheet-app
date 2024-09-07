@@ -140,7 +140,7 @@ public class DependencyGraph
   ///   Removes all existing ordered pairs of the form (nodeName, *).  Then, for each
   ///   t in newDependents, adds the ordered pair (nodeName, t).
   /// </summary>
-  /// <param name="nodeName"> The name of the node who's dependents are being replaced </param>
+  /// <param name="nodeName"> The name of the node whose dependents are being replaced </param>
   /// <param name="newDependents"> The new dependents for nodeName</param>
   public void ReplaceDependents( string nodeName, IEnumerable<string> newDependents )
   {
