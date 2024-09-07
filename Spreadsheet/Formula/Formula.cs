@@ -322,7 +322,7 @@ public class Formula
     }
 
     /// <summary>
-    ///   Check is the amount of closing parenthesis is greater than the amount of opening parenthesis or vise versa.
+    ///   Checks to make sure that the difference in parentheses at the end of the formula is 0.
     /// </summary>
     /// <param name="differenceInPar">The difference of opening vs closing parenthesis</param>
     /// <exception cref="FormulaFormatException">Will be thrown if the difference is positive or negative</exception>
@@ -356,7 +356,8 @@ public class Formula
     /// <returns>True if the string matches the requirements</returns>
     private static bool ValidNumber(string token)
     {
-        return double.TryParse(token, out _); // out value not needed
+        // out value not needed
+        return double.TryParse(token, out _);
     }
 
     /// <summary>
