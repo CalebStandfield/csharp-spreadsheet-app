@@ -84,7 +84,7 @@ public class DependencyGraph
     /// <returns> true if the node has dependents. </returns>
     public bool HasDependents(string nodeName)
     {
-        return false;
+        return dependents.TryGetValue(nodeName, out _);
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class DependencyGraph
     /// <param name="nodeName">The name of the node.</param>
     public bool HasDependees(string nodeName)
     {
-        return false;
+        return dependees.TryGetValue(nodeName, out _);
     }
 
     /// <summary>
@@ -146,6 +146,52 @@ public class DependencyGraph
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
     public void AddDependency(string dependee, string dependent)
     {
+        AddDependent(dependee, dependent);
+        AddDependee(dependee, dependent);
+    }
+
+    /// <summary>
+    /// <para>
+    ///   Adds the ordered pair (dependee, dependent), if it doesn't exist.
+    ///   Adds the pair into the Dependents member variable.
+    /// </para>
+    /// </summary>
+    /// <param name="dependee"> the name of the node that must be evaluated first</param>
+    /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
+    private void AddDependent(string dependee, string dependent)
+    {
+        // Key exists. Try to add dependent to HashSet
+        if (dependents.TryGetValue(dependee, out var dependentsTemp))
+        {
+            dependentsTemp.Add(dependent);
+        }
+        // Key did not exist. Create new (K, V) pair
+        else
+        {
+            dependents.Add(dependee, [dependent]);
+        }
+    }
+
+    /// <summary>
+    /// <para>
+    ///   Adds the ordered pair (dependent, dependee) if it doesn't exist.
+    ///   This adds the reverse into the Dependents member variable.
+    /// </para>
+    /// </summary>
+    /// <param name="dependee"> the name of the node that must be evaluated first</param>
+    /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
+    private void AddDependee(string dependent, string dependee)
+    {
+        // Key exists. Try to add dependee to HashSet
+        if (dependees.TryGetValue(dependent, out var dependeesTemp))
+        {
+            dependeesTemp.Add(dependee);
+        }
+        // Key did not exist. Create new (K, V) pair
+        else
+        {
+            dependees.Add(dependent, [dependee]);
+        }
     }
 
     /// <summary>
