@@ -87,4 +87,29 @@ public class DependencyGraphTests
             Assert.IsTrue(dependees[i].SetEquals(new HashSet<string>(dg.GetDependees(letters[i]))));
         }
     }
+
+    [TestMethod]
+    public void AddDependency_DependencyAdded_AddedCorrectly()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.HasDependents("A"));
+        Assert.IsTrue(dg.HasDependees("B"));
+    }
+    
+    [TestMethod]
+    public void AddDependency_ClassDefinitionExample_AddedCorrectly()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("a", "b");
+        dg.AddDependency("a", "c");
+        dg.AddDependency("b", "d");
+        dg.AddDependency("d", "d");
+        Assert.IsTrue(dg.HasDependents("a"));
+        Assert.IsFalse(dg.HasDependees("a"));
+        Assert.IsTrue(dg.HasDependents("b"));
+        Assert.IsTrue(dg.HasDependees("b"));
+        Assert.IsTrue(dg.HasDependents("d"));
+        Assert.IsTrue(dg.HasDependees("d"));
+    }
 }

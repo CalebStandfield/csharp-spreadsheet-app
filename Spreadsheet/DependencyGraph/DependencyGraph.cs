@@ -52,12 +52,11 @@ namespace CS3500.DependencyGraph;
 /// </summary>
 public class DependencyGraph
 {
-    // Keeps track of dependents of many strings
+    // A dictionary representing string dependeees and their dependents
     private Dictionary<string, HashSet<string>> dependents;
 
-    // Keeps track of dependees of many strings
+    // A dictionary representing string dependents and their dependees
     private Dictionary<string, HashSet<string>> dependees;
-
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DependencyGraph"/> class.
@@ -107,8 +106,8 @@ public class DependencyGraph
     public IEnumerable<string> GetDependents(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
-        foreach (var str in dependentsTemp)
+        if (!dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
+        foreach (var str in dependeesTemp)
         {
             retList.Add(str);
         }
@@ -126,8 +125,8 @@ public class DependencyGraph
     public IEnumerable<string> GetDependees(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
-        foreach (var str in dependeesTemp)
+        if (!dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
+        foreach (var str in dependentsTemp)
         {
             retList.Add(str);
         }
@@ -147,7 +146,7 @@ public class DependencyGraph
     public void AddDependency(string dependee, string dependent)
     {
         AddDependent(dependee, dependent);
-        AddDependee(dependee, dependent);
+        AddDependee(dependent, dependee);
     }
 
     /// <summary>
@@ -161,9 +160,9 @@ public class DependencyGraph
     private void AddDependent(string dependee, string dependent)
     {
         // Key exists. Try to add dependent to HashSet
-        if (dependents.TryGetValue(dependee, out var dependentsTemp))
+        if (dependents.TryGetValue(dependee, out var dependeesHashSet))
         {
-            dependentsTemp.Add(dependent);
+            dependeesHashSet.Add(dependent);
         }
         // Key did not exist. Create new (K, V) pair
         else
@@ -178,14 +177,14 @@ public class DependencyGraph
     ///   This adds the reverse into the Dependents member variable.
     /// </para>
     /// </summary>
-    /// <param name="dependee"> the name of the node that must be evaluated first</param>
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
+    /// <param name="dependee"> the name of the node that must be evaluated first</param>
     private void AddDependee(string dependent, string dependee)
     {
         // Key exists. Try to add dependee to HashSet
-        if (dependees.TryGetValue(dependent, out var dependeesTemp))
+        if (dependees.TryGetValue(dependent, out var dependentsHashSet))
         {
-            dependeesTemp.Add(dependee);
+            dependentsHashSet.Add(dependee);
         }
         // Key did not exist. Create new (K, V) pair
         else
@@ -203,8 +202,40 @@ public class DependencyGraph
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
     public void RemoveDependency(string dependee, string dependent)
     {
+        RemoveDependent(dependee, dependent);
+        RemoveDependee(dependent, dependee);
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Removes the ordered pair (dependee, dependent), if it exists.
+    ///   </para>
+    /// </summary>
+    /// <param name="dependee"> The name of the node that must be evaluated first</param>
+    /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
+    private void RemoveDependent(string dependee, string dependent)
+    {
+        if (dependents.TryGetValue(dependee, out var dependeesHashSet))
+        {
+            dependeesHashSet.Remove(dependent);
+        }
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Removes the ordered pair (dependee, dependent), if it exists.
+    ///   </para>
+    /// </summary>
+    /// <param name="dependee"> The name of the node that must be evaluated first</param>
+    /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
+    private void RemoveDependee(string dependent, string dependee)
+    {
+        if (dependees.TryGetValue(dependent, out var dependentsHashSet))
+        {
+            dependentsHashSet.Remove(dependent);
+        }
+    }
+    
     /// <summary>
     ///   Removes all existing ordered pairs of the form (nodeName, *).  Then, for each
     ///   t in newDependents, adds the ordered pair (nodeName, t).
