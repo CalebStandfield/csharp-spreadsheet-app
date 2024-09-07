@@ -52,12 +52,21 @@ namespace CS3500.DependencyGraph;
 /// </summary>
 public class DependencyGraph
 {
+    // Keeps track of dependents of many strings
+    private Dictionary<string, HashSet<string>> dependents;
+
+    // Keeps track of dependees of many strings
+    private Dictionary<string, HashSet<string>> dependees;
+
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="DependencyGraph"/> class.
     ///   The initial DependencyGraph is empty.
     /// </summary>
     public DependencyGraph()
     {
+        dependents = new Dictionary<string, HashSet<string>>();
+        dependees = new Dictionary<string, HashSet<string>>();
     }
 
     /// <summary>
@@ -97,7 +106,14 @@ public class DependencyGraph
     /// <returns> The dependents of nodeName. </returns>
     public IEnumerable<string> GetDependents(string nodeName)
     {
-        return new List<string>(); // Choose your own data structure
+        var retList = new HashSet<string>();
+        if (!dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
+        foreach (var str in dependentsTemp)
+        {
+            retList.Add(str);
+        }
+
+        return retList;
     }
 
     /// <summary>
@@ -109,7 +125,14 @@ public class DependencyGraph
     /// <returns> The dependees of nodeName. </returns>
     public IEnumerable<string> GetDependees(string nodeName)
     {
-        return new List<string>(); // Choose your own data structure
+        var retList = new HashSet<string>();
+        if (!dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
+        foreach (var str in dependeesTemp)
+        {
+            retList.Add(str);
+        }
+
+        return retList;
     }
 
     /// <summary>
