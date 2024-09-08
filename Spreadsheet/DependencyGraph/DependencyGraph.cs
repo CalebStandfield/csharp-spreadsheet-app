@@ -58,6 +58,8 @@ public class DependencyGraph
     // A dictionary representing string dependents and their dependees
     private readonly Dictionary<string, HashSet<string>> _dependees;
 
+    private int _size;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="DependencyGraph"/> class.
     ///   The initial DependencyGraph is empty.
@@ -66,6 +68,7 @@ public class DependencyGraph
     {
         _dependents = new Dictionary<string, HashSet<string>>();
         _dependees = new Dictionary<string, HashSet<string>>();
+        _size = 0;
     }
 
     /// <summary>
@@ -73,7 +76,7 @@ public class DependencyGraph
     /// </summary>
     public int Size
     {
-        get { return 0; }
+        get { return _size; }
     }
 
     /// <summary>
@@ -156,6 +159,7 @@ public class DependencyGraph
         // Forwards and backwards addition
         AddDependent(dependee, dependent);
         AddDependee(dependent, dependee);
+        _size++;
     }
 
     /// <summary>
@@ -214,6 +218,7 @@ public class DependencyGraph
         // Forward and backwards removal
         RemoveDependent(dependee, dependent);
         RemoveDependee(dependent, dependee);
+        _size--;
     }
 
     /// <summary>
@@ -242,7 +247,7 @@ public class DependencyGraph
     {
         if (_dependees.TryGetValue(dependent, out var dependentsHashSet))
         {
-            dependentsHashSet.Remove(dependent);
+            dependentsHashSet.Remove(dependee);
         }
     }
 
@@ -254,6 +259,11 @@ public class DependencyGraph
     /// <param name="newDependents"> The new dependents for nodeName</param>
     public void ReplaceDependents(string nodeName, IEnumerable<string> newDependents)
     {
+        _dependents.Remove(nodeName);
+        foreach (var dependent in newDependents)
+        {
+            AddDependency(nodeName, dependent);
+        }
     }
 
     /// <summary>
@@ -266,5 +276,10 @@ public class DependencyGraph
     /// <param name="newDependees"> The new dependees for nodeName</param>
     public void ReplaceDependees(string nodeName, IEnumerable<string> newDependees)
     {
+        _dependees.Remove(nodeName);
+        foreach (var dependent in newDependees)
+        {
+            AddDependency(nodeName, dependent);
+        }
     }
 }

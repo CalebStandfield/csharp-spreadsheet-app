@@ -159,5 +159,9 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.HasDependents("A"));
         Assert.IsTrue(dg.HasDependees("B"));
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        dg.RemoveDependency("A", "B");
+        Assert.IsFalse(dg.GetDependees("B").Contains("A"));
+        Assert.IsFalse(dg.GetDependents("A").Contains("B"));
     }
 }
