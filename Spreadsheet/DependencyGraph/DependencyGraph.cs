@@ -53,10 +53,10 @@ namespace CS3500.DependencyGraph;
 public class DependencyGraph
 {
     // A dictionary representing string dependeees and their dependents
-    private Dictionary<string, HashSet<string>> dependents;
+    private readonly Dictionary<string, HashSet<string>> _dependents;
 
     // A dictionary representing string dependents and their dependees
-    private Dictionary<string, HashSet<string>> dependees;
+    private readonly Dictionary<string, HashSet<string>> _dependees;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DependencyGraph"/> class.
@@ -64,8 +64,8 @@ public class DependencyGraph
     /// </summary>
     public DependencyGraph()
     {
-        dependents = new Dictionary<string, HashSet<string>>();
-        dependees = new Dictionary<string, HashSet<string>>();
+        _dependents = new Dictionary<string, HashSet<string>>();
+        _dependees = new Dictionary<string, HashSet<string>>();
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ public class DependencyGraph
     /// <returns> true if the node has dependents. </returns>
     public bool HasDependents(string nodeName)
     {
-        return dependents.TryGetValue(nodeName, out _);
+        return _dependents.TryGetValue(nodeName, out _);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class DependencyGraph
     /// <param name="nodeName">The name of the node.</param>
     public bool HasDependees(string nodeName)
     {
-        return dependees.TryGetValue(nodeName, out _);
+        return _dependees.TryGetValue(nodeName, out _);
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class DependencyGraph
     public IEnumerable<string> GetDependents(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
+        if (!_dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
         foreach (var str in dependentsTemp)
         {
             retList.Add(str);
@@ -125,7 +125,7 @@ public class DependencyGraph
     public IEnumerable<string> GetDependees(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
+        if (!_dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
         foreach (var str in dependeesTemp)
         {
             retList.Add(str);
@@ -159,14 +159,14 @@ public class DependencyGraph
     private void AddDependent(string dependee, string dependent)
     {
         // Key exists. Try to add dependent to HashSet
-        if (dependents.TryGetValue(dependee, out var dependeesHashSet))
+        if (_dependents.TryGetValue(dependee, out var dependeesHashSet))
         {
             dependeesHashSet.Add(dependent);
         }
         // Key did not exist. Create new (K, V) pair
         else
         {
-            dependents.Add(dependee, [dependent]);
+            _dependents.Add(dependee, [dependent]);
         }
     }
 
@@ -181,14 +181,14 @@ public class DependencyGraph
     private void AddDependee(string dependent, string dependee)
     {
         // Key exists. Try to add dependee to HashSet
-        if (dependees.TryGetValue(dependent, out var dependentsHashSet))
+        if (_dependees.TryGetValue(dependent, out var dependentsHashSet))
         {
             dependentsHashSet.Add(dependee);
         }
         // Key did not exist. Create new (K, V) pair
         else
         {
-            dependees.Add(dependent, [dependee]);
+            _dependees.Add(dependent, [dependee]);
         }
     }
 
@@ -214,7 +214,7 @@ public class DependencyGraph
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
     private void RemoveDependent(string dependee, string dependent)
     {
-        if (dependents.TryGetValue(dependee, out var dependeesHashSet))
+        if (_dependents.TryGetValue(dependee, out var dependeesHashSet))
         {
             dependeesHashSet.Remove(dependent);
         }
@@ -229,7 +229,7 @@ public class DependencyGraph
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
     private void RemoveDependee(string dependent, string dependee)
     {
-        if (dependees.TryGetValue(dependent, out var dependentsHashSet))
+        if (_dependees.TryGetValue(dependent, out var dependentsHashSet))
         {
             dependentsHashSet.Remove(dependent);
         }
