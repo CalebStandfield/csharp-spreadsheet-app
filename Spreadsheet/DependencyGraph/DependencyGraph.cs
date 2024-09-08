@@ -106,8 +106,8 @@ public class DependencyGraph
     public IEnumerable<string> GetDependents(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
-        foreach (var str in dependeesTemp)
+        if (!dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
+        foreach (var str in dependentsTemp)
         {
             retList.Add(str);
         }
@@ -125,12 +125,11 @@ public class DependencyGraph
     public IEnumerable<string> GetDependees(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
-        foreach (var str in dependentsTemp)
+        if (!dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
+        foreach (var str in dependeesTemp)
         {
             retList.Add(str);
         }
-
         return retList;
     }
 

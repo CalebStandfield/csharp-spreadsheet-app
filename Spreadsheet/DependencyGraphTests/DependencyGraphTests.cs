@@ -96,7 +96,7 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.HasDependents("A"));
         Assert.IsTrue(dg.HasDependees("B"));
     }
-    
+
     [TestMethod]
     public void AddDependency_ClassDefinitionExample_AddedCorrectly()
     {
@@ -111,5 +111,53 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.HasDependees("b"));
         Assert.IsTrue(dg.HasDependents("d"));
         Assert.IsTrue(dg.HasDependees("d"));
+    }
+
+    [TestMethod]
+    public void Ps3Example()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A3", "A1");
+        dg.AddDependency("A3", "A2");
+        dg.AddDependency("A4", "A2");
+        dg.AddDependency("A2", "A1");
+
+        // --- HasDependents ---
+        // IsTrue
+        Assert.IsTrue(dg.HasDependents("A4"));
+        Assert.IsTrue(dg.HasDependents("A3"));
+        Assert.IsTrue(dg.HasDependents("A2"));
+        // IsFalse
+        Assert.IsFalse(dg.HasDependents("A1"));
+
+        // --- HasDependees ---
+        // IsTrue
+        Assert.IsTrue(dg.HasDependees("A1"));
+        Assert.IsTrue(dg.HasDependees("A2"));
+        // IsFalse
+        Assert.IsFalse(dg.HasDependees("A4"));
+        Assert.IsFalse(dg.HasDependees("A3"));
+
+        // --- GetDependents ---
+        Assert.IsTrue(dg.GetDependents("A4").Contains("A2"));
+        Assert.IsTrue(dg.GetDependents("A2").Contains("A1"));
+        Assert.IsTrue(dg.GetDependents("A3").Contains("A2"));
+        Assert.IsTrue(dg.GetDependents("A3").Contains("A1"));
+
+        // --- GetDependees ---
+        Assert.IsTrue(dg.GetDependees("A1").Contains("A2"));
+        Assert.IsTrue(dg.GetDependees("A1").Contains("A3"));
+        Assert.IsTrue(dg.GetDependees("A2").Contains("A3"));
+        Assert.IsTrue(dg.GetDependees("A2").Contains("A4"));
+    }
+
+    [TestMethod]
+    public void RemoveDependency_DependencyRemoved_RemovedCorrectly()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.HasDependents("A"));
+        Assert.IsTrue(dg.HasDependees("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
     }
 }
