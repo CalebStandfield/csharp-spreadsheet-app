@@ -106,7 +106,11 @@ public class DependencyGraph
     public IEnumerable<string> GetDependents(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!_dependents.TryGetValue(nodeName, out var dependentsTemp)) return retList;
+        if (!_dependents.TryGetValue(nodeName, out var dependentsTemp))
+        {
+            return retList; // Return empty HashSet
+        }
+
         foreach (var str in dependentsTemp)
         {
             retList.Add(str);
@@ -125,11 +129,16 @@ public class DependencyGraph
     public IEnumerable<string> GetDependees(string nodeName)
     {
         var retList = new HashSet<string>();
-        if (!_dependees.TryGetValue(nodeName, out var dependeesTemp)) return retList;
+        if (!_dependees.TryGetValue(nodeName, out var dependeesTemp))
+        {
+            return retList; // Return empty HashSet
+        }
+
         foreach (var str in dependeesTemp)
         {
             retList.Add(str);
         }
+
         return retList;
     }
 
@@ -144,6 +153,7 @@ public class DependencyGraph
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
     public void AddDependency(string dependee, string dependent)
     {
+        // Forwards and backwards addition
         AddDependent(dependee, dependent);
         AddDependee(dependent, dependee);
     }
@@ -201,6 +211,7 @@ public class DependencyGraph
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
     public void RemoveDependency(string dependee, string dependent)
     {
+        // Forward and backwards removal
         RemoveDependent(dependee, dependent);
         RemoveDependee(dependent, dependee);
     }
@@ -234,7 +245,7 @@ public class DependencyGraph
             dependentsHashSet.Remove(dependent);
         }
     }
-    
+
     /// <summary>
     ///   Removes all existing ordered pairs of the form (nodeName, *).  Then, for each
     ///   t in newDependents, adds the ordered pair (nodeName, t).
