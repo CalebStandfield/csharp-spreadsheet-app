@@ -151,12 +151,8 @@ public class DependencyGraph
     public void AddDependency(string dependee, string dependent)
     {
         // Forwards and backwards addition
-        if (AddDependent(dependee, dependent))
-        {
-            _size++;
-        }
-
-        // Logic for increasing size/returning a bool only needs to be inside one add method.
+        // Both methods will work or neither will
+        AddDependent(dependee, dependent);
         AddDependee(dependent, dependee);
     }
 
@@ -164,31 +160,27 @@ public class DependencyGraph
     /// <para>
     ///   Adds the ordered pair (dependee, dependent), if it doesn't exist.
     ///   Adds the pair into the _dependents member variable.
-    ///   Will return a bool and use that value to appropriately affect the size of the dependencyGraph.
+    ///   This method will change the size of the dependencyGraph if successful.
     /// </para>
     /// </summary>
     /// <param name="dependee"> the name of the node that must be evaluated first</param>
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
-    /// <returns>True if added, false if it already existed in the dependencyGraph</returns>
-    private bool AddDependent(string dependee, string dependent)
+    private void AddDependent(string dependee, string dependent)
     {
-        var wasAdded = false;
         // Key exists. Try to add dependent to HashSet
         if (_dependents.TryGetValue(dependee, out var dependeesHashSet))
         {
             if (dependeesHashSet.Add(dependent))
             {
-                wasAdded = true;
+                _size++;
             }
         }
         // Key did not exist. Create new (K, V) pair
         else
         {
             _dependents.Add(dependee, [dependent]);
-            wasAdded = true;
+            _size++;
         }
-
-        return wasAdded;
     }
 
     /// <summary>
@@ -196,6 +188,7 @@ public class DependencyGraph
     ///   Adds the ordered pair (dependent, dependee) if it doesn't exist.
     ///   Adds the pair into the _dependees member variable.
     ///   This method executes backwards addition into the dependencyGraph for easy deletion later.
+    ///   Will not change the size of the dependencyGraph relies on AddDependent for size change.
     /// </para>
     /// </summary>
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
@@ -224,12 +217,8 @@ public class DependencyGraph
     public void RemoveDependency(string dependee, string dependent)
     {
         // Forward and backwards removal
-        if (RemoveDependent(dependee, dependent))
-        {
-            _size--;
-        }
-
-        // Logic for decreasing size/returning a bool only needs to be inside one remove method.
+        // Both methods will work or neither will
+        RemoveDependent(dependee, dependent);
         RemoveDependee(dependent, dependee);
     }
 
@@ -243,16 +232,15 @@ public class DependencyGraph
     /// <param name="dependee"> The name of the node that must be evaluated first</param>
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
     /// <returns>True if deleted, false if it wasn't in the dependencyGraph</returns>
-    private bool RemoveDependent(string dependee, string dependent)
+    private void RemoveDependent(string dependee, string dependent)
     {
-        var wasRemoved = false;
-        if (!_dependents.TryGetValue(dependee, out var dependeesHashSet)) return wasRemoved;
+        // Check if key exists, if not return
+        if (!_dependents.TryGetValue(dependee, out var dependeesHashSet)) return;
         if (dependeesHashSet.Remove(dependent))
         {
-            wasRemoved = true;
+            // Key existed and value was removed
+            _size--;
         }
-
-        return wasRemoved;
     }
 
     /// <summary>
@@ -284,7 +272,7 @@ public class DependencyGraph
             // Handles both forwards and backwards deletion
             RemoveDependency(nodeName, key);
         }
-        
+
         foreach (var dependent in newDependents)
         {
             AddDependency(nodeName, dependent);
@@ -301,20 +289,12 @@ public class DependencyGraph
     /// <param name="newDependees"> The new dependees for nodeName</param>
     public void ReplaceDependees(string nodeName, IEnumerable<string> newDependees)
     {
-        foreach (var key in _dependents.Keys)
+        foreach (var key in _dependees.Keys)
         {
-            var dependeesTempHash = _dependents[key];
-            foreach (var str in dependeesTempHash)
-            {
-                if (str.Equals(nodeName))
-                {
-                    dependeesTempHash.Remove(nodeName);
-                    _size--;
-                }
-            }
+            // Handles both forwards and backwards deletion
+            RemoveDependency(nodeName, key);
         }
 
-        _dependees.Remove(nodeName);
         foreach (var dependent in newDependees)
         {
             AddDependency(nodeName, dependent);
