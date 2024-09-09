@@ -588,7 +588,7 @@ public class DependencyGraphTests
     }
     
     [TestMethod]
-    public void RemoveDependency_RemovedPairNotExistSizeNotDecrease_Size0()
+    public void RemoveDependency_RemovedFakePairSizeDoesNotDecreaseOrGoNegative_Size0()
     {
         DependencyGraph dg = new();
         dg.RemoveDependency("A", "B");
@@ -620,6 +620,5 @@ public class DependencyGraphTests
         
     }
     
-
     // --- ReplaceDependees Tests ---
 }
