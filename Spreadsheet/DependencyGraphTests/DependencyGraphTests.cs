@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace CS3500.DevelopmentTests;
 
 using CS3500.DependencyGraph;
@@ -586,6 +588,30 @@ public class DependencyGraphTests
     }
 
     // --- ReplaceDependents Tests ---
+
+    [TestMethod]
+    public void ReplaceDependency_ABtoAC_CorrectlyReplaces()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        dg.ReplaceDependents("A", new HashSet<string> {"C"});
+        Assert.IsTrue(dg.GetDependents("A").Contains("C"));
+        Assert.IsTrue(dg.GetDependees("C").Contains("A"));
+    }
+    
+    [TestMethod]
+    public void ReplaceDependency_ReplacedDependentNoLongerExists_CorrectlyReplaces()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        dg.ReplaceDependents("A", new HashSet<string> {"C"});
+        
+    }
+    
 
     // --- ReplaceDependees Tests ---
 }
