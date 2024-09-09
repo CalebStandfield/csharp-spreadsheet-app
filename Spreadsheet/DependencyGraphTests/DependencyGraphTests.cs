@@ -22,26 +22,26 @@ public class DependencyGraphTests
         DependencyGraph dg = new();
 
         // A bunch of strings to use
-        const int SIZE = 200;
-        var letters = new string[SIZE];
-        for (var i = 0; i < SIZE; i++)
+        const int size = 200;
+        var letters = new string[size];
+        for (var i = 0; i < size; i++)
         {
             letters[i] = string.Empty + ((char)('a' + i));
         }
 
         // The correct answers
-        var dependents = new HashSet<string>[SIZE];
-        var dependees = new HashSet<string>[SIZE];
-        for (var i = 0; i < SIZE; i++)
+        var dependents = new HashSet<string>[size];
+        var dependees = new HashSet<string>[size];
+        for (var i = 0; i < size; i++)
         {
             dependents[i] = [];
             dependees[i] = [];
         }
 
         // Add a bunch of dependencies
-        for (var i = 0; i < SIZE; i++)
+        for (var i = 0; i < size; i++)
         {
-            for (var j = i + 1; j < SIZE; j++)
+            for (var j = i + 1; j < size; j++)
             {
                 dg.AddDependency(letters[i], letters[j]);
                 dependents[i].Add(letters[j]);
@@ -50,9 +50,9 @@ public class DependencyGraphTests
         }
 
         // Remove a bunch of dependencies
-        for (var i = 0; i < SIZE; i++)
+        for (var i = 0; i < size; i++)
         {
-            for (var j = i + 4; j < SIZE; j += 4)
+            for (var j = i + 4; j < size; j += 4)
             {
                 dg.RemoveDependency(letters[i], letters[j]);
                 dependents[i].Remove(letters[j]);
@@ -61,9 +61,9 @@ public class DependencyGraphTests
         }
 
         // Add some back
-        for (var i = 0; i < SIZE; i++)
+        for (var i = 0; i < size; i++)
         {
-            for (var j = i + 1; j < SIZE; j += 2)
+            for (var j = i + 1; j < size; j += 2)
             {
                 dg.AddDependency(letters[i], letters[j]);
                 dependents[i].Add(letters[j]);
@@ -72,9 +72,9 @@ public class DependencyGraphTests
         }
 
         // Remove some more
-        for (var i = 0; i < SIZE; i += 2)
+        for (var i = 0; i < size; i += 2)
         {
-            for (var j = i + 3; j < SIZE; j += 3)
+            for (var j = i + 3; j < size; j += 3)
             {
                 dg.RemoveDependency(letters[i], letters[j]);
                 dependents[i].Remove(letters[j]);
@@ -83,7 +83,7 @@ public class DependencyGraphTests
         }
 
         // Make sure everything is right
-        for (var i = 0; i < SIZE; i++)
+        for (var i = 0; i < size; i++)
         {
             Assert.IsTrue(dependents[i].SetEquals(new HashSet<string>(dg.GetDependents(letters[i]))));
             Assert.IsTrue(dependees[i].SetEquals(new HashSet<string>(dg.GetDependees(letters[i]))));
