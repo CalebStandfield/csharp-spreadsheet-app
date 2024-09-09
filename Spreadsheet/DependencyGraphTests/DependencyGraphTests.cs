@@ -598,7 +598,7 @@ public class DependencyGraphTests
     // --- ReplaceDependents Tests ---
     
     [TestMethod]
-    public void ReplaceDependency_ReplaceWithNewDG_CorrectlyReplaces()
+    public void ReplaceDependents_ReplaceWithNewDG_CorrectlyReplaces()
     {
         DependencyGraph dg = new();
         dg.ReplaceDependents("A", new HashSet<string> {"B"});
@@ -607,7 +607,7 @@ public class DependencyGraphTests
     }
 
     [TestMethod]
-    public void ReplaceDependency_ABtoAC_CorrectlyReplaces()
+    public void ReplaceDependents_ABtoAC_CorrectlyReplaces()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
@@ -619,7 +619,16 @@ public class DependencyGraphTests
     }
     
     [TestMethod]
-    public void ReplaceDependency_ReplacedDependentNoLongerExists_NoLongerExists()
+    public void ReplaceDependents_ReplaceOneForOneKeepsSameSize_Size1()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.ReplaceDependents("A", new HashSet<string> {"C"});
+        Assert.IsTrue(dg.Size == 1);
+    }
+    
+    [TestMethod]
+    public void ReplaceDependents_ReplacedDependentNoLongerExists_NoLongerExists()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
@@ -630,16 +639,34 @@ public class DependencyGraphTests
         Assert.IsFalse(dg.HasDependees("B"));
     }
 
+    /// <summary>
+    ///   This also deletes (A, B) and therefore tests that the size is not 6 but 5.
+    /// </summary>
     [TestMethod]
-    public void ReplaceDependency_SizeCorrectlyIsChangedAfterReplace_Size5()
+    public void ReplaceDependents_SizeGrowsAfterReplace_Size1To5()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.Size == 1);
         dg.ReplaceDependents("A", new HashSet<string> {"C", "D", "E", "F", "G"});
-        Assert.IsFalse(dg.HasDependees("B"));
-        Assert.IsFalse(dg.HasDependents("B"));
-        Assert.AreEqual(dg.Size, 5);
+        Assert.IsTrue(dg.Size == 5);
+    }
+    
+    /// <summary>
+    ///   This also deletes (A, B) and therefore tests that the size is not 6 but 5.
+    /// </summary>
+    [TestMethod]
+    public void ReplaceDependents_SizeShrinksAfterReplace_Size5to1()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("A", "C");
+        dg.AddDependency("A", "D");
+        dg.AddDependency("A", "E");
+        dg.AddDependency("A", "F");
+        Assert.IsTrue(dg.Size == 5);
+        dg.ReplaceDependents("A", new HashSet<string> {"S"});
+        Assert.IsTrue(dg.Size == 1);
     }
     
     

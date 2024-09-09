@@ -226,7 +226,7 @@ public class DependencyGraph
     ///   <para>
     ///     Removes the ordered pair (dependee, dependent), if it exists.
     ///     Removes the pair from the _dependents member variable.
-    ///     Will return a bool and use that value to appropriately affect the size of the dependencyGraph
+    ///     This method will change the size of the dependencyGraph if successful.
     ///   </para>
     /// </summary>
     /// <param name="dependee"> The name of the node that must be evaluated first</param>
@@ -247,6 +247,7 @@ public class DependencyGraph
     ///   <para>
     ///     Removes the ordered pair (dependee, dependent), if it exists.
     ///     Removes the pair from _dependees member variable.
+    ///     Will not change the size of the dependencyGraph relies on RemoveDependent for size change.
     ///   </para>
     /// </summary>
     /// <param name="dependee"> The name of the node that must be evaluated first</param>
@@ -275,6 +276,7 @@ public class DependencyGraph
 
         foreach (var dependent in newDependents)
         {
+            // Handles both forwards and backwards addition
             AddDependency(nodeName, dependent);
         }
     }
@@ -297,6 +299,7 @@ public class DependencyGraph
 
         foreach (var dependent in newDependees)
         {
+            // Handles both forwards and backwards addition
             AddDependency(nodeName, dependent);
         }
     }
