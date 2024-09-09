@@ -175,7 +175,7 @@ public class DependencyGraphTests
     ///   as the size is 0 and thus empty
     /// </summary>
     [TestMethod]
-    public void DependencyGraph_InitialState_Size0NoPairs()
+    public void DependencyGraph_InitialState_Size0()
     {
         DependencyGraph dg = new();
         Assert.IsTrue(dg.Size == 0);
@@ -262,6 +262,46 @@ public class DependencyGraphTests
 
     // --- GetDependents Tests ---
 
+    [TestMethod]
+    public void GetDependents_AHasDependentB_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+    }
+    
+    [TestMethod]
+    public void GetDependents_AHasMultipleDependents_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("A", "C");
+        dg.AddDependency("A", "D");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("C"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("D"));
+    }
+    
+    [TestMethod]
+    public void GetDependents_MultipleDependeesHaveDependents_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("C", "D");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependents("C").Contains("D"));
+    }
+    
+    [TestMethod]
+    public void GetDependents_ADoesNotHaveAfterRemove_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        dg.RemoveDependency("A", "B");
+        Assert.IsFalse(dg.GetDependents("A").Contains("B"));
+    }
+    
     // --- GetDependees Tests ---
 
     // --- AddDependency Tests ---
