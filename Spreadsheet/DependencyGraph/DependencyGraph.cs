@@ -324,11 +324,19 @@ public class DependencyGraph
     /// <param name="newDependees"> The new dependees for nodeName</param>
     public void ReplaceDependees(string nodeName, IEnumerable<string> newDependees)
     {
-        foreach (var dependent in newDependees)
+        foreach (var key in _dependents.Keys)
         {
-            RemoveDependency(nodeName, dependent);
+            var dependeesTempHash = _dependents[key];
+            foreach (var str in dependeesTempHash)
+            {
+                if (str.Equals(nodeName))
+                {
+                    dependeesTempHash.Remove(nodeName);
+                }
+            }
         }
 
+        _dependees.Remove(nodeName);
         foreach (var dependent in newDependees)
         {
             AddDependency(nodeName, dependent);
