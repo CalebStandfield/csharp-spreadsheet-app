@@ -167,37 +167,49 @@ public class DependencyGraph
     public void AddDependency(string dependee, string dependent)
     {
         // Forwards and backwards addition
-        AddDependent(dependee, dependent);
+        if (AddDependent(dependee, dependent))
+        {
+            _size++;
+        }
+        // Logic for increasing size/returning a bool only needs to be inside one add method.
         AddDependee(dependent, dependee);
-        _size++;
     }
 
     /// <summary>
     /// <para>
     ///   Adds the ordered pair (dependee, dependent), if it doesn't exist.
-    ///   Adds the pair into the Dependents member variable.
+    ///   Adds the pair into the _dependents member variable.
+    ///   Will return a bool and use that value to appropriately affect the size of the dependencyGraph.
     /// </para>
     /// </summary>
     /// <param name="dependee"> the name of the node that must be evaluated first</param>
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
-    private void AddDependent(string dependee, string dependent)
+    /// <returns>True if added, false if it already existed in the dependencyGraph</returns>
+    private bool AddDependent(string dependee, string dependent)
     {
+        var wasAdded = false;
         // Key exists. Try to add dependent to HashSet
         if (_dependents.TryGetValue(dependee, out var dependeesHashSet))
         {
-            dependeesHashSet.Add(dependent);
+            if (dependeesHashSet.Add(dependent))
+            {
+                wasAdded = true;
+            }
         }
         // Key did not exist. Create new (K, V) pair
         else
         {
             _dependents.Add(dependee, [dependent]);
+            wasAdded = true;
         }
+        return wasAdded;
     }
 
     /// <summary>
     /// <para>
     ///   Adds the ordered pair (dependent, dependee) if it doesn't exist.
-    ///   This adds the reverse into the Dependents member variable.
+    ///   Adds the pair into the _dependees member variable.
+    ///   This method executes backwards addition into the dependencyGraph for easy deletion later.
     /// </para>
     /// </summary>
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
@@ -226,29 +238,40 @@ public class DependencyGraph
     public void RemoveDependency(string dependee, string dependent)
     {
         // Forward and backwards removal
-        RemoveDependent(dependee, dependent);
+        if (RemoveDependent(dependee, dependent))
+        {
+            _size--;
+        }
+        // Logic for decreasing size/returning a bool only needs to be inside one remove method.
         RemoveDependee(dependent, dependee);
-        _size--;
     }
 
     /// <summary>
     ///   <para>
     ///     Removes the ordered pair (dependee, dependent), if it exists.
+    ///     Removes the pair from the _dependents member variable.
+    ///     Will return a bool and use that value to appropriately affect the size of the dependencyGraph
     ///   </para>
     /// </summary>
     /// <param name="dependee"> The name of the node that must be evaluated first</param>
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
-    private void RemoveDependent(string dependee, string dependent)
+    /// <returns>True if deleted, false if it wasn't in the dependencyGraph</returns>
+    private bool RemoveDependent(string dependee, string dependent)
     {
-        if (_dependents.TryGetValue(dependee, out var dependeesHashSet))
+        var wasRemoved = false;
+        if (!_dependents.TryGetValue(dependee, out var dependeesHashSet)) return wasRemoved;
+        if (dependeesHashSet.Remove(dependent))
         {
-            dependeesHashSet.Remove(dependent);
+            wasRemoved = true;
         }
+
+        return wasRemoved;
     }
 
     /// <summary>
     ///   <para>
     ///     Removes the ordered pair (dependee, dependent), if it exists.
+    ///     
     ///   </para>
     /// </summary>
     /// <param name="dependee"> The name of the node that must be evaluated first</param>
