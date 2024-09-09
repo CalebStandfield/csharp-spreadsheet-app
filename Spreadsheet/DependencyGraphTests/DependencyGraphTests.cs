@@ -371,7 +371,7 @@ public class DependencyGraphTests
 
     /// <summary>
     ///   Also Ensures that forwards and backward adding of ordered pairs works.
-    ///   Where (s, t) and (t, s) exist in DG.
+    ///   Where (s, t) and (t, s) exist in dg.
     /// </summary>
     [TestMethod]
     public void AddDependency_DictionariesContainCorrectNode_AddedCorrectly()
@@ -396,6 +396,7 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependents("A").Contains("D"));
         Assert.IsTrue(dg.GetDependents("A").Contains("E"));
         Assert.IsTrue(dg.GetDependents("A").Contains("F"));
+        Assert.IsTrue(dg.Size == 5);
     }
 
     [TestMethod]
@@ -438,17 +439,139 @@ public class DependencyGraphTests
     // --- RemoveDependency Tests ---
 
     [TestMethod]
-    public void RemoveDependency_DependencyRemoved_RemovedCorrectly()
+    public void RemoveDependency_DependentRemoved_RemovedCorrectly()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.HasDependents("A"));
-        Assert.IsTrue(dg.HasDependees("B"));
-        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
-        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
         dg.RemoveDependency("A", "B");
-        Assert.IsFalse(dg.GetDependees("B").Contains("A"));
+        Assert.IsFalse(dg.HasDependents("A"));
+    }
+
+    [TestMethod]
+    public void RemoveDependency_DependencyRemoved_Size0()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.Size == 1);
+        dg.RemoveDependency("A", "B");
+        Assert.IsTrue(dg.Size == 0);
+    }
+
+    [TestMethod]
+    public void RemoveDependency_DependeeRemoved_RemovedCorrectly()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.HasDependees("B"));
+        dg.RemoveDependency("A", "B");
+        Assert.IsFalse(dg.HasDependees("B"));
+    }
+
+    /// <summary>
+    ///   Also Ensures that forwards and backward deletion of ordered pairs works.
+    ///   Where (s, t) and (t, s) are both removed from dg.
+    /// </summary>
+    [TestMethod]
+    public void RemoveDependency_DictionariesDoNotContainAfterRemove_RemovedCorrectly()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        dg.RemoveDependency("A", "B");
         Assert.IsFalse(dg.GetDependents("A").Contains("B"));
+        Assert.IsFalse(dg.GetDependees("B").Contains("A"));
+    }
+
+    [TestMethod]
+    public void RemoveDependency_MultipleDependentsRemovedSize0_RemovedCorrectlyCorrectSize()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("A", "C");
+        dg.AddDependency("A", "D");
+        dg.AddDependency("A", "E");
+        dg.AddDependency("A", "F");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("C"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("D"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("E"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("F"));
+        Assert.IsTrue(dg.Size == 5);
+        dg.RemoveDependency("A", "B");
+        dg.RemoveDependency("A", "C");
+        dg.RemoveDependency("A", "D");
+        dg.RemoveDependency("A", "E");
+        dg.RemoveDependency("A", "F");
+        Assert.IsFalse(dg.GetDependents("A").Contains("B"));
+        Assert.IsFalse(dg.GetDependents("A").Contains("C"));
+        Assert.IsFalse(dg.GetDependents("A").Contains("D"));
+        Assert.IsFalse(dg.GetDependents("A").Contains("E"));
+        Assert.IsFalse(dg.GetDependents("A").Contains("F"));
+        Assert.IsTrue(dg.Size == 0);
+    }
+
+    [TestMethod]
+    public void RemoveDependency_MultipleDependeesRemovedSize0_RemovedCorrectlyCorrectSize()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("C", "B");
+        dg.AddDependency("D", "B");
+        dg.AddDependency("E", "B");
+        dg.AddDependency("F", "B");
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("C"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("D"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("E"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("F"));
+        Assert.IsTrue(dg.Size == 5);
+        dg.RemoveDependency("A", "B");
+        dg.RemoveDependency("C", "B");
+        dg.RemoveDependency("D", "B");
+        dg.RemoveDependency("E", "B");
+        dg.RemoveDependency("F", "B");
+        Assert.IsFalse(dg.GetDependees("B").Contains("A"));
+        Assert.IsFalse(dg.GetDependees("B").Contains("C"));
+        Assert.IsFalse(dg.GetDependees("B").Contains("D"));
+        Assert.IsFalse(dg.GetDependees("B").Contains("E"));
+        Assert.IsFalse(dg.GetDependees("B").Contains("F"));
+        Assert.IsTrue(dg.Size == 0);
+    }
+
+    [TestMethod]
+    public void RemoveDependency_SamePairRemovedTwiceSizeChangedOnce_Size1()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("A", "C");
+        Assert.IsTrue(dg.Size == 2);
+        dg.RemoveDependency("A", "B");
+        dg.RemoveDependency("A", "B");
+        Assert.IsTrue(dg.Size == 1);
+    }
+
+    [TestMethod]
+    public void RemoveDependency_SizeChangesAfterEachRemove_Size10to0()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("A", "C");
+        dg.AddDependency("A", "D");
+        dg.AddDependency("A", "E");
+        dg.AddDependency("A", "F");
+        Assert.IsTrue(dg.Size == 5);
+        dg.RemoveDependency("A", "B");
+        Assert.IsTrue(dg.Size == 4);
+        dg.RemoveDependency("A", "C");
+        Assert.IsTrue(dg.Size == 3);
+        dg.RemoveDependency("A", "D");
+        Assert.IsTrue(dg.Size == 2);
+        dg.RemoveDependency("A", "E");
+        Assert.IsTrue(dg.Size == 1);
+        dg.RemoveDependency("A", "F");
+        Assert.IsTrue(dg.Size == 0);
     }
 
     // --- ReplaceDependents Tests ---
