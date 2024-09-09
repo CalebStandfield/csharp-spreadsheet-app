@@ -281,17 +281,10 @@ public class DependencyGraph
     {
         foreach (var key in _dependees.Keys)
         {
-            var dependentTempHash = _dependees[key];
-            foreach (var str in dependentTempHash)
-            {
-                if (str.Equals(nodeName))
-                {
-                    dependentTempHash.Remove(nodeName);
-                }
-            }
+            // Handles both forwards and backwards deletion
+            RemoveDependency(nodeName, key);
         }
-
-        _dependents.Remove(nodeName);
+        
         foreach (var dependent in newDependents)
         {
             AddDependency(nodeName, dependent);
@@ -316,6 +309,7 @@ public class DependencyGraph
                 if (str.Equals(nodeName))
                 {
                     dependeesTempHash.Remove(nodeName);
+                    _size--;
                 }
             }
         }

@@ -610,15 +610,31 @@ public class DependencyGraphTests
     }
     
     [TestMethod]
-    public void ReplaceDependency_ReplacedDependentNoLongerExists_CorrectlyReplaces()
+    public void ReplaceDependency_ReplacedDependentNoLongerExists_NoLongerExists()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.GetDependents("A").Contains("B"));
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
         dg.ReplaceDependents("A", new HashSet<string> {"C"});
-        
+        Assert.IsFalse(dg.GetDependents("A").Contains("B"));
+        Assert.IsFalse(dg.HasDependees("B"));
     }
+
+    [TestMethod]
+    public void ReplaceDependency_SizeCorrectlyIsChangedAfterReplace_Size5()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.Size == 1);
+        dg.ReplaceDependents("A", new HashSet<string> {"C", "D", "E", "F", "G"});
+        Assert.IsFalse(dg.HasDependees("B"));
+        Assert.IsFalse(dg.HasDependents("B"));
+        Assert.AreEqual(dg.Size, 5);
+        dg.AddDependency("A", "B");
+        Assert.AreEqual(dg.Size, 6);
+    }
+    
     
     // --- ReplaceDependees Tests ---
 }
