@@ -171,6 +171,7 @@ public class DependencyGraph
         {
             _size++;
         }
+
         // Logic for increasing size/returning a bool only needs to be inside one add method.
         AddDependee(dependent, dependee);
     }
@@ -202,6 +203,7 @@ public class DependencyGraph
             _dependents.Add(dependee, [dependent]);
             wasAdded = true;
         }
+
         return wasAdded;
     }
 
@@ -242,6 +244,7 @@ public class DependencyGraph
         {
             _size--;
         }
+
         // Logic for decreasing size/returning a bool only needs to be inside one remove method.
         RemoveDependee(dependent, dependee);
     }
@@ -271,7 +274,7 @@ public class DependencyGraph
     /// <summary>
     ///   <para>
     ///     Removes the ordered pair (dependee, dependent), if it exists.
-    ///     
+    ///     Removes the pair from _dependees member variable.
     ///   </para>
     /// </summary>
     /// <param name="dependee"> The name of the node that must be evaluated first</param>

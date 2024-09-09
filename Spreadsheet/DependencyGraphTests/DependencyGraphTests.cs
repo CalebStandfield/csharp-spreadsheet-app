@@ -268,7 +268,7 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.GetDependents("A").Contains("B"));
     }
-    
+
     [TestMethod]
     public void GetDependents_AHasMultipleDependents_True()
     {
@@ -280,7 +280,7 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependents("A").Contains("C"));
         Assert.IsTrue(dg.GetDependents("A").Contains("D"));
     }
-    
+
     [TestMethod]
     public void GetDependents_MultipleDependeesHaveDependents_True()
     {
@@ -290,7 +290,7 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependents("A").Contains("B"));
         Assert.IsTrue(dg.GetDependents("C").Contains("D"));
     }
-    
+
     [TestMethod]
     public void GetDependents_ADoesNotHaveAfterRemove_True()
     {
@@ -300,9 +300,9 @@ public class DependencyGraphTests
         dg.RemoveDependency("A", "B");
         Assert.IsFalse(dg.GetDependents("A").Contains("B"));
     }
-    
+
     // --- GetDependees Tests ---
-    
+
     [TestMethod]
     public void GetDependees_BHasDependeeA_True()
     {
@@ -310,7 +310,7 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
     }
-    
+
     [TestMethod]
     public void GetDependees_BHasMultipleDependees_True()
     {
@@ -322,7 +322,7 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependees("B").Contains("C"));
         Assert.IsTrue(dg.GetDependees("B").Contains("D"));
     }
-    
+
     [TestMethod]
     public void GetDependees_MultipleDependeesHaveDependents_True()
     {
@@ -332,7 +332,7 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
         Assert.IsTrue(dg.GetDependees("D").Contains("C"));
     }
-    
+
     [TestMethod]
     public void GetDependees_BDoesNotHaveAfterRemove_True()
     {
@@ -352,7 +352,15 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.HasDependents("A"));
     }
-    
+
+    [TestMethod]
+    public void AddDependency_DependentAdded_Size1()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.Size == 1);
+    }
+
     [TestMethod]
     public void AddDependency_DependeeAdded_AddedCorrectly()
     {
@@ -360,7 +368,7 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.HasDependees("B"));
     }
-    
+
     /// <summary>
     ///   Also Ensures that forwards and backward adding of ordered pairs works.
     ///   Where (s, t) and (t, s) exist in DG.
@@ -373,9 +381,9 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependents("A").Contains("B"));
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
     }
-    
+
     [TestMethod]
-    public void AddDependency_MultipleDependentsAdded_AddedCorrectly()
+    public void AddDependency_MultipleDependentsAddedSize5_AddedCorrectlyCorrectSize()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
@@ -389,9 +397,9 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependents("A").Contains("E"));
         Assert.IsTrue(dg.GetDependents("A").Contains("F"));
     }
-    
+
     [TestMethod]
-    public void AddDependency_MultipleDependeesAdded_AddedCorrectly()
+    public void AddDependency_MultipleDependeesAddedSize5_AddedCorrectlyCorrectSize()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
@@ -404,8 +412,9 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependees("B").Contains("D"));
         Assert.IsTrue(dg.GetDependees("B").Contains("E"));
         Assert.IsTrue(dg.GetDependees("B").Contains("F"));
+        Assert.IsTrue(dg.Size == 5);
     }
-    
+
     [TestMethod]
     public void AddDependency_SameOrderedPairNotAddedTwice_AddedCorrectly()
     {
@@ -413,6 +422,17 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.Size == 1);
+    }
+
+    [TestMethod]
+    public void AddDependency_SizeChangesAfterEachAdd_Size10()
+    {
+        DependencyGraph dg = new();
+        for (var i = 0; i < 10; i++)
+        {
+            dg.AddDependency(i.ToString(), (i + 1).ToString());
+            Assert.IsTrue(dg.Size == i + 1);
+        }
     }
 
     // --- RemoveDependency Tests ---
