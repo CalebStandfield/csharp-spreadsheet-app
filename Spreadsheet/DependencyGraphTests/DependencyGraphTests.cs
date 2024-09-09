@@ -9,9 +9,8 @@ using CS3500.DependencyGraph;
 [TestClass]
 public class DependencyGraphTests
 {
-    
     // --- Test Given By Instructor ---
-    
+
     /// <summary>
     ///   TODO:  Explain carefully what this code tests.
     ///          Also, update in-line comments as appropriate.
@@ -90,9 +89,9 @@ public class DependencyGraphTests
             Assert.IsTrue(dependees[i].SetEquals(new HashSet<string>(dg.GetDependees(letters[i]))));
         }
     }
-    
+
     // --- Ps3 Canvas Example and DependencyGraph Xml comment Tests---
-    
+
     [TestMethod]
     public void DependencyGraphTest_Ps3CanvasExampleRecreation_IsAccurate()
     {
@@ -130,9 +129,47 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.GetDependees("A2").Contains("A3"));
         Assert.IsTrue(dg.GetDependees("A2").Contains("A4"));
     }
-    
+
+    [TestMethod]
+    public void DependencyGraphTest_DependencyGraphXMlCommentExampleRecreation_IsAccurate()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("a", "b");
+        dg.AddDependency("a", "c");
+        dg.AddDependency("b", "d");
+        dg.AddDependency("d", "d");
+
+        // --- HasDependents ---
+        // IsTrue ---
+        Assert.IsTrue(dg.HasDependents("a"));
+        Assert.IsTrue(dg.HasDependents("b"));
+        Assert.IsTrue(dg.HasDependents("d"));
+        // IsFalse ---
+        Assert.IsFalse(dg.HasDependents("c"));
+
+        // --- Has Dependees ---
+        // IsTrue 
+        Assert.IsTrue(dg.HasDependees("b"));
+        Assert.IsTrue(dg.HasDependees("d"));
+        Assert.IsTrue(dg.HasDependees("c"));
+        // IsFalse 
+        Assert.IsFalse(dg.HasDependees("a"));
+
+        // --- GetDependents ---
+        Assert.IsTrue(dg.GetDependents("a").Contains("b"));
+        Assert.IsTrue(dg.GetDependents("a").Contains("c"));
+        Assert.IsTrue(dg.GetDependents("b").Contains("d"));
+        Assert.IsTrue(dg.GetDependents("d").Contains("d"));
+
+        // --- GetDependees ---
+        Assert.IsTrue(dg.GetDependees("b").Contains("a"));
+        Assert.IsTrue(dg.GetDependees("c").Contains("a"));
+        Assert.IsTrue(dg.GetDependees("d").Contains("b"));
+        Assert.IsTrue(dg.GetDependees("d").Contains("d"));
+    }
+
     // --- DependencyGraph Constructor Tests---
-    
+
     /// <summary>
     ///   This test also confirms that the constructor starts with no ordered pairs
     ///   as the size is 0 and thus empty
@@ -143,22 +180,91 @@ public class DependencyGraphTests
         DependencyGraph dg = new();
         Assert.IsTrue(dg.Size == 0);
     }
-    
+
     // --- HasDependents Tests ---
-    
+
+    [TestMethod]
+    public void HasDependents_AHasDependents_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.HasDependents("A"));
+    }
+
+    [TestMethod]
+    public void HasDependents_AHasMultipleDependents_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("A", "C");
+        Assert.IsTrue(dg.HasDependents("A"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("C"));
+    }
+
+    [TestMethod]
+    public void HasDependents_ADoesNotHaveAfterRemoval_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.HasDependents("A"));
+        dg.RemoveDependency("A", "B");
+        Assert.IsFalse(dg.HasDependents("A"));
+    }
+
+    [TestMethod]
+    public void HasDependents_DependeeNotAddedToDG_False()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsFalse(dg.HasDependents("C"));
+    }
+
     // --- HasDependees Tests ---
-    
+
+    [TestMethod]
+    public void HasDependees_AHasDependees_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.HasDependees("B"));
+    }
+
+    [TestMethod]
+    public void HasDependees_AHasMultipleDependees_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("B", "A");
+        dg.AddDependency("B", "C");
+        Assert.IsTrue(dg.HasDependees("A"));
+        Assert.IsTrue(dg.HasDependees("C"));
+        Assert.IsTrue(dg.GetDependents("B").Contains("A"));
+        Assert.IsTrue(dg.GetDependents("B").Contains("C"));
+    }
+
+    [TestMethod]
+    public void HasDependees_ADoesNotHaveAfterRemoval_True()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.HasDependees("B"));
+        dg.RemoveDependency("A", "B");
+        Assert.IsFalse(dg.HasDependees("B"));
+    }
+
+    [TestMethod]
+    public void HasDependees_DependentNotAddedToDG_False()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsFalse(dg.HasDependees("C"));
+    }
+
     // --- GetDependents Tests ---
-    
+
     // --- GetDependees Tests ---
-    
+
     // --- AddDependency Tests ---
-    
-    // --- RemoveDependency Tests ---
-    
-    // --- ReplaceDependents Tests ---
-    
-    // --- ReplaceDependees Tests ---
 
     [TestMethod]
     public void AddDependency_DependencyAdded_AddedCorrectly()
@@ -169,21 +275,7 @@ public class DependencyGraphTests
         Assert.IsTrue(dg.HasDependees("B"));
     }
 
-    [TestMethod]
-    public void AddDependency_ClassDefinitionExample_AddedCorrectly()
-    {
-        DependencyGraph dg = new();
-        dg.AddDependency("a", "b");
-        dg.AddDependency("a", "c");
-        dg.AddDependency("b", "d");
-        dg.AddDependency("d", "d");
-        Assert.IsTrue(dg.HasDependents("a"));
-        Assert.IsFalse(dg.HasDependees("a"));
-        Assert.IsTrue(dg.HasDependents("b"));
-        Assert.IsTrue(dg.HasDependees("b"));
-        Assert.IsTrue(dg.HasDependents("d"));
-        Assert.IsTrue(dg.HasDependees("d"));
-    }
+    // --- RemoveDependency Tests ---
 
     [TestMethod]
     public void RemoveDependency_DependencyRemoved_RemovedCorrectly()
@@ -198,4 +290,8 @@ public class DependencyGraphTests
         Assert.IsFalse(dg.GetDependees("B").Contains("A"));
         Assert.IsFalse(dg.GetDependents("A").Contains("B"));
     }
+
+    // --- ReplaceDependents Tests ---
+
+    // --- ReplaceDependees Tests ---
 }

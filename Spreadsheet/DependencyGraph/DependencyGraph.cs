@@ -86,7 +86,12 @@ public class DependencyGraph
     /// <returns> true if the node has dependents. </returns>
     public bool HasDependents(string nodeName)
     {
-        return _dependents.TryGetValue(nodeName, out _);
+        if (_dependents.TryGetValue(nodeName, out var hashSet))
+        {
+            return hashSet.Count > 0;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -96,7 +101,12 @@ public class DependencyGraph
     /// <param name="nodeName">The name of the node.</param>
     public bool HasDependees(string nodeName)
     {
-        return _dependees.TryGetValue(nodeName, out _);
+        if (_dependees.TryGetValue(nodeName, out var hashSet))
+        {
+            return hashSet.Count > 0;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -259,7 +269,11 @@ public class DependencyGraph
     /// <param name="newDependents"> The new dependents for nodeName</param>
     public void ReplaceDependents(string nodeName, IEnumerable<string> newDependents)
     {
-        _dependents.Remove(nodeName);
+        foreach (var dependent in newDependents)
+        {
+            RemoveDependency(nodeName, dependent);
+        }
+            
         foreach (var dependent in newDependents)
         {
             AddDependency(nodeName, dependent);
@@ -276,7 +290,12 @@ public class DependencyGraph
     /// <param name="newDependees"> The new dependees for nodeName</param>
     public void ReplaceDependees(string nodeName, IEnumerable<string> newDependees)
     {
-        _dependees.Remove(nodeName);
+        
+        foreach (var dependent in newDependees)
+        {
+            RemoveDependency(nodeName, dependent);
+        }
+        
         foreach (var dependent in newDependees)
         {
             AddDependency(nodeName, dependent);
