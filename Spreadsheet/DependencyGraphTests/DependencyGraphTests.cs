@@ -12,8 +12,13 @@ public class DependencyGraphTests
     // --- Test Given By Instructor ---
 
     /// <summary>
-    ///   TODO:  Explain carefully what this code tests.
-    ///          Also, update in-line comments as appropriate.
+    ///   This stress test creates "size" amount of strings to use for the tests.
+    ///   Creates two Hashsets that will act as controls to simulate what the dependencyGraph methods should simulate.
+    ///   Starting with adding a bunch of the strings into the dg and HashSets.
+    ///   Then removing a bunch of strings from the dg and Hashsets.
+    ///   Adding some back. Then removing more.
+    ///   Finally ensuring that the Hashsets and the internal dictionaries of dg are equal.
+    ///   This simulates a stress test that ensures that the dg can complete all the adding and removing within 2 seconds.
     /// </summary>
     [TestMethod]
     [Timeout(2000)] // 2 second run time limit
