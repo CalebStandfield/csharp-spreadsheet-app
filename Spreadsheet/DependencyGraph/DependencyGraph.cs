@@ -58,6 +58,7 @@ public class DependencyGraph
     // A dictionary representing string dependents and their dependees
     private readonly Dictionary<string, HashSet<string>> _dependees;
 
+    // Size of the dependencyGraph
     private int _size;
 
     /// <summary>
@@ -86,9 +87,10 @@ public class DependencyGraph
     /// <returns> true if the node has dependents. </returns>
     public bool HasDependents(string nodeName)
     {
+        // Check if key exists
         if (_dependents.TryGetValue(nodeName, out var hashSet))
         {
-            return hashSet.Count > 0;
+            return hashSet.Count > 0; // Check and return true if any elements are in the HashSet
         }
 
         return false;
@@ -101,8 +103,10 @@ public class DependencyGraph
     /// <param name="nodeName">The name of the node.</param>
     public bool HasDependees(string nodeName)
     {
+        // Check if key exists
         if (_dependees.TryGetValue(nodeName, out var hashSet))
         {
+            // Check and return true if any elements are in the HashSet
             return hashSet.Count > 0;
         }
 
@@ -118,18 +122,8 @@ public class DependencyGraph
     /// <returns> The dependents of nodeName. </returns>
     public IEnumerable<string> GetDependents(string nodeName)
     {
-        var retList = new HashSet<string>();
-        if (!_dependents.TryGetValue(nodeName, out var dependentsTemp))
-        {
-            return retList; // Return empty HashSet
-        }
-
-        foreach (var str in dependentsTemp)
-        {
-            retList.Add(str);
-        }
-
-        return retList;
+        // Will return the HashSet of dependents or a default empty HashSet
+        return _dependents.GetValueOrDefault(nodeName, []);
     }
 
     /// <summary>
@@ -141,18 +135,8 @@ public class DependencyGraph
     /// <returns> The dependees of nodeName. </returns>
     public IEnumerable<string> GetDependees(string nodeName)
     {
-        var retList = new HashSet<string>();
-        if (!_dependees.TryGetValue(nodeName, out var dependeesTemp))
-        {
-            return retList; // Return empty HashSet
-        }
-
-        foreach (var str in dependeesTemp)
-        {
-            retList.Add(str);
-        }
-
-        return retList;
+        // Will return the HashSet of dependees or a default empty HashSet
+        return _dependees.GetValueOrDefault(nodeName, []);
     }
 
     /// <summary>
