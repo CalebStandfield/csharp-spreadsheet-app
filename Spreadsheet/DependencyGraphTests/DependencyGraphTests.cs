@@ -586,6 +586,14 @@ public class DependencyGraphTests
         dg.RemoveDependency("A", "F");
         Assert.IsTrue(dg.Size == 0);
     }
+    
+    [TestMethod]
+    public void RemoveDependency_RemovedPairNotExistSizeNotDecrease_Size0()
+    {
+        DependencyGraph dg = new();
+        dg.RemoveDependency("A", "B");
+        Assert.IsTrue(dg.Size == 0);
+    }
 
     // --- ReplaceDependents Tests ---
 
