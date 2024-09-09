@@ -586,7 +586,7 @@ public class DependencyGraphTests
         dg.RemoveDependency("A", "F");
         Assert.IsTrue(dg.Size == 0);
     }
-    
+
     [TestMethod]
     public void RemoveDependency_RemovedFakePairSizeDoesNotDecreaseOrGoNegative_Size0()
     {
@@ -596,12 +596,12 @@ public class DependencyGraphTests
     }
 
     // --- ReplaceDependents Tests ---
-    
+
     [TestMethod]
     public void ReplaceDependents_ReplaceWithNewDG_CorrectlyReplaces()
     {
         DependencyGraph dg = new();
-        dg.ReplaceDependents("A", new HashSet<string> {"B"});
+        dg.ReplaceDependents("A", new HashSet<string> { "B" });
         Assert.IsTrue(dg.GetDependents("A").Contains("B"));
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
     }
@@ -613,20 +613,41 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.GetDependents("A").Contains("B"));
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
-        dg.ReplaceDependents("A", new HashSet<string> {"C"});
+        dg.ReplaceDependents("A", new HashSet<string> { "C" });
         Assert.IsTrue(dg.GetDependents("A").Contains("C"));
         Assert.IsTrue(dg.GetDependees("C").Contains("A"));
     }
-    
+
+    [TestMethod]
+    public void ReplaceDependents_FromSinglePairToFivePairs_CorrectlyReplaces()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        dg.ReplaceDependents("A", new HashSet<string> { "C", "D", "E", "F", "G" });
+        Assert.IsTrue(dg.GetDependents("A").Contains("C"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("D"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("E"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("F"));
+        Assert.IsTrue(dg.GetDependents("A").Contains("G"));
+
+        Assert.IsTrue(dg.GetDependees("C").Contains("A"));
+        Assert.IsTrue(dg.GetDependees("D").Contains("A"));
+        Assert.IsTrue(dg.GetDependees("E").Contains("A"));
+        Assert.IsTrue(dg.GetDependees("F").Contains("A"));
+        Assert.IsTrue(dg.GetDependees("G").Contains("A"));
+    }
+
     [TestMethod]
     public void ReplaceDependents_ReplaceOneForOneKeepsSameSize_Size1()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
-        dg.ReplaceDependents("A", new HashSet<string> {"C"});
+        dg.ReplaceDependents("A", new HashSet<string> { "C" });
         Assert.IsTrue(dg.Size == 1);
     }
-    
+
     [TestMethod]
     public void ReplaceDependents_ReplacedDependentNoLongerExists_NoLongerExists()
     {
@@ -634,7 +655,7 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.GetDependents("A").Contains("B"));
         Assert.IsTrue(dg.GetDependees("B").Contains("A"));
-        dg.ReplaceDependents("A", new HashSet<string> {"C"});
+        dg.ReplaceDependents("A", new HashSet<string> { "C" });
         Assert.IsFalse(dg.GetDependents("A").Contains("B"));
         Assert.IsFalse(dg.HasDependees("B"));
     }
@@ -648,13 +669,10 @@ public class DependencyGraphTests
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.Size == 1);
-        dg.ReplaceDependents("A", new HashSet<string> {"C", "D", "E", "F", "G"});
+        dg.ReplaceDependents("A", new HashSet<string> { "C", "D", "E", "F", "G" });
         Assert.IsTrue(dg.Size == 5);
     }
-    
-    /// <summary>
-    ///   This also deletes (A, B) and therefore tests that the size is not 6 but 5.
-    /// </summary>
+
     [TestMethod]
     public void ReplaceDependents_SizeShrinksAfterReplace_Size5to1()
     {
@@ -665,10 +683,10 @@ public class DependencyGraphTests
         dg.AddDependency("A", "E");
         dg.AddDependency("A", "F");
         Assert.IsTrue(dg.Size == 5);
-        dg.ReplaceDependents("A", new HashSet<string> {"S"});
+        dg.ReplaceDependents("A", new HashSet<string> { "S" });
         Assert.IsTrue(dg.Size == 1);
     }
-    
-    
+
+
     // --- ReplaceDependees Tests ---
 }
