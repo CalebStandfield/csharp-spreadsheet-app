@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace CS3500.DevelopmentTests;
 
 using CS3500.DependencyGraph;
@@ -686,9 +684,9 @@ public class DependencyGraphTests
         dg.ReplaceDependents("A", new HashSet<string> { "S" });
         Assert.IsTrue(dg.Size == 1);
     }
-    
+
     // --- ReplaceDependees Tests ---
-    
+
     [TestMethod]
     public void ReplaceDependees_ReplaceWithNewDG_CorrectlyReplaces()
     {
@@ -762,7 +760,7 @@ public class DependencyGraphTests
         dg.AddDependency("A", "B");
         Assert.IsTrue(dg.Size == 1);
         dg.ReplaceDependees("B", new HashSet<string> { "C", "D", "E", "F", "G" });
-        Assert.AreEqual(dg.Size , 5);
+        Assert.AreEqual(dg.Size, 5);
     }
 
     [TestMethod]
@@ -778,5 +776,4 @@ public class DependencyGraphTests
         dg.ReplaceDependees("B", new HashSet<string> { "S" });
         Assert.IsTrue(dg.Size == 1);
     }
-    
 }
