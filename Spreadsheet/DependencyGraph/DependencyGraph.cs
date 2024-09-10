@@ -67,6 +67,7 @@ public class DependencyGraph
     /// </summary>
     public DependencyGraph()
     {
+        // Forwards and backwards dictionaries 
         _dependents = new Dictionary<string, HashSet<string>>();
         _dependees = new Dictionary<string, HashSet<string>>();
         _size = 0;
@@ -90,7 +91,8 @@ public class DependencyGraph
         // Check if key exists
         if (_dependents.TryGetValue(nodeName, out var hashSet))
         {
-            return hashSet.Count > 0; // Check and return true if any elements are in the HashSet
+            // Check and return true if any elements are in the HashSet
+            return hashSet.Count > 0;
         }
 
         return false;
@@ -140,18 +142,18 @@ public class DependencyGraph
     }
 
     /// <summary>
-    /// <para>Adds the ordered pair (dependee, dependent), if it doesn't exist.</para>
-    ///
+    /// <para>
+    ///   Adds the ordered pair (dependee, dependent), if it doesn't exist.
+    /// </para>
     /// <para>
     ///   This can be thought of as: dependee must be evaluated before dependent
     /// </para>
     /// </summary>
     /// <param name="dependee"> the name of the node that must be evaluated first</param>
-    /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
+    /// <param name="dependent"> the name of the node that can not be evaluated until after dependee</param>
     public void AddDependency(string dependee, string dependent)
     {
         // Forwards and backwards addition
-        // Both methods will work or neither will
         AddDependent(dependee, dependent);
         AddDependee(dependent, dependee);
     }
@@ -167,9 +169,10 @@ public class DependencyGraph
     /// <param name="dependent"> the name of the node that cannot be evaluated until after dependee</param>
     private void AddDependent(string dependee, string dependent)
     {
-        // Key exists. Try to add dependent to HashSet
+        // Check if key exists try to get value
         if (_dependents.TryGetValue(dependee, out var dependeesHashSet))
         {
+            // Key exists. Try to add dependent to HashSet
             if (dependeesHashSet.Add(dependent))
             {
                 _size++;
@@ -195,9 +198,10 @@ public class DependencyGraph
     /// <param name="dependee"> the name of the node that must be evaluated first</param>
     private void AddDependee(string dependent, string dependee)
     {
-        // Key exists. Try to add dependee to HashSet
+        // Check if Key exists try to get value
         if (_dependees.TryGetValue(dependent, out var dependentsHashSet))
         {
+            // Key exists. Try to add dependee to HashSet
             dependentsHashSet.Add(dependee);
         }
         // Key did not exist. Create new (K, V) pair
@@ -217,7 +221,6 @@ public class DependencyGraph
     public void RemoveDependency(string dependee, string dependent)
     {
         // Forward and backwards removal
-        // Both methods will work or neither will
         RemoveDependent(dependee, dependent);
         RemoveDependee(dependent, dependee);
     }
@@ -233,7 +236,7 @@ public class DependencyGraph
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
     private void RemoveDependent(string dependee, string dependent)
     {
-        // Check if key exists, if not return
+        // Check if key exists try to get value, if not return
         if (!_dependents.TryGetValue(dependee, out var dependeesHashSet)) return;
         if (dependeesHashSet.Remove(dependent))
         {
@@ -244,8 +247,9 @@ public class DependencyGraph
 
     /// <summary>
     ///   <para>
-    ///     Removes the ordered pair (dependee, dependent), if it exists.
+    ///     Removes the ordered pair (dependent, dependee), if it exists.
     ///     Removes the pair from _dependees member variable.
+    ///     This method executes backwards deletion for the dependencyGraph.
     ///     Will not change the size of the dependencyGraph relies on RemoveDependent for size change.
     ///   </para>
     /// </summary>
@@ -253,6 +257,7 @@ public class DependencyGraph
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
     private void RemoveDependee(string dependent, string dependee)
     {
+        // Check if key exists try to get value
         if (_dependees.TryGetValue(dependent, out var dependentsHashSet))
         {
             dependentsHashSet.Remove(dependee);
