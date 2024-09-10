@@ -291,16 +291,16 @@ public class DependencyGraph
     /// <param name="newDependees"> The new dependees for nodeName</param>
     public void ReplaceDependees(string nodeName, IEnumerable<string> newDependees)
     {
-        foreach (var key in _dependees.Keys)
+        foreach (var key in _dependents.Keys)
         {
             // Handles both forwards and backwards deletion
-            RemoveDependency(nodeName, key);
+            RemoveDependency(key, nodeName);
         }
 
-        foreach (var dependent in newDependees)
+        foreach (var dependee in newDependees)
         {
             // Handles both forwards and backwards addition
-            AddDependency(nodeName, dependent);
+            AddDependency(dependee, nodeName);
         }
     }
 }

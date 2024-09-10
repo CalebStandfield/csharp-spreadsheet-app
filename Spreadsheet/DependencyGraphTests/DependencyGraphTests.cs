@@ -686,7 +686,97 @@ public class DependencyGraphTests
         dg.ReplaceDependents("A", new HashSet<string> { "S" });
         Assert.IsTrue(dg.Size == 1);
     }
-
-
+    
     // --- ReplaceDependees Tests ---
+    
+    [TestMethod]
+    public void ReplaceDependees_ReplaceWithNewDG_CorrectlyReplaces()
+    {
+        DependencyGraph dg = new();
+        dg.ReplaceDependees("B", new HashSet<string> { "A" });
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+    }
+
+    [TestMethod]
+    public void ReplaceDependees_ABtoCB_CorrectlyReplaces()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        dg.ReplaceDependees("B", new HashSet<string> { "C" });
+        Assert.IsTrue(dg.GetDependents("C").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("C"));
+    }
+
+    [TestMethod]
+    public void ReplaceDependees_FromSinglePairToFivePairs_CorrectlyReplaces()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        dg.ReplaceDependees("A", new HashSet<string> { "C", "D", "E", "F", "G" });
+        Assert.IsTrue(dg.GetDependents("C").Contains("A"));
+        Assert.IsTrue(dg.GetDependents("D").Contains("A"));
+        Assert.IsTrue(dg.GetDependents("E").Contains("A"));
+        Assert.IsTrue(dg.GetDependents("F").Contains("A"));
+        Assert.IsTrue(dg.GetDependents("G").Contains("A"));
+
+        Assert.IsTrue(dg.GetDependees("A").Contains("C"));
+        Assert.IsTrue(dg.GetDependees("A").Contains("D"));
+        Assert.IsTrue(dg.GetDependees("A").Contains("E"));
+        Assert.IsTrue(dg.GetDependees("A").Contains("F"));
+        Assert.IsTrue(dg.GetDependees("A").Contains("G"));
+    }
+
+    [TestMethod]
+    public void ReplaceDependees_ReplaceOneForOneKeepsSameSize_Size1()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.ReplaceDependees("B", new HashSet<string> { "C" });
+        Assert.IsTrue(dg.Size == 1);
+    }
+
+    [TestMethod]
+    public void ReplaceDependees_ReplacedDependeeNoLongerExists_NoLongerExists()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.GetDependents("A").Contains("B"));
+        Assert.IsTrue(dg.GetDependees("B").Contains("A"));
+        dg.ReplaceDependees("B", new HashSet<string> { "C" });
+        Assert.IsFalse(dg.GetDependents("A").Contains("B"));
+        Assert.IsFalse(dg.HasDependees("A"));
+    }
+
+    /// <summary>
+    ///   This also deletes (A, B) and therefore tests that the size is not 6 but 5.
+    /// </summary>
+    [TestMethod]
+    public void ReplaceDependees_SizeGrowsAfterReplace_Size1To5()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        Assert.IsTrue(dg.Size == 1);
+        dg.ReplaceDependees("B", new HashSet<string> { "C", "D", "E", "F", "G" });
+        Assert.AreEqual(dg.Size , 5);
+    }
+
+    [TestMethod]
+    public void ReplaceDependees_SizeShrinksAfterReplace_Size5to1()
+    {
+        DependencyGraph dg = new();
+        dg.AddDependency("A", "B");
+        dg.AddDependency("C", "B");
+        dg.AddDependency("D", "B");
+        dg.AddDependency("E", "B");
+        dg.AddDependency("F", "B");
+        Assert.IsTrue(dg.Size == 5);
+        dg.ReplaceDependees("B", new HashSet<string> { "S" });
+        Assert.IsTrue(dg.Size == 1);
+    }
+    
 }
