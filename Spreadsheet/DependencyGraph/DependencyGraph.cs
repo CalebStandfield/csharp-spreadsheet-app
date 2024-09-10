@@ -231,7 +231,6 @@ public class DependencyGraph
     /// </summary>
     /// <param name="dependee"> The name of the node that must be evaluated first</param>
     /// <param name="dependent"> The name of the node that cannot be evaluated until after dependee</param>
-    /// <returns>True if deleted, false if it wasn't in the dependencyGraph</returns>
     private void RemoveDependent(string dependee, string dependent)
     {
         // Check if key exists, if not return

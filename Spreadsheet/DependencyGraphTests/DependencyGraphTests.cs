@@ -335,7 +335,7 @@ public class DependencyGraphTests
     }
 
     [TestMethod]
-    public void GetDependees_MultipleDependeesHaveDependents_True()
+    public void GetDependees_MultipleDependentsHaveDependees_True()
     {
         DependencyGraph dg = new();
         dg.AddDependency("A", "B");
