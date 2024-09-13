@@ -5,6 +5,8 @@
 //   (Clarified meaning of dependent and dependee)
 //   (Clarified names in solution/project structure)
 // Version 1.3 - H. James de St. Germain Fall 2024
+// <author>Caleb Stanfield</author>
+// <date>09/12/24</date>
 
 namespace CS3500.DependencyGraph;
 

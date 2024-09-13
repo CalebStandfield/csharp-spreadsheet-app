@@ -12,6 +12,8 @@
 //     You should remove/add/adjust comments in your file as appropriate
 //     to represent your work and any changes you make.
 //   </para>
+// <authors> [Caleb Standfield] </authors>
+// <date> [8/29/24] </date>
 // </summary>
 
 using System.Text;
