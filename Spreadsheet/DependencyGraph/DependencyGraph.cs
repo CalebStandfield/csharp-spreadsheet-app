@@ -240,10 +240,13 @@ public class DependencyGraph
     {
         // Check if key exists try to get value, if not return
         if (!_dependents.TryGetValue(dependee, out var dependeesHashSet)) return;
-        if (dependeesHashSet.Remove(dependent))
+        if (!dependeesHashSet.Remove(dependent)) return;
+        // Key existed and value was removed decrease size
+        _size--;
+        if (dependeesHashSet.Count == 0)
         {
-            // Key existed and value was removed
-            _size--;
+            // Key had no values associated, remove key
+            _dependents.Remove(dependee);
         }
     }
 
@@ -260,9 +263,12 @@ public class DependencyGraph
     private void RemoveDependee(string dependent, string dependee)
     {
         // Check if key exists try to get value
-        if (_dependees.TryGetValue(dependent, out var dependentsHashSet))
+        if (!_dependees.TryGetValue(dependent, out var dependentsHashSet)) return;
+        dependentsHashSet.Remove(dependee);
+        if (dependentsHashSet.Count == 0)
         {
-            dependentsHashSet.Remove(dependee);
+            // Key had no values associated, remove key
+            _dependees.Remove(dependent);
         }
     }
 
