@@ -511,6 +511,19 @@ public class Formula
 
     /// <summary>
     ///   <para>
+    ///     Returns a hash code for this Formula.  If f1.Equals(f2), then it must be the
+    ///     case that f1.GetHashCode() == f2.GetHashCode().  Ideally, the probability that two
+    ///     randomly-generated unequal Formulas have the same hash code should be very small.
+    ///   </para>
+    /// </summary>
+    /// <returns> The hashcode for the object. </returns>
+    public override int GetHashCode()
+    {
+        return ToString().GetHashCode();
+    }
+
+    /// <summary>
+    ///   <para>
     ///     Evaluates this Formula, using the lookup delegate to determine the values of
     ///     variables.
     ///   </para>
@@ -538,21 +551,22 @@ public class Formula
     /// <returns> Either a double or a FormulaError, based on evaluating the formula.</returns>
     public object Evaluate(Lookup lookup)
     {
-        // FIXME: Implement the required algorithm here.
-        throw new NotImplementedException();
+        foreach (var token in _tokens)
+        {
+        }
+
+        return new FormulaError("Invalid token");
     }
 
-    /// <summary>
-    ///   <para>
-    ///     Returns a hash code for this Formula.  If f1.Equals(f2), then it must be the
-    ///     case that f1.GetHashCode() == f2.GetHashCode().  Ideally, the probability that two
-    ///     randomly-generated unequal Formulas have the same hash code should be very small.
-    ///   </para>
-    /// </summary>
-    /// <returns> The hashcode for the object. </returns>
-    public override int GetHashCode()
+    private static double ApplyOperator(double left, double right, string op)
     {
-        return ToString().GetHashCode();
+        return op switch
+        {
+            "+" => left + right,
+            "-" => left - right,
+            "*" => left * right,
+            _ => left / right
+        };
     }
 }
 

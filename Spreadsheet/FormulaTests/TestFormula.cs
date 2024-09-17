@@ -945,6 +945,22 @@ public class FormulaRulesAndPublicMethodsTests
 public class EvaluateOperatorEqualsAndHashCode
 {
     
+    // --- Test Evaluate ---
+    
+    [TestMethod]
+    public void Evaluate_FormulaEvaluatesCorrectly_IsTrue()
+    {
+        var x = new Formula("x + 2");
+        Lookup lookup = variable =>
+        {
+            if (variable == "x")
+                return 2;
+            throw new ArgumentException("Unknown variable");
+        };
+        Assert.IsTrue((int)x.Evaluate(lookup) == 7);
+        
+    }
+    
     // --- Test == ---
     
     [TestMethod]
