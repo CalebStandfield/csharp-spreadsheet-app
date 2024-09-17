@@ -4,6 +4,8 @@
 // <authors> [Caleb Standfield] </authors>
 // <date> [8/29/24] </date>
 
+using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+
 namespace CS3500.FormulaTests;
 
 using CS3500.Formula;
@@ -830,7 +832,7 @@ public class FormulaSyntaxTests
 }
 
 /// <summary>
-/// Tester class for ps2 methods, ToString and GetVariables
+/// Tester class for ps2 methods, ToString and GetVariables.
 /// </summary>
 [TestClass]
 public class FormulaRulesAndPublicMethodsTests
@@ -933,5 +935,253 @@ public class FormulaRulesAndPublicMethodsTests
         var x = new Formula("2 + 2");
         Assert.IsFalse(x.GetVariables().Contains("2"));
         Assert.IsFalse(x.GetVariables().Contains("+"));
+    }
+}
+
+/// <summary>
+/// Tester class for ps4 methods, ==, !=, Equals, and GetHashCode.
+/// </summary>
+[TestClass]
+public class EvaluateOperatorEqualsAndHashCode
+{
+    
+    // --- Test == ---
+    
+    [TestMethod]
+    public void DoubleEquals_FormulasAreEqual_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsTrue(y == x);
+    }
+    
+    [TestMethod]
+    public void DoubleEquals_FormulasAreEqualReverse_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsTrue(x == y);
+    }
+    
+    [TestMethod]
+    public void DoubleEquals_FormulasAreNotEqual_NotEqual()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsFalse(y == x);
+    }
+    
+    [TestMethod]
+    public void DoubleEquals_FormulasAreNotEqualReverse_NotEqual()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsFalse(x == y);
+    }
+    
+    [TestMethod]
+    public void DoubleEquals_AreEqualFromReference_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = x;
+        Assert.IsTrue(y == x);
+    }
+    
+    [TestMethod]
+    public void DoubleEquals_AreEqualFromReferenceReverse_Equal()
+    {
+        var y = new Formula("2 + 2");
+        var x = y;
+        Assert.IsTrue(y == x);
+    }
+    
+    [TestMethod]
+    public void DoubleEquals_FormulaAndNotFormula_NotEqual()
+    {
+        var y = new Formula("2 + 2");
+        var x = new object();
+        Assert.IsFalse(y == x);
+    }
+    
+    // --- Test != ---
+    
+    [TestMethod]
+    public void NotEquals_FormulasAreEqual_IsFalse()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsFalse(x != y);
+    }
+    
+    [TestMethod]
+    public void NotEquals_FormulasAreEqualReverse_IsFalse()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsFalse(y != x);
+    }
+    
+    [TestMethod]
+    public void NotEquals_FormulasAreNotEqual_IsTrue()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsTrue(y != x);
+    }
+    
+    [TestMethod]
+    public void NotEquals_FormulasAreNotEqualReverse_IsTrue()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsTrue(x != y);
+    }
+    
+    [TestMethod]
+    public void NotEquals_AreEqualFromReference_IsFalse()
+    {
+        var x = new Formula("2 + 2");
+        var y = x;
+        Assert.IsFalse(y != x);
+    }
+    
+    [TestMethod]
+    public void NotEquals_AreEqualFromReferenceReverse_IsFalse()
+    {
+        var y = new Formula("2 + 2");
+        var x = y;
+        Assert.IsFalse(y != x);
+    }
+    
+    [TestMethod]
+    public void NotEquals_FormulaAndNotFormula_IsTrue()
+    {
+        var y = new Formula("2 + 2");
+        var x = new object();
+        Assert.IsTrue(y != x);
+    }
+    
+    // --- Test Equals ---
+    
+    [TestMethod]
+    public void Equals_FormulasAreEqual_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsTrue(y.Equals(x));
+    }
+    
+    [TestMethod]
+    public void Equals_FormulasAreEqualReverse_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsTrue(x.Equals(y));
+    }
+    
+    [TestMethod]
+    public void Equals_FormulasAreNotEqual_NotEqual()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsFalse(y.Equals(x));
+    }
+    
+    [TestMethod]
+    public void Equals_FormulasAreNotEqualReverse_NotEqual()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsFalse(x.Equals(y));
+    }
+    
+    [TestMethod]
+    public void Equals_AreEqualFromReference_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = x;
+        Assert.IsTrue(y.Equals(x));
+    }
+    
+    [TestMethod]
+    public void Equals_AreEqualFromReferenceReverse_Equal()
+    {
+        var y = new Formula("2 + 2");
+        var x = y;
+        Assert.IsTrue(y.Equals(x));
+    }
+    
+    [TestMethod]
+    public void Equals_FormulaAndNotFormula_NotEqual()
+    {
+        var y = new Formula("2 + 2");
+        var x = new object();
+        Assert.IsFalse(y.Equals(x));
+    }
+    
+    // --- Test GetHashCode ---
+
+    [TestMethod]
+    public void GetHashCode_HashCodesAreEqual_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsTrue(y.GetHashCode() == x.GetHashCode());
+    }
+
+    [TestMethod]
+    public void GetHashCode_HashCodesAreEqualReversed_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("2 + 2");
+        Assert.IsTrue(x.GetHashCode() == y.GetHashCode());
+    }
+
+    [TestMethod]
+    public void GetHashCode_HashCodesAreEqual_NotEqual()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsFalse(y.GetHashCode() == x.GetHashCode());
+    }
+
+    [TestMethod]
+    public void GetHashCode_HashCodesAreEqualReversed_NotEqual()
+    {
+        var x = new Formula("2 + 2");
+        var y = new Formula("4 + 2");
+        Assert.IsFalse(x.GetHashCode() == y.GetHashCode());
+    }
+
+    [TestMethod]
+    public void GetHashCode_HashCodesAreEqualFromReference_Equal()
+    {
+        var x = new Formula("2 + 2");
+        var y = x;
+        Assert.IsTrue(y.GetHashCode() == x.GetHashCode());
+    }
+    
+    [TestMethod]
+    public void GetHashCode_HashCodesAreEqualFromReferenceReverse_Equal()
+    {
+        var y = new Formula("2 + 2");
+        var x = y;
+        Assert.IsTrue(y.GetHashCode() == x.GetHashCode());
+    }
+    
+    [TestMethod]
+    public void GetHashCode_HashCodesAreStringBasedNotEvaluationBased_NotEqual()
+    {
+        var y = new Formula("2 + 2");
+        var x = 4;
+        Assert.IsFalse(y.GetHashCode() == x.GetHashCode());
+    }
+    
+    [TestMethod]
+    public void GetHashCode_HashCodesFormulaNotFromula_NotEqual()
+    {
+        var y = new Formula("2 + 2");
+        var x = true;
+        Assert.IsFalse(y.GetHashCode() == x.GetHashCode());
     }
 }
