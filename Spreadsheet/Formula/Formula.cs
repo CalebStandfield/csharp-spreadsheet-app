@@ -551,14 +551,112 @@ public class Formula
     /// <returns> Either a double or a FormulaError, based on evaluating the formula.</returns>
     public object Evaluate(Lookup lookup)
     {
+        var valStack = new Stack<double>();
+        var opStack = new Stack<string>();
         foreach (var token in _tokens)
         {
+            // Is number
+            if (double.TryParse(token, out var number))
+            {
+                if (opStack.Count > 0 && opStack.Peek() == "*" || opStack.Peek() == "/")
+                {
+                    var left = valStack.Pop();
+                    var op = opStack.Pop();
+                    if (op == "/" && number == 0)
+                    {
+                        return new FormulaError("Cannot divide by zero.");
+                    }
+
+                    valStack.Push(ApplyOperation(left, number, op));
+                    continue;
+                }
+
+                valStack.Push(number);
+            }
+
+            if (IsVar(token))
+            {
+                // Delegate will throw exception if lookup fails
+                var right = lookup(token);
+                if (opStack.Count > 0 && opStack.Peek() == "*" || opStack.Peek() == "/")
+                {
+                    var left = valStack.Pop();
+                    var op = opStack.Pop();
+                    if (op == "/" && right == 0)
+                    {
+                        return new FormulaError("Cannot divide by zero.");
+                    }
+
+                    valStack.Push(ApplyOperation(left, right, op));
+                    continue;
+                }
+
+                valStack.Push(right);
+            }
+
+            if (token is "+" or "-")
+            {
+                if (opStack.Count > 0 && (opStack.Peek() == "+" || opStack.Peek() == "-"))
+                {
+                    var left = valStack.Pop();
+                    var op = opStack.Pop();
+                    var right = valStack.Pop();
+                    valStack.Push(ApplyOperation(left, right, op));
+                }
+
+                opStack.Push(token);
+            }
+
+            if (token is "*" or "/")
+            {
+                opStack.Push(token);
+            }
+
+            if (OpenPar(token))
+            {
+                opStack.Push(token);
+            }
+
+            if (ClosingPar(token))
+            {
+                if (opStack.Count > 0 && (opStack.Peek() == "+" || opStack.Peek() == "-"))
+                {
+                    var left = valStack.Pop();
+                    var op = opStack.Pop();
+                    var right = valStack.Pop();
+                    valStack.Push(ApplyOperation(left, right, op));
+                }
+
+                opStack.Pop();
+
+                if (opStack.Count > 0 && opStack.Peek() == "*" || opStack.Peek() == "/")
+                {
+                    var left = valStack.Pop();
+                    var op = opStack.Pop();
+                    var right = valStack.Pop();
+                    if (op == "/" && right == 0)
+                    {
+                        return new FormulaError("Cannot divide by zero.");
+                    }
+
+                    valStack.Push(ApplyOperation(left, right, op));
+                }
+            }
+            return opStack.Count == 0 ? valStack.Pop() : ApplyOperation(valStack.Pop(), valStack.Pop(), opStack.Pop());
         }
 
         return new FormulaError("Invalid token");
     }
 
-    private static double ApplyOperator(double left, double right, string op)
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <param name="op"></param>
+    /// <returns></returns>
+    private static double ApplyOperation(double left, double right, string op)
     {
         return op switch
         {
