@@ -603,10 +603,7 @@ public class Formula
                 {
                     if (opStack.IsOnTop("+", "-"))
                     {
-                        var right = valStack.Pop();
-                        var op = opStack.Pop();
-                        var left = valStack.Pop();
-                        valStack.Push(ApplyOperation(left, right, op));
+                        valStack.Push(PopStacksAndApplyOperation(valStack, opStack));
                     }
 
                     opStack.Push(token);
@@ -622,25 +619,19 @@ public class Formula
                 {
                     if (opStack.IsOnTop("+", "-"))
                     {
-                        var right = valStack.Pop();
-                        var op = opStack.Pop();
-                        var left = valStack.Pop();
-                        valStack.Push(ApplyOperation(left, right, op));
+                        valStack.Push(PopStacksAndApplyOperation(valStack, opStack));
                     }
 
                     opStack.Pop();
 
                     if (opStack.IsOnTop("*", "/"))
                     {
-                        var right = valStack.Pop();
-                        var op = opStack.Pop();
-                        var left = valStack.Pop();
-                        if (op == "/" && right == 0)
+                        if (opStack.Peek().Equals("/") && valStack.Peek().Equals(0))
                         {
                             return new FormulaError("Cannot divide by zero.");
                         }
 
-                        valStack.Push(ApplyOperation(left, right, op));
+                        valStack.Push(PopStacksAndApplyOperation(valStack, opStack));
                     }
 
                     break;
@@ -648,14 +639,7 @@ public class Formula
             }
         }
 
-        if (opStack.Count == 0)
-        {
-            return valStack.Pop();
-        }
-
-        var r = valStack.Pop();
-        var l = valStack.Pop();
-        return ApplyOperation(l, r, opStack.Pop());
+        return opStack.Count == 0 ? valStack.Pop() : PopStacksAndApplyOperation(valStack, opStack);
     }
 
     /// <summary>
@@ -676,7 +660,7 @@ public class Formula
         };
     }
 
-    private static double PopStacksThenApplyOperation(Stack<double> valStack, Stack<string> opStack)
+    private static double PopStacksAndApplyOperation(Stack<double> valStack, Stack<string> opStack)
     {
         var right = valStack.Pop();
         var op = opStack.Pop();

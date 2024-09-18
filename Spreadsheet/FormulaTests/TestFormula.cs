@@ -1009,7 +1009,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new Formula("16 / 2 / 2 / 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_LeftToRight_EvaluatesCorrectly()
     {
@@ -1044,6 +1044,13 @@ public class EvaluateOperatorEqualsAndHashCode
     public void Evaluate_AdditionFollowingParenthesis_EvaluatesCorrectly()
     {
         var x = new Formula("(2 + 2) + 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 6.0, 1e-9);
+    }
+
+    [TestMethod]
+    public void Evaluate_AdditionBeforeParenthesisSurrounded_EvaluatesCorrectly()
+    {
+        var x = new Formula("(2 + (2 + 2))");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 6.0, 1e-9);
     }
 
@@ -1127,7 +1134,7 @@ public class EvaluateOperatorEqualsAndHashCode
         };
         Assert.AreEqual((double)x.Evaluate(lookup), 8.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_DivideByLookup0_ReturnsFormulaError()
     {
@@ -1142,14 +1149,35 @@ public class EvaluateOperatorEqualsAndHashCode
         };
         Assert.IsInstanceOfType<FormulaError>(x.Evaluate(lookup));
     }
-    
+
     [TestMethod]
     public void Evaluate_DivideByNumber0_ReturnsFormulaError()
     {
         var x = new Formula("2 / 0");
         Assert.IsInstanceOfType<FormulaError>(x.Evaluate(_ => 0));
     }
-    
+
+    [TestMethod]
+    public void Evaluate_DivideByNumber0Surrounded_ReturnsFormulaError()
+    {
+        var x = new Formula("(2 / 0)");
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(_ => 0));
+    }
+
+    [TestMethod]
+    public void Evaluate_DivideByNumber0AfterParenthesis_ReturnsFormulaError()
+    {
+        var x = new Formula("(2 / 2) / 0");
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(_ => 0));
+    }
+
+    [TestMethod]
+    public void Evaluate_DivideByNumberParenthesisValue0_ReturnsFormulaError()
+    {
+        var x = new Formula("(2 / (0))");
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(_ => 0));
+    }
+
     [TestMethod]
     public void Evaluate_AEqualsBAndBEqualsA_AreEqual()
     {
@@ -1157,7 +1185,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("(8 / 2) + 2 * 4");
         Assert.AreEqual((double)x.Evaluate(_ => 0), (double)y.Evaluate(_ => 0), 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_AEqualsBAndBEqualsAButHashCodeDiffer_AreEqualAndNotEqual()
     {
