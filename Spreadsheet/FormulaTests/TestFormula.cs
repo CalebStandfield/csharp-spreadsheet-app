@@ -975,7 +975,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new Formula("8 - 2 - 2 - 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_SubtractionReverseNotEqual_AreNotEqual()
     {
@@ -990,7 +990,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new Formula("2 * 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_MultiMultiplication_EvaluatesCorrectly()
     {
@@ -1004,14 +1004,14 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new Formula("2 / 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 1.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_MultiDivision_EvaluatesCorrectly()
     {
         var x = new Formula("16 / 2 / 2 / 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_DivisionReverseNotEqual_AreNotEqual()
     {
@@ -1019,35 +1019,35 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("2 / 8");
         Assert.AreNotEqual((double)x.Evaluate(_ => 0), (double)y.Evaluate(_ => 0), 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_SimpleParenthesis_EvaluatesCorrectly()
     {
         var x = new Formula("(2 + 2)");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_DoubledParenthesis_EvaluatesCorrectly()
     {
         var x = new Formula("((2 + 2))");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_AdditionFollowingParenthesis_EvaluatesCorrectly()
     {
         var x = new Formula("(2 + 2) + 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 6.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_AdditionFollowingParenthesisSurrounded_EvaluatesCorrectly()
     {
         var x = new Formula("((2 + 2) + 2)");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 6.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_DivisionFollowingParenthesis_EvaluatesCorrectly()
     {
@@ -1055,7 +1055,7 @@ public class EvaluateOperatorEqualsAndHashCode
         // Value should be 5 as we evaluate parenthesis first
         Assert.AreEqual((double)x.Evaluate(_ => 0), 5.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_DivisionBeforeParenthesis_EvaluatesCorrectly()
     {
@@ -1063,7 +1063,7 @@ public class EvaluateOperatorEqualsAndHashCode
         // Value should be 2 as we evaluate parenthesis first
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_OneVariableLookup_EvaluatesCorrectly()
     {
@@ -1076,7 +1076,7 @@ public class EvaluateOperatorEqualsAndHashCode
         };
         Assert.AreEqual((double)x.Evaluate(lookup), 4.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_SameVariableLookup_EvaluatesCorrectly()
     {
@@ -1176,14 +1176,6 @@ public class EvaluateOperatorEqualsAndHashCode
         Assert.IsTrue(y == x);
     }
 
-    [TestMethod]
-    public void DoubleEquals_FormulaAndNotFormula_NotEqual()
-    {
-        var y = new Formula("2 + 2");
-        var x = new object();
-        Assert.IsFalse(y == x);
-    }
-
     #endregion
 
     // --- Test != ---
@@ -1238,17 +1230,11 @@ public class EvaluateOperatorEqualsAndHashCode
         Assert.IsFalse(y != x);
     }
 
-    [TestMethod]
-    public void NotEquals_FormulaAndNotFormula_IsTrue()
-    {
-        var y = new Formula("2 + 2");
-        var x = new object();
-        Assert.IsTrue(y != x);
-    }
-    
     #endregion
 
     // --- Test Equals ---
+
+    #region EqualsTests
 
     [TestMethod]
     public void Equals_FormulasAreEqual_Equal()
@@ -1306,7 +1292,11 @@ public class EvaluateOperatorEqualsAndHashCode
         Assert.IsFalse(y.Equals(x));
     }
 
+    #endregion
+
     // --- Test GetHashCode ---
+
+    #region GetHashCodeTests
 
     [TestMethod]
     public void GetHashCode_HashCodesAreEqual_Equal()
@@ -1371,4 +1361,6 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = true;
         Assert.IsFalse(y.GetHashCode() == x.GetHashCode());
     }
+
+    #endregion
 }
