@@ -673,7 +673,7 @@ public class Formula
     ///   <para>
     ///     Takes in three parameters in which it will pop the valStack and opStack;
     ///     the number will be the right side and the value from valStack will be the left side of the equation.
-    ///     Then this method will apply the operator to the valStack pop and number and return the result.
+    ///     Then this method will apply the operator to the valStack pop value and number then return the result.
     ///   </para>
     /// </summary>
     /// <param name="valStack">Holds the left number</param>
