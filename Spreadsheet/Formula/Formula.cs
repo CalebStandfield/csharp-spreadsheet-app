@@ -559,7 +559,7 @@ public class Formula
             if (ValidNumber(token))
             {
                 var number = double.Parse(token);
-                if (opStack.Count > 0 && (opStack.Peek() == "*" || opStack.Peek() == "/"))
+                if (opStack.IsOnTop("*", "/"))
                 {
                     var left = valStack.Pop();
                     var op = opStack.Pop();
@@ -580,7 +580,7 @@ public class Formula
             {
                 // Delegate will throw ArgumentException if lookup fails
                 var right = lookup(token);
-                if (opStack.Count > 0 && (opStack.Peek() == "*" || opStack.Peek() == "/"))
+                if (opStack.IsOnTop("*", "/"))
                 {
                     var op = opStack.Pop();
                     var left = valStack.Pop();
@@ -599,7 +599,7 @@ public class Formula
 
             if (token is "+" or "-")
             {
-                if (opStack.Count > 0 && (opStack.Peek() == "+" || opStack.Peek() == "-"))
+                if (opStack.IsOnTop("+", "-"))
                 {
                     var right = valStack.Pop();
                     var op = opStack.Pop();
@@ -625,7 +625,7 @@ public class Formula
 
             if (ClosingPar(token))
             {
-                if (opStack.Count > 0 && (opStack.Peek() == "+" || opStack.Peek() == "-"))
+                if (opStack.IsOnTop("+", "-"))
                 {
                     var right = valStack.Pop();
                     var op = opStack.Pop();
@@ -635,7 +635,7 @@ public class Formula
 
                 opStack.Pop();
 
-                if (opStack.Count > 0 && (opStack.Peek() == "*" || opStack.Peek() == "/"))
+                if (opStack.IsOnTop("*", "/"))
                 {
                     var right = valStack.Pop();
                     var op = opStack.Pop();
@@ -649,6 +649,7 @@ public class Formula
                 }
             }
         }
+
         if (opStack.Count == 0)
         {
             return valStack.Pop();
@@ -658,7 +659,6 @@ public class Formula
         var l = valStack.Pop();
         return ApplyOperation(l, r, opStack.Pop());
     }
-
 
     /// <summary>
     /// 
