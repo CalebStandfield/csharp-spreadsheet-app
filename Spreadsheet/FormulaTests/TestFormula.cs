@@ -4,8 +4,6 @@
 // <authors> [Caleb Standfield] </authors>
 // <date> [8/29/24] </date>
 
-using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-
 namespace CS3500.FormulaTests;
 
 using CS3500.Formula;
@@ -1011,6 +1009,14 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new Formula("16 / 2 / 2 / 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
+    
+    [TestMethod]
+    public void Evaluate_LeftToRight_EvaluatesCorrectly()
+    {
+        var x = new Formula("4 + 8 / 2 - 1"); // Is 9
+        var y = new Formula("4 + (8 / 2) - 1"); // Is 9
+        Assert.AreEqual((double)x.Evaluate(_ => 0), (double)y.Evaluate(_ => 0), 1e-9);
+    }
 
     [TestMethod]
     public void Evaluate_DivisionReverseNotEqual_AreNotEqual()
@@ -1120,6 +1126,45 @@ public class EvaluateOperatorEqualsAndHashCode
             };
         };
         Assert.AreEqual((double)x.Evaluate(lookup), 8.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_DivideByLookup0_ReturnsFormulaError()
+    {
+        var x = new Formula("2 / C2");
+        Lookup lookup = variable =>
+        {
+            return variable switch
+            {
+                "C2" => 0.0,
+                _ => throw new ArgumentException("Unknown variable")
+            };
+        };
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(lookup));
+    }
+    
+    [TestMethod]
+    public void Evaluate_DivideByNumber0_ReturnsFormulaError()
+    {
+        var x = new Formula("2 / 0");
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(_ => 0));
+    }
+    
+    [TestMethod]
+    public void Evaluate_AEqualsBAndBEqualsA_AreEqual()
+    {
+        var x = new Formula("2 * 4 + (8 / 2)");
+        var y = new Formula("(8 / 2) + 2 * 4");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), (double)y.Evaluate(_ => 0), 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_AEqualsBAndBEqualsAButHashCodeDiffer_AreEqualAndNotEqual()
+    {
+        var x = new Formula("2 * 4 + (8 / 2)");
+        var y = new Formula("(8 / 2) + 2 * 4");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), (double)y.Evaluate(_ => 0), 1e-9);
+        Assert.AreNotEqual(x.GetHashCode(), y.GetHashCode());
     }
 
     #endregion
