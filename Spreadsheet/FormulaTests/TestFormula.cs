@@ -975,6 +975,14 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new Formula("8 - 2 - 2 - 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
+    
+    [TestMethod]
+    public void Evaluate_SubtractionReverseNotEqual_AreNotEqual()
+    {
+        var x = new Formula("8 - 2");
+        var y = new Formula("2 - 8");
+        Assert.AreNotEqual((double)x.Evaluate(_ => 0), (double)y.Evaluate(_ => 0), 1e-9);
+    }
 
     [TestMethod]
     public void Evaluate_SimpleMultiplication_EvaluatesCorrectly()
@@ -1002,6 +1010,14 @@ public class EvaluateOperatorEqualsAndHashCode
     {
         var x = new Formula("16 / 2 / 2 / 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_DivisionReverseNotEqual_AreNotEqual()
+    {
+        var x = new Formula("8 / 2");
+        var y = new Formula("2 / 8");
+        Assert.AreNotEqual((double)x.Evaluate(_ => 0), (double)y.Evaluate(_ => 0), 1e-9);
     }
     
     [TestMethod]
@@ -1047,13 +1063,24 @@ public class EvaluateOperatorEqualsAndHashCode
         // Value should be 2 as we evaluate parenthesis first
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
-
-
-
+    
     [TestMethod]
     public void Evaluate_OneVariableLookup_EvaluatesCorrectly()
     {
         var x = new Formula("C2 + 2");
+        Lookup lookup = variable =>
+        {
+            if (variable == "C2")
+                return 2.0;
+            throw new ArgumentException("Unknown variable");
+        };
+        Assert.AreEqual((double)x.Evaluate(lookup), 4.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_SameVariableLookup_EvaluatesCorrectly()
+    {
+        var x = new Formula("C2 + C2");
         Lookup lookup = variable =>
         {
             if (variable == "C2")
@@ -1338,7 +1365,7 @@ public class EvaluateOperatorEqualsAndHashCode
     }
 
     [TestMethod]
-    public void GetHashCode_HashCodesFormulaNotFromula_NotEqual()
+    public void GetHashCode_HashCodesFormulaNotFormula_NotEqual()
     {
         var y = new Formula("2 + 2");
         var x = true;

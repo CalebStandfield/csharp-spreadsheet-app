@@ -578,7 +578,7 @@ public class Formula
 
             if (IsVar(token))
             {
-                // Delegate will throw exception if lookup fails
+                // Delegate will throw ArgumentException if lookup fails
                 var right = lookup(token);
                 if (opStack.Count > 0 && (opStack.Peek() == "*" || opStack.Peek() == "/"))
                 {
@@ -657,8 +657,6 @@ public class Formula
         var r = valStack.Pop();
         var l = valStack.Pop();
         return ApplyOperation(l, r, opStack.Pop());
-
-        return new FormulaError("Failed");
     }
 
 
