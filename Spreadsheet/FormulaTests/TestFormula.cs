@@ -944,39 +944,38 @@ public class FormulaRulesAndPublicMethodsTests
 [TestClass]
 public class EvaluateOperatorEqualsAndHashCode
 {
-    
     // --- Test Evaluate ---
-    
+
     #region EvaluateTests
-    
+
     [TestMethod]
     public void Evaluate_SimpleAddition_EvaluatesCorrectly()
     {
         var x = new Formula("2 + 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_MultiAddition_EvaluatesCorrectly()
     {
         var x = new Formula("2 + 2 + 2 + 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 8.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_SimpleSubtraction_EvaluatesCorrectly()
     {
         var x = new Formula("2 - 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 0.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_MultiSubtraction_EvaluatesCorrectly()
     {
         var x = new Formula("8 - 2 - 2 - 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_SimpleMultiplication_EvaluatesCorrectly()
     {
@@ -985,12 +984,72 @@ public class EvaluateOperatorEqualsAndHashCode
     }
     
     [TestMethod]
+    public void Evaluate_MultiMultiplication_EvaluatesCorrectly()
+    {
+        var x = new Formula("2 * 2 * 2 * 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 16.0, 1e-9);
+    }
+
+    [TestMethod]
     public void Evaluate_SimpleDivision_EvaluatesCorrectly()
     {
         var x = new Formula("2 / 2");
         Assert.AreEqual((double)x.Evaluate(_ => 0), 1.0, 1e-9);
     }
     
+    [TestMethod]
+    public void Evaluate_MultiDivision_EvaluatesCorrectly()
+    {
+        var x = new Formula("16 / 2 / 2 / 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_SimpleParenthesis_EvaluatesCorrectly()
+    {
+        var x = new Formula("(2 + 2)");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_DoubledParenthesis_EvaluatesCorrectly()
+    {
+        var x = new Formula("((2 + 2))");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_AdditionFollowingParenthesis_EvaluatesCorrectly()
+    {
+        var x = new Formula("(2 + 2) + 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 6.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_AdditionFollowingParenthesisSurrounded_EvaluatesCorrectly()
+    {
+        var x = new Formula("((2 + 2) + 2)");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 6.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_DivisionFollowingParenthesis_EvaluatesCorrectly()
+    {
+        var x = new Formula("((8 + 2) / 2)");
+        // Value should be 5 as we evaluate parenthesis first
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 5.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_DivisionBeforeParenthesis_EvaluatesCorrectly()
+    {
+        var x = new Formula("20 / (8 + 2)");
+        // Value should be 2 as we evaluate parenthesis first
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
+    }
+
+
+
     [TestMethod]
     public void Evaluate_OneVariableLookup_EvaluatesCorrectly()
     {
@@ -1003,7 +1062,7 @@ public class EvaluateOperatorEqualsAndHashCode
         };
         Assert.AreEqual((double)x.Evaluate(lookup), 4.0, 1e-9);
     }
-    
+
     [TestMethod]
     public void Evaluate_MultiVariableLookup_EvaluatesCorrectly()
     {
@@ -1019,7 +1078,7 @@ public class EvaluateOperatorEqualsAndHashCode
         };
         Assert.AreEqual((double)x.Evaluate(lookup), 8.0, 1e-9);
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
     public void Evaluate_VariableNotFound_ThrowsArgumentException()
@@ -1035,11 +1094,13 @@ public class EvaluateOperatorEqualsAndHashCode
         };
         Assert.AreEqual((double)x.Evaluate(lookup), 8.0, 1e-9);
     }
-    
+
     #endregion
-    
+
     // --- Test == ---
-    
+
+    #region DoubleEqualsTests
+
     [TestMethod]
     public void DoubleEquals_FormulasAreEqual_Equal()
     {
@@ -1047,7 +1108,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("2 + 2");
         Assert.IsTrue(y == x);
     }
-    
+
     [TestMethod]
     public void DoubleEquals_FormulasAreEqualReverse_Equal()
     {
@@ -1055,7 +1116,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("2 + 2");
         Assert.IsTrue(x == y);
     }
-    
+
     [TestMethod]
     public void DoubleEquals_FormulasAreNotEqual_NotEqual()
     {
@@ -1063,7 +1124,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("4 + 2");
         Assert.IsFalse(y == x);
     }
-    
+
     [TestMethod]
     public void DoubleEquals_FormulasAreNotEqualReverse_NotEqual()
     {
@@ -1071,7 +1132,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("4 + 2");
         Assert.IsFalse(x == y);
     }
-    
+
     [TestMethod]
     public void DoubleEquals_AreEqualFromReference_Equal()
     {
@@ -1079,7 +1140,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = x;
         Assert.IsTrue(y == x);
     }
-    
+
     [TestMethod]
     public void DoubleEquals_AreEqualFromReferenceReverse_Equal()
     {
@@ -1087,7 +1148,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = y;
         Assert.IsTrue(y == x);
     }
-    
+
     [TestMethod]
     public void DoubleEquals_FormulaAndNotFormula_NotEqual()
     {
@@ -1095,9 +1156,13 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new object();
         Assert.IsFalse(y == x);
     }
-    
+
+    #endregion
+
     // --- Test != ---
-    
+
+    #region NotEqualsTests
+
     [TestMethod]
     public void NotEquals_FormulasAreEqual_IsFalse()
     {
@@ -1105,7 +1170,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("2 + 2");
         Assert.IsFalse(x != y);
     }
-    
+
     [TestMethod]
     public void NotEquals_FormulasAreEqualReverse_IsFalse()
     {
@@ -1113,7 +1178,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("2 + 2");
         Assert.IsFalse(y != x);
     }
-    
+
     [TestMethod]
     public void NotEquals_FormulasAreNotEqual_IsTrue()
     {
@@ -1121,7 +1186,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("4 + 2");
         Assert.IsTrue(y != x);
     }
-    
+
     [TestMethod]
     public void NotEquals_FormulasAreNotEqualReverse_IsTrue()
     {
@@ -1129,7 +1194,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("4 + 2");
         Assert.IsTrue(x != y);
     }
-    
+
     [TestMethod]
     public void NotEquals_AreEqualFromReference_IsFalse()
     {
@@ -1137,7 +1202,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = x;
         Assert.IsFalse(y != x);
     }
-    
+
     [TestMethod]
     public void NotEquals_AreEqualFromReferenceReverse_IsFalse()
     {
@@ -1145,7 +1210,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = y;
         Assert.IsFalse(y != x);
     }
-    
+
     [TestMethod]
     public void NotEquals_FormulaAndNotFormula_IsTrue()
     {
@@ -1154,8 +1219,10 @@ public class EvaluateOperatorEqualsAndHashCode
         Assert.IsTrue(y != x);
     }
     
+    #endregion
+
     // --- Test Equals ---
-    
+
     [TestMethod]
     public void Equals_FormulasAreEqual_Equal()
     {
@@ -1163,7 +1230,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("2 + 2");
         Assert.IsTrue(y.Equals(x));
     }
-    
+
     [TestMethod]
     public void Equals_FormulasAreEqualReverse_Equal()
     {
@@ -1171,7 +1238,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("2 + 2");
         Assert.IsTrue(x.Equals(y));
     }
-    
+
     [TestMethod]
     public void Equals_FormulasAreNotEqual_NotEqual()
     {
@@ -1179,7 +1246,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("4 + 2");
         Assert.IsFalse(y.Equals(x));
     }
-    
+
     [TestMethod]
     public void Equals_FormulasAreNotEqualReverse_NotEqual()
     {
@@ -1187,7 +1254,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = new Formula("4 + 2");
         Assert.IsFalse(x.Equals(y));
     }
-    
+
     [TestMethod]
     public void Equals_AreEqualFromReference_Equal()
     {
@@ -1195,7 +1262,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = x;
         Assert.IsTrue(y.Equals(x));
     }
-    
+
     [TestMethod]
     public void Equals_AreEqualFromReferenceReverse_Equal()
     {
@@ -1203,7 +1270,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = y;
         Assert.IsTrue(y.Equals(x));
     }
-    
+
     [TestMethod]
     public void Equals_FormulaAndNotFormula_NotEqual()
     {
@@ -1211,7 +1278,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = new object();
         Assert.IsFalse(y.Equals(x));
     }
-    
+
     // --- Test GetHashCode ---
 
     [TestMethod]
@@ -1253,7 +1320,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var y = x;
         Assert.IsTrue(y.GetHashCode() == x.GetHashCode());
     }
-    
+
     [TestMethod]
     public void GetHashCode_HashCodesAreEqualFromReferenceReverse_Equal()
     {
@@ -1261,7 +1328,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = y;
         Assert.IsTrue(y.GetHashCode() == x.GetHashCode());
     }
-    
+
     [TestMethod]
     public void GetHashCode_HashCodesAreStringBasedNotEvaluationBased_NotEqual()
     {
@@ -1269,7 +1336,7 @@ public class EvaluateOperatorEqualsAndHashCode
         var x = 4;
         Assert.IsFalse(y.GetHashCode() == x.GetHashCode());
     }
-    
+
     [TestMethod]
     public void GetHashCode_HashCodesFormulaNotFromula_NotEqual()
     {
