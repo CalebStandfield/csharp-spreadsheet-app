@@ -561,14 +561,12 @@ public class Formula
                 var number = double.Parse(token);
                 if (opStack.IsOnTop("*", "/"))
                 {
-                    var left = valStack.Pop();
-                    var op = opStack.Pop();
-                    if (op == "/" && number == 0)
+                    if (opStack.Peek().Equals("/") && number.Equals(0))
                     {
                         return new FormulaError("Cannot divide by zero.");
                     }
 
-                    valStack.Push(ApplyOperation(left, number, op));
+                    valStack.Push(ApplyOperation(valStack, number, opStack));
                     continue;
                 }
 
@@ -579,21 +577,19 @@ public class Formula
             if (IsVar(token))
             {
                 // Delegate will throw ArgumentException if lookup fails
-                var right = lookup(token);
+                var number = lookup(token);
                 if (opStack.IsOnTop("*", "/"))
                 {
-                    var op = opStack.Pop();
-                    var left = valStack.Pop();
-                    if (op == "/" && right == 0)
+                    if (opStack.Peek().Equals("/") && number.Equals(0))
                     {
                         return new FormulaError("Cannot divide by zero.");
                     }
 
-                    valStack.Push(ApplyOperation(left, right, op));
+                    valStack.Push(ApplyOperation(valStack, number, opStack));
                     continue;
                 }
 
-                valStack.Push(right);
+                valStack.Push(number);
                 continue;
             }
 
@@ -603,7 +599,7 @@ public class Formula
                 {
                     if (opStack.IsOnTop("+", "-"))
                     {
-                        valStack.Push(PopStacksAndApplyOperation(valStack, opStack));
+                        valStack.Push(ApplyOperation(valStack, opStack));
                     }
 
                     opStack.Push(token);
@@ -619,7 +615,7 @@ public class Formula
                 {
                     if (opStack.IsOnTop("+", "-"))
                     {
-                        valStack.Push(PopStacksAndApplyOperation(valStack, opStack));
+                        valStack.Push(ApplyOperation(valStack, opStack));
                     }
 
                     opStack.Pop();
@@ -631,7 +627,7 @@ public class Formula
                             return new FormulaError("Cannot divide by zero.");
                         }
 
-                        valStack.Push(PopStacksAndApplyOperation(valStack, opStack));
+                        valStack.Push(ApplyOperation(valStack, opStack));
                     }
 
                     break;
@@ -639,7 +635,7 @@ public class Formula
             }
         }
 
-        return opStack.Count == 0 ? valStack.Pop() : PopStacksAndApplyOperation(valStack, opStack);
+        return opStack.Count == 0 ? valStack.Pop() : ApplyOperation(valStack, opStack);
     }
 
     /// <summary>
@@ -649,7 +645,7 @@ public class Formula
     /// <param name="right"></param>
     /// <param name="op"></param>
     /// <returns></returns>
-    private static double ApplyOperation(double left, double right, string op)
+    private static double ApplicationOfOperation(double left, double right, string op)
     {
         return op switch
         {
@@ -660,12 +656,32 @@ public class Formula
         };
     }
 
-    private static double PopStacksAndApplyOperation(Stack<double> valStack, Stack<string> opStack)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="valStack"></param>
+    /// <param name="opStack"></param>
+    /// <returns></returns>
+    private static double ApplyOperation(Stack<double> valStack, Stack<string> opStack)
     {
         var right = valStack.Pop();
         var op = opStack.Pop();
         var left = valStack.Pop();
-        return ApplyOperation(left, right, op);
+        return ApplicationOfOperation(left, right, op);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="valStack"></param>
+    /// <param name="number"></param>
+    /// <param name="opStack"></param>
+    /// <returns></returns>
+    private static double ApplyOperation(Stack<double> valStack, double number, Stack<string> opStack)
+    {
+        var op = opStack.Pop();
+        var left = valStack.Pop();
+        return ApplicationOfOperation(left, number, op);
     }
 }
 
