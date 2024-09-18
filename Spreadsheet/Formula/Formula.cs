@@ -555,17 +555,19 @@ public class Formula
         var opStack = new Stack<string>();
         foreach (var token in _tokens)
         {
-            // Is number
+            // Is a number
             if (ValidNumber(token))
             {
                 var number = double.Parse(token);
                 if (opStack.IsOnTop("*", "/"))
                 {
+                    // Divide by 0 check
                     if (opStack.Peek().Equals("/") && number.Equals(0))
                     {
                         return new FormulaError("Cannot divide by zero.");
                     }
 
+                    // Push the evaluation to valStack
                     valStack.Push(ApplyOperation(valStack, number, opStack));
                     continue;
                 }
@@ -574,17 +576,20 @@ public class Formula
                 continue;
             }
 
+            // Is a Token
             if (IsVar(token))
             {
                 // Delegate will throw ArgumentException if lookup fails
                 var number = lookup(token);
                 if (opStack.IsOnTop("*", "/"))
                 {
+                    // Divide by 0 check
                     if (opStack.Peek().Equals("/") && number.Equals(0))
                     {
                         return new FormulaError("Cannot divide by zero.");
                     }
 
+                    // Push the evaluation to valStack
                     valStack.Push(ApplyOperation(valStack, number, opStack));
                     continue;
                 }
@@ -593,12 +598,14 @@ public class Formula
                 continue;
             }
 
+            // Determine which operator token currently is
             switch (token)
             {
                 case "+" or "-":
                 {
                     if (opStack.IsOnTop("+", "-"))
                     {
+                        // Push the evaluation to valStack
                         valStack.Push(ApplyOperation(valStack, opStack));
                     }
 
@@ -615,18 +622,22 @@ public class Formula
                 {
                     if (opStack.IsOnTop("+", "-"))
                     {
+                        // Push the evaluation to valStack
                         valStack.Push(ApplyOperation(valStack, opStack));
                     }
 
+                    // Pop the opening parenthesis
                     opStack.Pop();
 
                     if (opStack.IsOnTop("*", "/"))
                     {
+                        // Divide by 0 check
                         if (opStack.Peek().Equals("/") && valStack.Peek().Equals(0))
                         {
                             return new FormulaError("Cannot divide by zero.");
                         }
 
+                        // Push the evaluation to valStack
                         valStack.Push(ApplyOperation(valStack, opStack));
                     }
 
@@ -635,33 +646,21 @@ public class Formula
             }
         }
 
+        // Either return last element of valStack or
+        // apply operation to last remaining elements in stacks and return 
         return opStack.Count == 0 ? valStack.Pop() : ApplyOperation(valStack, opStack);
     }
 
     /// <summary>
-    /// 
+    ///   <para>
+    ///     Takes in two parameters in which it will pop the valStack twice and the opStack once;
+    ///     the first value from the valStack will be the right side and the second value will be the left side of the equation.
+    ///     Then this method will apply the operator between the two numbers and return the result
+    ///   </para>
     /// </summary>
-    /// <param name="left"></param>
-    /// <param name="right"></param>
-    /// <param name="op"></param>
-    /// <returns></returns>
-    private static double ApplicationOfOperation(double left, double right, string op)
-    {
-        return op switch
-        {
-            "+" => left + right,
-            "-" => left - right,
-            "*" => left * right,
-            _ => left / right
-        };
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="valStack"></param>
-    /// <param name="opStack"></param>
-    /// <returns></returns>
+    /// <param name="valStack">Holds the numbers to be evaluated</param>
+    /// <param name="opStack">Holds the operator for evaluation</param>
+    /// <returns>The double of the evaluation</returns>
     private static double ApplyOperation(Stack<double> valStack, Stack<string> opStack)
     {
         var right = valStack.Pop();
@@ -671,17 +670,44 @@ public class Formula
     }
 
     /// <summary>
-    /// 
+    ///   <para>
+    ///     Takes in three parameters in which it will pop the valStack and opStack;
+    ///     the number will be the right side and the value from valStack will be the left side of the equation.
+    ///     Then this method will apply the operator to the valStack pop and number and return the result.
+    ///   </para>
     /// </summary>
-    /// <param name="valStack"></param>
-    /// <param name="number"></param>
-    /// <param name="opStack"></param>
-    /// <returns></returns>
+    /// <param name="valStack">Holds the left number</param>
+    /// <param name="number">Is the right number</param>
+    /// <param name="opStack">Holds the operator</param>
+    /// <returns>The double of the evaluation</returns>
     private static double ApplyOperation(Stack<double> valStack, double number, Stack<string> opStack)
     {
         var op = opStack.Pop();
         var left = valStack.Pop();
         return ApplicationOfOperation(left, number, op);
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Applies an operator to two numbers.
+    ///     Left Number, Operator, Right Number.
+    ///   </para>
+    /// </summary>
+    /// <param name="left">The number to the left side of the operator</param>
+    /// <param name="right">The number to the right side of the operator</param>
+    /// <param name="op">
+    ///   The operator in question, can be either "+", "-", "*", or "/". Any other operator will default to addition
+    /// </param>
+    /// <returns>The double of the evaluation</returns>
+    private static double ApplicationOfOperation(double left, double right, string op)
+    {
+        return op switch
+        {
+            "*" => left * right,
+            "/" => left / right,
+            "-" => left - right,
+            _ => left + right
+        };
     }
 }
 
