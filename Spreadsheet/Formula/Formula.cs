@@ -597,55 +597,53 @@ public class Formula
                 continue;
             }
 
-            if (token is "+" or "-")
+            switch (token)
             {
-                if (opStack.IsOnTop("+", "-"))
+                case "+" or "-":
                 {
-                    var right = valStack.Pop();
-                    var op = opStack.Pop();
-                    var left = valStack.Pop();
-                    valStack.Push(ApplyOperation(left, right, op));
-                }
-
-                opStack.Push(token);
-                continue;
-            }
-
-            if (token is "*" or "/")
-            {
-                opStack.Push(token);
-                continue;
-            }
-
-            if (OpenPar(token))
-            {
-                opStack.Push(token);
-                continue;
-            }
-
-            if (ClosingPar(token))
-            {
-                if (opStack.IsOnTop("+", "-"))
-                {
-                    var right = valStack.Pop();
-                    var op = opStack.Pop();
-                    var left = valStack.Pop();
-                    valStack.Push(ApplyOperation(left, right, op));
-                }
-
-                opStack.Pop();
-
-                if (opStack.IsOnTop("*", "/"))
-                {
-                    var right = valStack.Pop();
-                    var op = opStack.Pop();
-                    var left = valStack.Pop();
-                    if (op == "/" && right == 0)
+                    if (opStack.IsOnTop("+", "-"))
                     {
-                        return new FormulaError("Cannot divide by zero.");
+                        var right = valStack.Pop();
+                        var op = opStack.Pop();
+                        var left = valStack.Pop();
+                        valStack.Push(ApplyOperation(left, right, op));
                     }
 
-                    valStack.Push(ApplyOperation(left, right, op));
+                    opStack.Push(token);
+                    continue;
+                }
+                case "*" or "/":
+                    opStack.Push(token);
+                    continue;
+                case "(":
+                    opStack.Push(token);
+                    continue;
+                case ")":
+                {
+                    if (opStack.IsOnTop("+", "-"))
+                    {
+                        var right = valStack.Pop();
+                        var op = opStack.Pop();
+                        var left = valStack.Pop();
+                        valStack.Push(ApplyOperation(left, right, op));
+                    }
+
+                    opStack.Pop();
+
+                    if (opStack.IsOnTop("*", "/"))
+                    {
+                        var right = valStack.Pop();
+                        var op = opStack.Pop();
+                        var left = valStack.Pop();
+                        if (op == "/" && right == 0)
+                        {
+                            return new FormulaError("Cannot divide by zero.");
+                        }
+
+                        valStack.Push(ApplyOperation(left, right, op));
+                    }
+
+                    break;
                 }
             }
         }
@@ -676,6 +674,14 @@ public class Formula
             "*" => left * right,
             _ => left / right
         };
+    }
+
+    private static double PopStacksThenApplyOperation(Stack<double> valStack, Stack<string> opStack)
+    {
+        var right = valStack.Pop();
+        var op = opStack.Pop();
+        var left = valStack.Pop();
+        return ApplyOperation(left, right, op);
     }
 }
 
