@@ -556,9 +556,10 @@ public class Formula
         foreach (var token in _tokens)
         {
             // Is number
-            if (double.TryParse(token, out var number))
+            if (ValidNumber(token))
             {
-                if (opStack.Count > 0 && opStack.Peek() == "*" || opStack.Peek() == "/")
+                var number = double.Parse(token);
+                if (opStack.Count > 0 && (opStack.Peek() == "*" || opStack.Peek() == "/"))
                 {
                     var left = valStack.Pop();
                     var op = opStack.Pop();
@@ -572,16 +573,17 @@ public class Formula
                 }
 
                 valStack.Push(number);
+                continue;
             }
 
             if (IsVar(token))
             {
                 // Delegate will throw exception if lookup fails
                 var right = lookup(token);
-                if (opStack.Count > 0 && opStack.Peek() == "*" || opStack.Peek() == "/")
+                if (opStack.Count > 0 && (opStack.Peek() == "*" || opStack.Peek() == "/"))
                 {
-                    var left = valStack.Pop();
                     var op = opStack.Pop();
+                    var left = valStack.Pop();
                     if (op == "/" && right == 0)
                     {
                         return new FormulaError("Cannot divide by zero.");
@@ -592,48 +594,52 @@ public class Formula
                 }
 
                 valStack.Push(right);
+                continue;
             }
 
             if (token is "+" or "-")
             {
                 if (opStack.Count > 0 && (opStack.Peek() == "+" || opStack.Peek() == "-"))
                 {
-                    var left = valStack.Pop();
-                    var op = opStack.Pop();
                     var right = valStack.Pop();
+                    var op = opStack.Pop();
+                    var left = valStack.Pop();
                     valStack.Push(ApplyOperation(left, right, op));
                 }
 
                 opStack.Push(token);
+                continue;
             }
 
             if (token is "*" or "/")
             {
                 opStack.Push(token);
+                continue;
             }
 
             if (OpenPar(token))
             {
                 opStack.Push(token);
+                continue;
             }
 
             if (ClosingPar(token))
             {
                 if (opStack.Count > 0 && (opStack.Peek() == "+" || opStack.Peek() == "-"))
                 {
-                    var left = valStack.Pop();
-                    var op = opStack.Pop();
                     var right = valStack.Pop();
+                    var op = opStack.Pop();
+                    var left = valStack.Pop();
                     valStack.Push(ApplyOperation(left, right, op));
                 }
 
                 opStack.Pop();
 
-                if (opStack.Count > 0 && opStack.Peek() == "*" || opStack.Peek() == "/")
+                if (opStack.Count > 0 && (opStack.Peek() == "*" || opStack.Peek() == "/"))
                 {
-                    var left = valStack.Pop();
-                    var op = opStack.Pop();
                     var right = valStack.Pop();
+                    var op = opStack.Pop();
+                    var left = valStack.Pop();
                     if (op == "/" && right == 0)
                     {
                         return new FormulaError("Cannot divide by zero.");
@@ -642,13 +648,20 @@ public class Formula
                     valStack.Push(ApplyOperation(left, right, op));
                 }
             }
-            return opStack.Count == 0 ? valStack.Pop() : ApplyOperation(valStack.Pop(), valStack.Pop(), opStack.Pop());
+        }
+        if (opStack.Count == 0)
+        {
+            return valStack.Pop();
         }
 
-        return new FormulaError("Invalid token");
+        var r = valStack.Pop();
+        var l = valStack.Pop();
+        return ApplyOperation(l, r, opStack.Pop());
+
+        return new FormulaError("Failed");
     }
 
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -665,6 +678,27 @@ public class Formula
             "*" => left * right,
             _ => left / right
         };
+    }
+}
+
+/// <summary>
+///   <para>
+///     Extends the Stack class adding in an extra method that checks what is on top of the stack,
+///     if elements exist in the stack.
+///   </para>
+/// </summary>
+internal static class StackExtensions
+{
+    /// <summary>
+    ///   Checks if there are 
+    /// </summary>
+    /// <param name="stack"></param>
+    /// <param name="firstOp"></param>
+    /// <param name="secondOp"></param>
+    /// <returns></returns>
+    internal static bool IsOnTop(this Stack<string> stack, string firstOp, string secondOp)
+    {
+        return stack.Count > 0 && (stack.Peek() == firstOp || stack.Peek() == secondOp);
     }
 }
 

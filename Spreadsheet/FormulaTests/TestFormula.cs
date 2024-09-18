@@ -947,19 +947,96 @@ public class EvaluateOperatorEqualsAndHashCode
     
     // --- Test Evaluate ---
     
+    #region EvaluateTests
+    
     [TestMethod]
-    public void Evaluate_FormulaEvaluatesCorrectly_IsTrue()
+    public void Evaluate_SimpleAddition_EvaluatesCorrectly()
     {
-        var x = new Formula("x + 2");
+        var x = new Formula("2 + 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_MultiAddition_EvaluatesCorrectly()
+    {
+        var x = new Formula("2 + 2 + 2 + 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 8.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_SimpleSubtraction_EvaluatesCorrectly()
+    {
+        var x = new Formula("2 - 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 0.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_MultiSubtraction_EvaluatesCorrectly()
+    {
+        var x = new Formula("8 - 2 - 2 - 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 2.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_SimpleMultiplication_EvaluatesCorrectly()
+    {
+        var x = new Formula("2 * 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 4.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_SimpleDivision_EvaluatesCorrectly()
+    {
+        var x = new Formula("2 / 2");
+        Assert.AreEqual((double)x.Evaluate(_ => 0), 1.0, 1e-9);
+    }
+    
+    [TestMethod]
+    public void Evaluate_OneVariableLookup_EvaluatesCorrectly()
+    {
+        var x = new Formula("C2 + 2");
         Lookup lookup = variable =>
         {
-            if (variable == "x")
-                return 2;
+            if (variable == "C2")
+                return 2.0;
             throw new ArgumentException("Unknown variable");
         };
-        Assert.IsTrue((int)x.Evaluate(lookup) == 7);
-        
+        Assert.AreEqual((double)x.Evaluate(lookup), 4.0, 1e-9);
     }
+    
+    [TestMethod]
+    public void Evaluate_MultiVariableLookup_EvaluatesCorrectly()
+    {
+        var x = new Formula("C2 * CC2");
+        Lookup lookup = variable =>
+        {
+            return variable switch
+            {
+                "C2" => 2.0,
+                "CC2" => 4.0,
+                _ => throw new ArgumentException("Unknown variable")
+            };
+        };
+        Assert.AreEqual((double)x.Evaluate(lookup), 8.0, 1e-9);
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void Evaluate_VariableNotFound_ThrowsArgumentException()
+    {
+        var x = new Formula("C2 * S2");
+        Lookup lookup = variable =>
+        {
+            return variable switch
+            {
+                "C2" => 2.0,
+                _ => throw new ArgumentException("Unknown variable")
+            };
+        };
+        Assert.AreEqual((double)x.Evaluate(lookup), 8.0, 1e-9);
+    }
+    
+    #endregion
     
     // --- Test == ---
     
