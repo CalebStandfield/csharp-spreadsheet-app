@@ -564,7 +564,7 @@ public class Formula
                     // Divide by 0 check
                     if (opStack.Peek().Equals("/") && number.Equals(0))
                     {
-                        return new FormulaError("Cannot divide by zero.");
+                        return new FormulaError("Can not divide by zero.");
                     }
 
                     // Push the evaluation to valStack
@@ -586,7 +586,7 @@ public class Formula
                     // Divide by 0 check
                     if (opStack.Peek().Equals("/") && number.Equals(0))
                     {
-                        return new FormulaError("Cannot divide by zero.");
+                        return new FormulaError("Can not divide by zero.");
                     }
 
                     // Push the evaluation to valStack
@@ -634,7 +634,7 @@ public class Formula
                         // Divide by 0 check
                         if (opStack.Peek().Equals("/") && valStack.Peek().Equals(0))
                         {
-                            return new FormulaError("Cannot divide by zero.");
+                            return new FormulaError("Can not divide by zero.");
                         }
 
                         // Push the evaluation to valStack

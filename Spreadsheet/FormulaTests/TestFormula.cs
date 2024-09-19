@@ -1451,8 +1451,8 @@ public class EvaluateOperatorEqualsAndHashCode
     [TestMethod]
     public void FormulaError_GetFormulaMessage_MessageIsCorrect()
     {
-        var formError = new FormulaError("Cannot divide by 0");
-        Assert.AreEqual(formError.Reason, "Cannot divide by 0");
+        var formError = new FormulaError("Can not divide by 0");
+        Assert.AreEqual(formError.Reason, "Can not divide by 0");
     }
 
     #endregion
