@@ -1436,4 +1436,25 @@ public class EvaluateOperatorEqualsAndHashCode
     }
 
     #endregion
+
+    // --- Test FormulaError ---
+
+    #region FormulaErrorTest
+
+    [TestMethod]
+    public void FormulaError_DivideBy0_ReturnsFormulaError()
+    {
+        var x = new Formula("2 / 0");
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(_ => 0));
+    }
+    
+    [TestMethod]
+    public void FormulaError_GetFormulaMessage_MessageIsCorrect()
+    {
+        var x = new Formula("2 / 0");
+        var formError = new FormulaError("Cannot divide by 0");
+        Assert.AreEqual(formError.Reason, "Cannot divide by 0");
+    }
+
+    #endregion
 }
