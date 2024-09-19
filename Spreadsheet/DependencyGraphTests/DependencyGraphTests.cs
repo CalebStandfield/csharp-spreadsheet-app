@@ -1,3 +1,6 @@
+// A tester class for DependencyGraph.
+// Each public method and subsequent private method will be covered either
+// indirectly or directly to achieve 100% code coverage for DependencyGraph.
 // <author>Caleb Stanfield</author>
 // <date>09/12/24</date>
 
@@ -6,8 +9,8 @@ namespace CS3500.DevelopmentTests;
 using CS3500.DependencyGraph;
 
 /// <summary>
-///   This is a test class for DependencyGraphTest and is intended
-///   to contain all DependencyGraphTest Unit Tests
+///   This is a test class for DependencyGraph and is intended
+///   to contain all DependencyGraph Unit Tests
 /// </summary>
 [TestClass]
 public class DependencyGraphTests
