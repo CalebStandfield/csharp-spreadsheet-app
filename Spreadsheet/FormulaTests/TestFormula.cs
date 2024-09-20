@@ -1120,8 +1120,7 @@ public class EvaluateOperatorEqualsAndHashCode
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void Evaluate_VariableNotFound_ThrowsArgumentException()
+    public void Evaluate_VariableNotFoundThrowsThenReturnsFormulaError_FormulaError()
     {
         var x = new Formula("C2 * S2");
         Lookup lookup = variable =>
@@ -1132,7 +1131,7 @@ public class EvaluateOperatorEqualsAndHashCode
                 _ => throw new ArgumentException("Unknown variable")
             };
         };
-        Assert.AreEqual((double)x.Evaluate(lookup), 8.0, 1e-9);
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(lookup));
     }
 
     [TestMethod]
