@@ -579,8 +579,16 @@ public class Formula
             // Is a Token
             if (IsVar(token))
             {
-                // Delegate will throw ArgumentException if lookup fails
-                var number = lookup(token);
+                // Delegate will throw ArgumentException if lookup fails, try catch
+                double number;
+                try
+                {
+                    number = lookup(token);
+                }
+                catch (ArgumentException)
+                {
+                    return new FormulaError("Can not parse token " + token);
+                }
                 if (opStack.IsOnTop("*", "/"))
                 {
                     // Divide by 0 check
