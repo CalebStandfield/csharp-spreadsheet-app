@@ -587,8 +587,9 @@ public class Formula
                 }
                 catch (ArgumentException)
                 {
-                    return new FormulaError("Can not parse token " + token);
+                    return new FormulaError("Can not parse token: " + token);
                 }
+
                 if (opStack.IsOnTop("*", "/"))
                 {
                     // Divide by 0 check

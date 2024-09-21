@@ -1150,6 +1150,21 @@ public class EvaluateOperatorEqualsAndHashCode
     }
 
     [TestMethod]
+    public void Evaluate_VariablesMustBeNormalized_ReturnsFormulaError()
+    {
+        var x = new Formula("2 + C2");
+        Lookup lookup = variable =>
+        {
+            return variable switch
+            {
+                "c2" => 0.0,
+                _ => throw new ArgumentException("Unknown variable")
+            };
+        };
+        Assert.IsInstanceOfType<FormulaError>(x.Evaluate(lookup));
+    }
+
+    [TestMethod]
     public void Evaluate_DivideByNumber0_ReturnsFormulaError()
     {
         var x = new Formula("2 / 0");
