@@ -40,7 +40,7 @@ public class InvalidNameException : Exception
 ///     more letters followed by one or more numbers, e.g., A5, BC27.
 /// </para>
 /// <para>
-///    Cell names are case insensitive, so "x1" and "X1" are the same cell name.
+///    Cell names are case-insensitive, so "x1" and "X1" are the same cell name.
 ///    Your code should normalize (uppercased) any stored name but accept either.
 /// </para>
 /// <para>
@@ -89,7 +89,7 @@ public class InvalidNameException : Exception
 public class Spreadsheet
 {
     /// <summary>
-    ///   Provides a copy of the normalized names of all of the cells in the spreadsheet
+    ///   Provides a copy of the normalized names of all the cells in the spreadsheet
     ///   that contain information (i.e., non-empty cells).
     /// </summary>
     /// <returns>
@@ -136,7 +136,7 @@ public class Spreadsheet
     ///   </para>
     ///   <para>
     ///     The order must correspond to a valid dependency ordering for recomputing
-    ///     all of the cells, i.e., if you re-evaluate each cells in the order of the list,
+    ///     all the cells, i.e., if you re-evaluate each cell in the order of the list,
     ///     the overall spreadsheet will be correctly updated.
     ///   </para>
     ///   <para>
