@@ -256,19 +256,23 @@ public class Spreadsheet
 
     /// <summary>
     ///   A helper for the GetCellsToRecalculate method.
-    ///   FIXME: You should fully comment what is going on below using XML tags as appropriate,
-    ///   as well as inline comments in the code.
     /// </summary>
+    /// <param name="start"></param>
+    /// <param name="name"></param>
+    /// <param name="visited"></param>
+    /// <param name="changed"></param>
+    /// <exception cref="CircularException"></exception>
     private void Visit(string start, string name, ISet<string> visited, LinkedList<string> changed)
     {
         visited.Add(name);
-        foreach (string n in GetDirectDependents(name))
+        foreach (var n in GetDirectDependents(name))
         {
             if (n.Equals(start))
             {
                 throw new CircularException();
             }
-            else if (!visited.Contains(n))
+
+            if (!visited.Contains(n))
             {
                 Visit(start, n, visited, changed);
             }
