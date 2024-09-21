@@ -14,24 +14,6 @@ using CS3500.DependencyGraph;
 
 /// <summary>
 ///   <para>
-///     Thrown to indicate that a change to a cell will cause a circular dependency.
-///   </para>
-/// </summary>
-public class CircularException : Exception
-{
-}
-
-/// <summary>
-///   <para>
-///     Thrown to indicate that a name parameter was invalid.
-///   </para>
-/// </summary>
-public class InvalidNameException : Exception
-{
-}
-
-/// <summary>
-///   <para>
 ///     A Spreadsheet object represents the state of a simple spreadsheet.  A
 ///     spreadsheet represents an infinite number of named cells.
 ///   </para>
@@ -294,4 +276,22 @@ public class Spreadsheet
 
         changed.AddFirst(name);
     }
+}
+
+/// <summary>
+///   <para>
+///     Thrown to indicate that a change to a cell will cause a circular dependency.
+///   </para>
+/// </summary>
+public class CircularException : Exception
+{
+}
+
+/// <summary>
+///   <para>
+///     Thrown to indicate that a name parameter was invalid.
+///   </para>
+/// </summary>
+public class InvalidNameException : Exception
+{
 }
