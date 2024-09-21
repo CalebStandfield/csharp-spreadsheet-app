@@ -6,6 +6,7 @@
 // Update by Profs Kopta and de St. Germain, Fall 2021, Fall 2024
 //     - Updated return types
 //     - Updated documentation
+
 namespace CS3500.Spreadsheet;
 
 using CS3500.Formula;
@@ -31,7 +32,7 @@ public class InvalidNameException : Exception
 
 /// <summary>
 ///   <para>
-///     An Spreadsheet object represents the state of a simple spreadsheet.  A
+///     A Spreadsheet object represents the state of a simple spreadsheet.  A
 ///     spreadsheet represents an infinite number of named cells.
 ///   </para>
 /// <para>
@@ -87,211 +88,210 @@ public class InvalidNameException : Exception
 /// </summary>
 public class Spreadsheet
 {
-
-  /// <summary>
-  ///   Provides a copy of the normalized names of all of the cells in the spreadsheet
-  ///   that contain information (i.e., non-empty cells).
-  /// </summary>
-  /// <returns>
-  ///   A set of the names of all the non-empty cells in the spreadsheet.
-  /// </returns>
-  public ISet<string> GetNamesOfAllNonemptyCells()
-  {
-    throw new NotImplementedException();
-  }
-
-  /// <summary>
-  ///   Returns the contents (as opposed to the value) of the named cell.
-  /// </summary>
-  ///
-  /// <exception cref="InvalidNameException">
-  ///   Thrown if the name is invalid.
-  /// </exception>
-  ///
-  /// <param name="name">The name of the spreadsheet cell to query. </param>
-  /// <returns>
-  ///   The contents as either a string, a double, or a Formula.
-  ///   See the class header summary.
-  /// </returns>
-  public object GetCellContents( string name )
-  {
-    throw new NotImplementedException();
-  }
-
-  /// <summary>
-  ///  Set the contents of the named cell to the given number.
-  /// </summary>
-  ///
-  /// <exception cref="InvalidNameException">
-  ///   If the name is invalid, throw an InvalidNameException.
-  /// </exception>
-  ///
-  /// <param name="name"> The name of the cell. </param>
-  /// <param name="number"> The new contents of the cell. </param>
-  /// <returns>
-  ///   <para>
-  ///     This method returns an ordered list consisting of the passed in name
-  ///     followed by the names of all other cells whose value depends, directly
-  ///     or indirectly, on the named cell.
-  ///   </para>
-  ///   <para>
-  ///     The order must correspond to a valid dependency ordering for recomputing
-  ///     all of the cells, i.e., if you re-evaluate each cells in the order of the list,
-  ///     the overall spreadsheet will be correctly updated.
-  ///   </para>
-  ///   <para>
-  ///     For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
-  ///     list [A1, B1, C1] is returned, i.e., A1 was changed, so then A1 must be
-  ///     evaluated, followed by B1, followed by C1.
-  ///   </para>
-  /// </returns>
-  public IList<string> SetCellContents( string name, double number )
-  {
-    throw new NotImplementedException();
-  }
-
-  /// <summary>
-  ///   The contents of the named cell becomes the given text.
-  /// </summary>
-  ///
-  /// <exception cref="InvalidNameException">
-  ///   If the name is invalid, throw an InvalidNameException.
-  /// </exception>
-  /// <param name="name"> The name of the cell. </param>
-  /// <param name="text"> The new contents of the cell. </param>
-  /// <returns>
-  ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
-  /// </returns>
-  public IList<string> SetCellContents( string name, string text )
-  {
-    throw new NotImplementedException();
-  }
-
-  /// <summary>
-  ///   Set the contents of the named cell to the given formula.
-  /// </summary>
-  /// <exception cref="InvalidNameException">
-  ///   If the name is invalid, throw an InvalidNameException.
-  /// </exception>
-  /// <exception cref="CircularException">
-  ///   <para>
-  ///     If changing the contents of the named cell to be the formula would
-  ///     cause a circular dependency, throw a CircularException, and no
-  ///     change is made to the spreadsheet.
-  ///   </para>
-  /// </exception>
-  /// <param name="name"> The name of the cell. </param>
-  /// <param name="formula"> The new contents of the cell. </param>
-  /// <returns>
-  ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
-  /// </returns>
-  public IList<string> SetCellContents( string name, Formula formula )
-  {
-    throw new NotImplementedException();
-  }
-
-  /// <summary>
-  ///   Returns an enumeration, without duplicates, of the names of all cells whose
-  ///   values depend directly on the value of the named cell.
-  /// </summary>
-  /// <param name="name"> This <b>MUST</b> be a valid name.  </param>
-  /// <returns>
-  ///   <para>
-  ///     Returns an enumeration, without duplicates, of the names of all cells
-  ///     that contain formulas containing name.
-  ///   </para>
-  ///   <para>For example, suppose that: </para>
-  ///   <list type="bullet">
-  ///      <item>A1 contains 3</item>
-  ///      <item>B1 contains the formula A1 * A1</item>
-  ///      <item>C1 contains the formula B1 + A1</item>
-  ///      <item>D1 contains the formula B1 - C1</item>
-  ///   </list>
-  ///   <para> The direct dependents of A1 are B1 and C1. </para>
-  /// </returns>
-  private IEnumerable<string> GetDirectDependents( string name )
-  {
-    throw new NotImplementedException();
-  }
-
-  /// <summary>
-  ///   <para>
-  ///     This method is implemented for you, but makes use of your GetDirectDependents.
-  ///   </para>
-  ///   <para>
-  ///     Returns an enumeration of the names of all cells whose values must
-  ///     be recalculated, assuming that the contents of the cell referred
-  ///     to by name has changed.  The cell names are enumerated in an order
-  ///     in which the calculations should be done.
-  ///   </para>
-  ///   <exception cref="CircularException">
-  ///     If the cell referred to by name is involved in a circular dependency,
-  ///     throws a CircularException.
-  ///   </exception>
-  ///   <para>
-  ///     For example, suppose that:
-  ///   </para>
-  ///   <list type="number">
-  ///     <item>
-  ///       A1 contains 5
-  ///     </item>
-  ///     <item>
-  ///       B1 contains the formula A1 + 2.
-  ///     </item>
-  ///     <item>
-  ///       C1 contains the formula A1 + B1.
-  ///     </item>
-  ///     <item>
-  ///       D1 contains the formula A1 * 7.
-  ///     </item>
-  ///     <item>
-  ///       E1 contains 15
-  ///     </item>
-  ///   </list>
-  ///   <para>
-  ///     If A1 has changed, then A1, B1, C1, and D1 must be recalculated,
-  ///     and they must be recalculated in an order which has A1 first, and B1 before C1
-  ///     (there are multiple such valid orders).
-  ///     The method will produce one of those enumerations.
-  ///   </para>
-  ///   <para>
-  ///      PLEASE NOTE THAT THIS METHOD DEPENDS ON THE METHOD GetDirectDependents.
-  ///      IT WON'T WORK UNTIL GetDirectDependents IS IMPLEMENTED CORRECTLY.
-  ///   </para>
-  /// </summary>
-  /// <param name="name"> The name of the cell.  Requires that name be a valid cell name.</param>
-  /// <returns>
-  ///    Returns an enumeration of the names of all cells whose values must
-  ///    be recalculated.
-  /// </returns>
-  private IEnumerable<string> GetCellsToRecalculate( string name )
-  {
-    LinkedList<string> changed = new();
-    HashSet<string> visited = [];
-    Visit( name, name, visited, changed );
-    return changed;
-  }
-
-  /// <summary>
-  ///   A helper for the GetCellsToRecalculate method.
-  ///   FIXME: You should fully comment what is going on below using XML tags as appropriate,
-  ///   as well as inline comments in the code.
-  /// </summary>
-  private void Visit( string start, string name, ISet<string> visited, LinkedList<string> changed )
-  {
-    visited.Add( name );
-    foreach ( string n in GetDirectDependents( name ) )
+    /// <summary>
+    ///   Provides a copy of the normalized names of all of the cells in the spreadsheet
+    ///   that contain information (i.e., non-empty cells).
+    /// </summary>
+    /// <returns>
+    ///   A set of the names of all the non-empty cells in the spreadsheet.
+    /// </returns>
+    public ISet<string> GetNamesOfAllNonemptyCells()
     {
-      if ( n.Equals( start ) )
-      {
-        throw new CircularException();
-      }
-      else if ( !visited.Contains( n ) )
-      {
-        Visit( start, n, visited, changed );
-      }
+        throw new NotImplementedException();
     }
 
-    changed.AddFirst( name );
-  }
+    /// <summary>
+    ///   Returns the contents (as opposed to the value) of the named cell.
+    /// </summary>
+    ///
+    /// <exception cref="InvalidNameException">
+    ///   Thrown if the name is invalid.
+    /// </exception>
+    ///
+    /// <param name="name">The name of the spreadsheet cell to query. </param>
+    /// <returns>
+    ///   The contents as either a string, a double, or a Formula.
+    ///   See the class header summary.
+    /// </returns>
+    public object GetCellContents(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///  Set the contents of the named cell to the given number.
+    /// </summary>
+    ///
+    /// <exception cref="InvalidNameException">
+    ///   If the name is invalid, throw an InvalidNameException.
+    /// </exception>
+    ///
+    /// <param name="name"> The name of the cell. </param>
+    /// <param name="number"> The new contents of the cell. </param>
+    /// <returns>
+    ///   <para>
+    ///     This method returns an ordered list consisting of the passed in name
+    ///     followed by the names of all other cells whose value depends, directly
+    ///     or indirectly, on the named cell.
+    ///   </para>
+    ///   <para>
+    ///     The order must correspond to a valid dependency ordering for recomputing
+    ///     all of the cells, i.e., if you re-evaluate each cells in the order of the list,
+    ///     the overall spreadsheet will be correctly updated.
+    ///   </para>
+    ///   <para>
+    ///     For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+    ///     list [A1, B1, C1] is returned, i.e., A1 was changed, so then A1 must be
+    ///     evaluated, followed by B1, followed by C1.
+    ///   </para>
+    /// </returns>
+    public IList<string> SetCellContents(string name, double number)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///   The contents of the named cell becomes the given text.
+    /// </summary>
+    ///
+    /// <exception cref="InvalidNameException">
+    ///   If the name is invalid, throw an InvalidNameException.
+    /// </exception>
+    /// <param name="name"> The name of the cell. </param>
+    /// <param name="text"> The new contents of the cell. </param>
+    /// <returns>
+    ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
+    /// </returns>
+    public IList<string> SetCellContents(string name, string text)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///   Set the contents of the named cell to the given formula.
+    /// </summary>
+    /// <exception cref="InvalidNameException">
+    ///   If the name is invalid, throw an InvalidNameException.
+    /// </exception>
+    /// <exception cref="CircularException">
+    ///   <para>
+    ///     If changing the contents of the named cell to be the formula would
+    ///     cause a circular dependency, throw a CircularException, and no
+    ///     change is made to the spreadsheet.
+    ///   </para>
+    /// </exception>
+    /// <param name="name"> The name of the cell. </param>
+    /// <param name="formula"> The new contents of the cell. </param>
+    /// <returns>
+    ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
+    /// </returns>
+    public IList<string> SetCellContents(string name, Formula formula)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///   Returns an enumeration, without duplicates, of the names of all cells whose
+    ///   values depend directly on the value of the named cell.
+    /// </summary>
+    /// <param name="name"> This <b>MUST</b> be a valid name.  </param>
+    /// <returns>
+    ///   <para>
+    ///     Returns an enumeration, without duplicates, of the names of all cells
+    ///     that contain formulas containing name.
+    ///   </para>
+    ///   <para>For example, suppose that: </para>
+    ///   <list type="bullet">
+    ///      <item>A1 contains 3</item>
+    ///      <item>B1 contains the formula A1 * A1</item>
+    ///      <item>C1 contains the formula B1 + A1</item>
+    ///      <item>D1 contains the formula B1 - C1</item>
+    ///   </list>
+    ///   <para> The direct dependents of A1 are B1 and C1. </para>
+    /// </returns>
+    private IEnumerable<string> GetDirectDependents(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     This method is implemented for you, but makes use of your GetDirectDependents.
+    ///   </para>
+    ///   <para>
+    ///     Returns an enumeration of the names of all cells whose values must
+    ///     be recalculated, assuming that the contents of the cell referred
+    ///     to by name has changed.  The cell names are enumerated in an order
+    ///     in which the calculations should be done.
+    ///   </para>
+    ///   <exception cref="CircularException">
+    ///     If the cell referred to by name is involved in a circular dependency,
+    ///     throws a CircularException.
+    ///   </exception>
+    ///   <para>
+    ///     For example, suppose that:
+    ///   </para>
+    ///   <list type="number">
+    ///     <item>
+    ///       A1 contains 5
+    ///     </item>
+    ///     <item>
+    ///       B1 contains the formula A1 + 2.
+    ///     </item>
+    ///     <item>
+    ///       C1 contains the formula A1 + B1.
+    ///     </item>
+    ///     <item>
+    ///       D1 contains the formula A1 * 7.
+    ///     </item>
+    ///     <item>
+    ///       E1 contains 15
+    ///     </item>
+    ///   </list>
+    ///   <para>
+    ///     If A1 has changed, then A1, B1, C1, and D1 must be recalculated,
+    ///     and they must be recalculated in an order which has A1 first, and B1 before C1
+    ///     (there are multiple such valid orders).
+    ///     The method will produce one of those enumerations.
+    ///   </para>
+    ///   <para>
+    ///      PLEASE NOTE THAT THIS METHOD DEPENDS ON THE METHOD GetDirectDependents.
+    ///      IT WON'T WORK UNTIL GetDirectDependents IS IMPLEMENTED CORRECTLY.
+    ///   </para>
+    /// </summary>
+    /// <param name="name"> The name of the cell.  Requires that name be a valid cell name.</param>
+    /// <returns>
+    ///    Returns an enumeration of the names of all cells whose values must
+    ///    be recalculated.
+    /// </returns>
+    private IEnumerable<string> GetCellsToRecalculate(string name)
+    {
+        LinkedList<string> changed = new();
+        HashSet<string> visited = [];
+        Visit(name, name, visited, changed);
+        return changed;
+    }
+
+    /// <summary>
+    ///   A helper for the GetCellsToRecalculate method.
+    ///   FIXME: You should fully comment what is going on below using XML tags as appropriate,
+    ///   as well as inline comments in the code.
+    /// </summary>
+    private void Visit(string start, string name, ISet<string> visited, LinkedList<string> changed)
+    {
+        visited.Add(name);
+        foreach (string n in GetDirectDependents(name))
+        {
+            if (n.Equals(start))
+            {
+                throw new CircularException();
+            }
+            else if (!visited.Contains(n))
+            {
+                Visit(start, n, visited, changed);
+            }
+        }
+
+        changed.AddFirst(name);
+    }
 }
