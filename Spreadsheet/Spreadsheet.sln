@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyGraphTests", "Dep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spreadsheet", "Spreadsheet\Spreadsheet.csproj", "{5613151C-DABF-45EE-86A7-5D79251A2559}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{098A2034-D46F-4E8E-8B05-FC17FBD856D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{5613151C-DABF-45EE-86A7-5D79251A2559}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5613151C-DABF-45EE-86A7-5D79251A2559}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5613151C-DABF-45EE-86A7-5D79251A2559}.Release|Any CPU.Build.0 = Release|Any CPU
+		{098A2034-D46F-4E8E-8B05-FC17FBD856D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{098A2034-D46F-4E8E-8B05-FC17FBD856D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{098A2034-D46F-4E8E-8B05-FC17FBD856D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{098A2034-D46F-4E8E-8B05-FC17FBD856D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
