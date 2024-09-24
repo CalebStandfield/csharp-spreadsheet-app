@@ -7,6 +7,8 @@
 //     - Updated return types
 //     - Updated documentation
 
+using System.Text.RegularExpressions;
+
 namespace CS3500.Spreadsheet;
 
 using CS3500.Formula;
@@ -70,6 +72,11 @@ using CS3500.DependencyGraph;
 /// </summary>
 public class Spreadsheet
 {
+    private readonly Dictionary<string, Cell> _spreadsheet = new();
+    private readonly DependencyGraph _dependencyGraph = new();
+
+    private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
+
     /// <summary>
     ///   Provides a copy of the normalized names of all the cells in the spreadsheet
     ///   that contain information (i.e., non-empty cells).
@@ -79,7 +86,13 @@ public class Spreadsheet
     /// </returns>
     public ISet<string> GetNamesOfAllNonemptyCells()
     {
-        throw new NotImplementedException();
+        var nonEmptyCellNames = new HashSet<string>();
+        foreach (var name in _spreadsheet.Where(name => !string.IsNullOrEmpty(name.ToString())))
+        {
+            nonEmptyCellNames.Add(name.ToString());
+        }
+
+        return nonEmptyCellNames;
     }
 
     /// <summary>
@@ -97,11 +110,14 @@ public class Spreadsheet
     /// </returns>
     public object GetCellContents(string name)
     {
-        throw new NotImplementedException();
+        var normalizedCellName = NormalizedName(name);
+        return _spreadsheet.TryGetValue(NormalizedName(normalizedCellName), out var cell)
+            ? cell.Contents
+            : new InvalidNameException();
     }
 
     /// <summary>
-    ///  Set the contents of the named cell to the given number.
+    ///   Set the contents of the named cell to the given number.
     /// </summary>
     ///
     /// <exception cref="InvalidNameException">
@@ -129,7 +145,10 @@ public class Spreadsheet
     /// </returns>
     public IList<string> SetCellContents(string name, double number)
     {
-        throw new NotImplementedException();
+        var normalizedCellName = NormalizedName(name);
+        _spreadsheet[normalizedCellName] = new Cell(normalizedCellName, number);
+        _dependencyGraph.ReplaceDependents(normalizedCellName, []);
+        return GetCellsToRecalculate(normalizedCellName).ToList();
     }
 
     /// <summary>
@@ -146,7 +165,10 @@ public class Spreadsheet
     /// </returns>
     public IList<string> SetCellContents(string name, string text)
     {
-        throw new NotImplementedException();
+        var normalizedCellName = NormalizedName(name);
+        _spreadsheet[normalizedCellName] = new Cell(normalizedCellName, text);
+        _dependencyGraph.ReplaceDependents(normalizedCellName, []);
+        return GetCellsToRecalculate(normalizedCellName).ToList();
     }
 
     /// <summary>
@@ -169,7 +191,11 @@ public class Spreadsheet
     /// </returns>
     public IList<string> SetCellContents(string name, Formula formula)
     {
-        throw new NotImplementedException();
+        var normalizedCellName = NormalizedName(name);
+        var dependents = formula.GetVariables();
+        _spreadsheet[normalizedCellName] = new Cell(normalizedCellName, formula);
+        _dependencyGraph.ReplaceDependents(normalizedCellName, dependents);
+        return GetCellsToRecalculate(normalizedCellName).ToList();
     }
 
     /// <summary>
@@ -193,7 +219,8 @@ public class Spreadsheet
     /// </returns>
     private IEnumerable<string> GetDirectDependents(string name)
     {
-        throw new NotImplementedException();
+        var normalizedCellName = NormalizedName(name);
+        return _dependencyGraph.GetDependents(NormalizedName(normalizedCellName));
     }
 
     /// <summary>
@@ -279,6 +306,46 @@ public class Spreadsheet
         }
 
         changed.AddFirst(name);
+    }
+
+    /// <summary>
+    ///   Normalizes the given possible cell name.
+    /// </summary>
+    /// <param name="token">The name to be normalized.</param>
+    /// <returns>
+    ///   A normalized string representation of the name, if the name is valid and can be normalized.
+    /// </returns>
+    /// <exception cref="InvalidNameException">Will be thrown when an invalid name is passed through</exception>
+    private static string NormalizedName(string token)
+    {
+        const string standaloneVarPattern = $"^{VariableRegExPattern}$";
+        if (Regex.IsMatch(token, standaloneVarPattern))
+        {
+            // If a token is a letter then make uppercase
+            return new string(token.Select(c => char.IsLetter(c) ? char.ToUpper(c) : c).ToArray());
+        }
+
+        throw new InvalidNameException();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    private class Cell
+    {
+        public readonly string _name;
+
+        /// <summary>
+        ///   Contains getter and setter for the use of easy access in the spreadSheet class.
+        ///   Represents the contents of a cell.
+        /// </summary>
+        public object Contents { get; set; }
+
+        public Cell(string cellName, object contents)
+        {
+            _name = new Formula(cellName).ToString();
+            Contents = contents;
+        }
+        
     }
 }
 

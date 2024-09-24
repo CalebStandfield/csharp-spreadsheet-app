@@ -1,7 +1,7 @@
 namespace SpreadsheetTests;
 
 [TestClass]
-public class UnitTest1
+public class SpreadSheetTests
 {
     [TestMethod]
     public void TestMethod1()
