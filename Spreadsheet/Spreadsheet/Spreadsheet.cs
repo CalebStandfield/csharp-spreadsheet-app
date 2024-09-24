@@ -110,10 +110,9 @@ public class Spreadsheet
     /// </returns>
     public object GetCellContents(string name)
     {
-        var normalizedCellName = NormalizedName(name);
-        return _spreadsheet.TryGetValue(NormalizedName(normalizedCellName), out var cell)
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell)
             ? cell.Contents
-            : new InvalidNameException();
+            : string.Empty;
     }
 
     /// <summary>
@@ -219,8 +218,7 @@ public class Spreadsheet
     /// </returns>
     private IEnumerable<string> GetDirectDependents(string name)
     {
-        var normalizedCellName = NormalizedName(name);
-        return _dependencyGraph.GetDependents(NormalizedName(normalizedCellName));
+        return _dependencyGraph.GetDependents(NormalizedName(name));
     }
 
     /// <summary>

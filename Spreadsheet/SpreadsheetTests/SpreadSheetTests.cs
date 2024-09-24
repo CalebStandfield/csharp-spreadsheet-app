@@ -7,7 +7,9 @@ namespace SpreadsheetTests;
 public class SpreadSheetTests
 {
 
-    #region GetNamesOfAllNoneemptyCells
+    // --- GetNamesOfAllNonemptyCells Tests ---
+    
+    #region GetNamesOfAllNonemptyCells
     
     [TestMethod]
     public void GetNamesOfAllNonemptyCells_NewSpreadSheet_Count0AndEmptyList()
@@ -55,7 +57,7 @@ public class SpreadSheetTests
     {
         var s = new Spreadsheet();
         s.SetCellContents("A1", 1);
-        s.SetCellContents("B1", "beans");
+        s.SetCellContents("B1", "C");
         s.SetCellContents("C1", new Formula("2 + 2"));
         Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 3);
         var a1Set = s.GetNamesOfAllNonemptyCells();
@@ -63,7 +65,6 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
-    [ExpectedException(typeof(InvalidNameException))]
     public void GetNamesOfAllNonemptyCells__CountAndListOfElements()
     {
         var s = new Spreadsheet();
@@ -75,6 +76,61 @@ public class SpreadSheetTests
         Assert.AreEqual(a1Set.ToString(), new HashSet<string>{"A1", "B1", "C1"}.ToString());
     }
     
+    
+    #endregion
+    
+    // --- GetCellContents Tests ---
+    
+    #region GetCellContents
+
+    [TestMethod]
+    public void GetCellContents_CellWithNoContents_EmptyString()
+    {
+        var s = new Spreadsheet();
+        Assert.AreEqual(s.GetCellContents("A1"), string.Empty);
+    }
+    
+    [TestMethod]
+    public void GetCellContents_CellWithDoubleContent_DoubleContent()
+    {
+        var s = new Spreadsheet();
+        s.SetCellContents("A1", 1);
+        Assert.AreEqual(s.GetCellContents("A1"), 1.0);
+    }
+    
+    [TestMethod]
+    public void GetCellContents_CellWithTextContent_TextContent()
+    {
+        var s = new Spreadsheet();
+        s.SetCellContents("A1", "C");
+        Assert.AreEqual(s.GetCellContents("A1"), "C");
+    }
+    
+    [TestMethod]
+    public void GetCellContents_CellWithFormulaContent_FormulaContent()
+    {
+        var s = new Spreadsheet();
+        var f = new Formula("2 + 2");
+        s.SetCellContents("A1", f);
+        Assert.AreEqual(s.GetCellContents("A1"), f);
+    }
+    
+    [TestMethod]
+    public void GetCellContents_CellAccessNotNormalizedName_CellAccessNotNormalizedName()
+    {
+        var s = new Spreadsheet();
+        s.SetCellContents("a1", 1);
+        Assert.AreEqual(s.GetCellContents("A1"), 1.0);
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(InvalidNameException))]
+    public void GetCellContents_CellAccessWithInvalidName_ThrowsInvalidNameException()
+    {
+        var s = new Spreadsheet();
+        s.SetCellContents("C1", 1);
+        Assert.AreEqual(s.GetCellContents("c"), 1.0);
+    }
     
     #endregion
 }
