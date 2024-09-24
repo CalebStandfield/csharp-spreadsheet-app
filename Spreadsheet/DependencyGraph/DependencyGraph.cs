@@ -64,8 +64,10 @@ public class DependencyGraph
     private int _size;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="DependencyGraph"/> class.
-    ///   The initial DependencyGraph is empty.
+    ///   <para>
+    ///     Initializes a new instance of the <see cref="DependencyGraph"/> class.
+    ///     The initial DependencyGraph is empty.
+    ///   </para>
     /// </summary>
     public DependencyGraph()
     {
@@ -76,7 +78,9 @@ public class DependencyGraph
     }
 
     /// <summary>
-    /// The number of ordered pairs in the DependencyGraph.
+    ///   <para>
+    ///     The number of ordered pairs in the DependencyGraph.
+    ///   </para>
     /// </summary>
     public int Size
     {
@@ -84,7 +88,9 @@ public class DependencyGraph
     }
 
     /// <summary>
-    ///   Reports whether the given node has dependents (i.e., other nodes depend on it).
+    ///   <para>
+    ///     Reports whether the given node has dependents (i.e., other nodes depend on it).
+    ///   </para>
     /// </summary>
     /// <param name="nodeName"> The name of the node.</param>
     /// <returns> true if the node has dependents. </returns>
@@ -101,7 +107,9 @@ public class DependencyGraph
     }
 
     /// <summary>
-    ///   Reports whether the given node has dependees (i.e., depends on one or more other nodes).
+    ///   <para>
+    ///     Reports whether the given node has dependees (i.e., depends on one or more other nodes).
+    ///   </para>
     /// </summary>
     /// <returns> true if the node has dependees.</returns>
     /// <param name="nodeName">The name of the node.</param>
@@ -273,8 +281,10 @@ public class DependencyGraph
     }
 
     /// <summary>
-    ///   Removes all existing ordered pairs of the form (nodeName, *).  Then, for each
-    ///   t in newDependents, adds the ordered pair (nodeName, t).
+    ///   <para>
+    ///     Removes all existing ordered pairs of the form (nodeName, *).  Then, for each
+    ///     t in newDependents, adds the ordered pair (nodeName, t).
+    ///   </para>
     /// </summary>
     /// <param name="nodeName"> The name of the node whose dependents are being replaced </param>
     /// <param name="newDependents"> The new dependents for nodeName</param>

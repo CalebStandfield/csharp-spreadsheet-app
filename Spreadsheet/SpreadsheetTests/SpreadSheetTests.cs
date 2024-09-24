@@ -167,7 +167,7 @@ public class SpreadSheetTests
 
     #endregion
 
-    #region SetCellContentsDouble
+    #region SetCellContentsText
 
     [TestMethod]
     [ExpectedException(typeof(InvalidNameException))]
@@ -187,7 +187,7 @@ public class SpreadSheetTests
 
     #endregion
 
-    #region SetCellContentsDouble
+    #region SetCellContentsFormula
 
     [TestMethod]
     public void SetCellContents_CellAccessInvalidNameFormula_ThrowsInvalidNameException()
@@ -203,6 +203,50 @@ public class SpreadSheetTests
         var s = new Spreadsheet();
         var f = new Formula("2 + 2");
         Assert.AreEqual(s.SetCellContents("C1", f).ToString(), new List<string>().ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_SingleDependentFormula_ListOfS1()
+    {
+        var s = new Spreadsheet();
+        var f = new Formula("S1 + 2");
+        Assert.AreEqual(s.SetCellContents("C1", f).ToString(), new List<string>{"S1"}.ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_MultiDependentFormula_ListDependents()
+    {
+        var s = new Spreadsheet();
+        var f = new Formula("S1 + S2");
+        Assert.AreEqual(s.SetCellContents("C1", f).ToString(), new List<string>{"S1", "S2"}.ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_ChainDependentFormula_ListDependents()
+    {
+        var s = new Spreadsheet();
+        var f1 = new Formula("S1 + S2");
+        var f2 = new Formula("B1 + Z3");
+        s.SetCellContents("C1", f1);
+        s.SetCellContents("S2", f2);
+        Assert.AreEqual(s.SetCellContents("C1", f1).ToString(), new List<string>{"S1", "S2", "B1", "Z3"}.ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_GetCellsToRecalculateMethodXmlExample_ListDependents()
+    {
+        var s = new Spreadsheet();
+        var f1 = new Formula("5");
+        s.SetCellContents("A1", f1);
+        var f2 = new Formula("A1 + 2");
+        s.SetCellContents("B1", f2);
+        var f3 = new Formula("A1 + B1");
+        s.SetCellContents("C1", f3);
+        var f4 = new Formula("A1 * 7");
+        s.SetCellContents("D1", f4);
+        var f5 = new Formula("15");
+        s.SetCellContents("E1", f5);
+        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "C1", "D1"}.ToString());
     }
 
     #endregion
