@@ -327,6 +327,7 @@ public class Spreadsheet
 
         throw new InvalidNameException();
     }
+
     /// <summary>
     /// 
     /// </summary>
@@ -345,7 +346,6 @@ public class Spreadsheet
             _name = new Formula(cellName).ToString();
             Contents = contents;
         }
-        
     }
 }
 
