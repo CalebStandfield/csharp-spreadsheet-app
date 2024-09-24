@@ -352,15 +352,11 @@ public class Spreadsheet
 ///     Thrown to indicate that a change to a cell will cause a circular dependency.
 ///   </para>
 /// </summary>
-public class CircularException : Exception
-{
-}
+public class CircularException : Exception;
 
 /// <summary>
 ///   <para>
 ///     Thrown to indicate that a name parameter was invalid.
 ///   </para>
 /// </summary>
-public class InvalidNameException : Exception
-{
-}
+public class InvalidNameException : Exception;

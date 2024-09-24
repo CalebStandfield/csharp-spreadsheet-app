@@ -133,4 +133,6 @@ public class SpreadSheetTests
     }
     
     #endregion
+    
+    // --- SetCellContents
 }
