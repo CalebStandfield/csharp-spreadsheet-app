@@ -327,23 +327,19 @@ public class Spreadsheet
     }
 
     /// <summary>
-    /// 
+    ///   <para>
+    ///     
+    ///   </para>
     /// </summary>
-    private class Cell
+    private class Cell(string cellName, object contents)
     {
-        public readonly string _name;
-
         /// <summary>
-        ///   Contains getter and setter for the use of easy access in the spreadSheet class.
-        ///   Represents the contents of a cell.
+        ///   <para>
+        ///     Contains getter and setter for the use of easy access in the spreadSheet class.
+        ///     Represents the contents of a cell.
+        ///   </para>
         /// </summary>
-        public object Contents { get; set; }
-
-        public Cell(string cellName, object contents)
-        {
-            _name = new Formula(cellName).ToString();
-            Contents = contents;
-        }
+        public object Contents { get; } = contents;
     }
 }
 
