@@ -164,6 +164,15 @@ public class SpreadSheetTests
         var s = new Spreadsheet();
         Assert.AreEqual(s.SetCellContents("C1", 1).ToString(), new List<string>().ToString());
     }
+    
+    [TestMethod]
+    public void SetCellContents_FormulaWithDependentsToDouble_EmptyList()
+    {
+        var s = new Spreadsheet();
+        var f = new Formula("B1 + C2");
+        Assert.AreEqual(s.SetCellContents("A1", f).ToString(), new List<string> {"B1", "C1"}.ToString());
+        Assert.AreEqual(s.SetCellContents("C1", 1.0).ToString(), new List<string>().ToString());
+    }
 
     #endregion
 
@@ -183,6 +192,45 @@ public class SpreadSheetTests
     {
         var s = new Spreadsheet();
         Assert.AreEqual(s.SetCellContents("C1", "C").ToString(), new List<string>().ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_FormulaWithDependentsToText_EmptyList()
+    {
+        var s = new Spreadsheet();
+        var f = new Formula("B1 + C2");
+        Assert.AreEqual(s.SetCellContents("A1", f).ToString(), new List<string> {"B1", "C1"}.ToString());
+        Assert.AreEqual(s.SetCellContents("C1", "C").ToString(), new List<string>().ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_SetToEmptyString_EmptyList()
+    {
+        var s = new Spreadsheet();
+        Assert.AreEqual(s.SetCellContents("C1", "C").ToString(), new List<string>().ToString());
+        Assert.AreEqual(s.SetCellContents("C1", string.Empty).ToString(), new List<string>().ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_SetToEmptyString_ContentsIsEmptyString()
+    {
+        var s = new Spreadsheet();
+        s.SetCellContents("C1", "C");
+        Assert.AreEqual(s.GetCellContents("C1"), "C");
+        Assert.AreEqual(s.SetCellContents("C1", string.Empty).ToString(), new List<string>().ToString());
+        Assert.AreEqual(s.GetCellContents("C1"), string.Empty);
+    }
+    
+    [TestMethod]
+    public void SetCellContents_SetToEmptyString_CellNoLongerAppearsInGetNonemptyCells()
+    {
+        var s = new Spreadsheet();
+        s.SetCellContents("C1", "C");
+        Assert.AreEqual(s.GetCellContents("C1"), "C");
+        Assert.AreEqual(s.GetNamesOfAllNonemptyCells().ToString(), new HashSet<string> {"C1"}.ToString());
+        s.SetCellContents("C1", string.Empty);
+        Assert.AreEqual(s.GetCellContents("C1"), string.Empty);
+        Assert.AreEqual(s.GetNamesOfAllNonemptyCells().ToString(), new HashSet<string>().ToString());
     }
 
     #endregion
@@ -247,6 +295,85 @@ public class SpreadSheetTests
         var f5 = new Formula("15");
         s.SetCellContents("E1", f5);
         Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "C1", "D1"}.ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_A1sListIsEmptyAfterChange_ListDependents()
+    {
+        var s = new Spreadsheet();
+        var f1 = new Formula("B1 + C1");
+        var f2 = new Formula("C1 + D1");
+        s.SetCellContents("A1", f1);
+        s.SetCellContents("B1", f2);
+        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "C1", "D1"}.ToString());
+        Assert.AreEqual(s.SetCellContents("A1", new Formula("5")).ToString(), new List<string>().ToString());
+    }
+    
+    [TestMethod]
+    public void SetCellContents_C1GetsChanged_ReturnListNoLongerUpdatesC1()
+    {
+        var s = new Spreadsheet();
+        var f1 = new Formula("5");
+        s.SetCellContents("A1", f1);
+        var f2 = new Formula("A1 + 2");
+        s.SetCellContents("B1", f2);
+        var f3 = new Formula("A1 + B1");
+        s.SetCellContents("C1", f3);
+        var f4 = new Formula("A1 * 7");
+        s.SetCellContents("D1", f4);
+        var f5 = new Formula("15");
+        s.SetCellContents("E1", f5);
+        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "C1", "D1"}.ToString());
+        s.SetCellContents("C1", "Hi");
+        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "D1"}.ToString());
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(CircularException))]
+    public void SetCellContents_CycleAtStartOfFormula_ThrowsCircularException()
+    {
+        var s = new Spreadsheet();
+        var f1 = new Formula("A1 + B1");
+        s.SetCellContents("A1", f1);
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(CircularException))]
+    public void SetCellContents_CycleAtEndOfFormula_ThrowsCircularException()
+    {
+        var s = new Spreadsheet();
+        var f1 = new Formula("B1 + C1 + D1 + E1 + F1 + G1 + A1");
+        s.SetCellContents("A1", f1);
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(CircularException))]
+    public void SetCellContents_CycleAtEndOfFormulaTree_ThrowsCircularException()
+    {
+        var s = new Spreadsheet();
+        var a1 = new Formula("1 + B1");
+        var b1 = new Formula("2 + C1");
+        var c1 = new Formula("3 + D1");
+        var d1 = new Formula("4 + A1");
+        s.SetCellContents("A1", a1);
+        s.SetCellContents("B1", b1);
+        s.SetCellContents("C1", c1);
+        s.SetCellContents("D1", d1);
+    }
+    
+    [TestMethod]
+    public void SetCellContents_LongTreeOfConnectingFormulas_ListAllDependents()
+    {
+        var s = new Spreadsheet();
+        var a1 = new Formula("1 + B1");
+        var b1 = new Formula("2 + C1");
+        var c1 = new Formula("3 + D1");
+        var d1 = new Formula("4 + E1");
+        s.SetCellContents("A1", a1);
+        s.SetCellContents("B1", b1);
+        s.SetCellContents("C1", c1);
+        s.SetCellContents("D1", d1);
+        Assert.AreEqual(s.SetCellContents("E1", 1).ToString(), new List<string>{"A1", "B1", "C1", "D1", "E1"}.ToString());
     }
 
     #endregion

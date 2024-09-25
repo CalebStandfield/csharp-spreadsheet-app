@@ -6,6 +6,8 @@
 // Update by Profs Kopta and de St. Germain, Fall 2021, Fall 2024
 //     - Updated return types
 //     - Updated documentation
+// Implementation by Caleb Standfield
+// Date, 09/24/24
 
 using System.Text.RegularExpressions;
 
@@ -87,9 +89,9 @@ public class Spreadsheet
     public ISet<string> GetNamesOfAllNonemptyCells()
     {
         var nonEmptyCellNames = new HashSet<string>();
-        foreach (var name in _spreadsheet.Where(name => !string.IsNullOrEmpty(name.ToString())))
+        foreach (var name in _spreadsheet.Where(name => !string.IsNullOrEmpty(name.Value.ToString())))
         {
-            nonEmptyCellNames.Add(name.ToString());
+            nonEmptyCellNames.Add(name.Key);
         }
 
         return nonEmptyCellNames;
@@ -165,6 +167,12 @@ public class Spreadsheet
     public IList<string> SetCellContents(string name, string text)
     {
         var normalizedCellName = NormalizedName(name);
+        if (text.Equals(string.Empty))
+        {
+            _spreadsheet.Remove(normalizedCellName);
+            _dependencyGraph.ReplaceDependents(normalizedCellName, []);
+            return GetCellsToRecalculate(normalizedCellName).ToList();
+        }
         _spreadsheet[normalizedCellName] = new Cell(normalizedCellName, text);
         _dependencyGraph.ReplaceDependents(normalizedCellName, []);
         return GetCellsToRecalculate(normalizedCellName).ToList();
@@ -218,7 +226,7 @@ public class Spreadsheet
     /// </returns>
     private IEnumerable<string> GetDirectDependents(string name)
     {
-        return _dependencyGraph.GetDependents(NormalizedName(name));
+        return _dependencyGraph.GetDependees(NormalizedName(name));
     }
 
     /// <summary>
