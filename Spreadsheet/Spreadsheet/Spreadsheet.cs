@@ -7,7 +7,7 @@
 //     - Updated return types
 //     - Updated documentation
 // Implementation by Caleb Standfield
-// Date, 09/25/24
+// Date, 09/26/24
 
 using System.Text.RegularExpressions;
 
