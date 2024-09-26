@@ -152,10 +152,8 @@ public class Spreadsheet
     /// </returns>
     public IList<string> SetCellContents(string name, double number)
     {
-        var normalizedCellName = NormalizedName(name);
-        _spreadsheet[normalizedCellName] = new Cell(number);
-        _dependencyGraph.ReplaceDependents(normalizedCellName, []);
-        return GetCellsToRecalculate(normalizedCellName).ToList();
+        // Return call to helper method
+        return SetCellContentsHelper(NormalizedName(name), number, []);
     }
 
     /// <summary>
@@ -173,15 +171,17 @@ public class Spreadsheet
     public IList<string> SetCellContents(string name, string text)
     {
         var normalizedCellName = NormalizedName(name);
-        if (text.Equals(string.Empty))
-        {
-            _spreadsheet.Remove(normalizedCellName);
-            _dependencyGraph.ReplaceDependents(normalizedCellName, []);
-            return GetCellsToRecalculate(normalizedCellName).ToList();
-        }
 
-        _spreadsheet[normalizedCellName] = new Cell(text);
+        // If text is not the empty string then call helper method to replace cell with new contents
+        if (!text.Equals(string.Empty)) return SetCellContentsHelper(normalizedCellName, text, []);
+
+        // Text was the empty string, thus remove the key associated to the name
+        _spreadsheet.Remove(normalizedCellName);
+
+        // Update the dependency graph to remove possible dependents
         _dependencyGraph.ReplaceDependents(normalizedCellName, []);
+
+        // Return call to helper method
         return GetCellsToRecalculate(normalizedCellName).ToList();
     }
 
@@ -206,20 +206,23 @@ public class Spreadsheet
     public IList<string> SetCellContents(string name, Formula formula)
     {
         var normalizedCellName = NormalizedName(name);
-        
+
+        // Keep track of the current state of the cell and dependency graph
         var originalCellContents = GetCellContents(normalizedCellName);
         var originalDependents = _dependencyGraph.GetDependents(normalizedCellName).ToList();
 
         try
         {
             var dependents = formula.GetVariables();
-            _spreadsheet[normalizedCellName] = new Cell(formula);
-            _dependencyGraph.ReplaceDependents(normalizedCellName, dependents);
-            return GetCellsToRecalculate(normalizedCellName).ToList();
+            // Return call to helper method
+            return SetCellContentsHelper(normalizedCellName, formula, dependents.ToHashSet());
         }
         catch (CircularException)
         {
+            // Reset the spreadsheet to its original state
+            // Reset contents of cell
             _spreadsheet[normalizedCellName] = new Cell(originalCellContents);
+            // Reset the dependents of cell
             _dependencyGraph.ReplaceDependents(normalizedCellName, originalDependents);
             throw new CircularException();
         }
@@ -250,8 +253,13 @@ public class Spreadsheet
     /// </returns>
     private IList<string> SetCellContentsHelper(string name, object contents, HashSet<string> dependents)
     {
+        // Make a new cell with passed in contents
         _spreadsheet[name] = new Cell(contents);
+
+        // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
+
+        // Return call to GetCellsToRecalculate
         return GetCellsToRecalculate(name).ToList();
     }
 
@@ -353,20 +361,26 @@ public class Spreadsheet
     /// <exception cref="CircularException"></exception>
     private void Visit(string start, string name, ISet<string> visited, LinkedList<string> changed)
     {
+        // Add the current node to visited 
         visited.Add(name);
         foreach (var n in GetDirectDependents(name))
         {
+            // For any dependency n that is equal to the start that creates a cycle
             if (n.Equals(start))
             {
                 throw new CircularException();
             }
 
+            // If the visited has not traversed into this dependency 
+            // Call itself to recursively travel through dependencies
             if (!visited.Contains(n))
             {
+                // Recursive call with n being new name
                 Visit(start, n, visited, changed);
             }
         }
 
+        // Add name to return list
         changed.AddFirst(name);
     }
 
