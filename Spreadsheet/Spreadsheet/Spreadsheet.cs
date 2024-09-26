@@ -116,6 +116,8 @@ public class Spreadsheet
     /// </returns>
     public object GetCellContents(string name)
     {
+        // If TryGetValue successes access the cell and return the contents of cell
+        // If TryGetValue fails the cell does not exist return string.Empty as default
         return _spreadsheet.TryGetValue(NormalizedName(name), out var cell)
             ? cell.Contents
             : string.Empty;
@@ -208,6 +210,32 @@ public class Spreadsheet
         _spreadsheet[normalizedCellName] = new Cell(formula);
         _dependencyGraph.ReplaceDependents(normalizedCellName, dependents);
         return GetCellsToRecalculate(normalizedCellName).ToList();
+    }
+
+    /// <summary>
+    ///   Set the contents of the named cell to the given contents.
+    /// </summary>
+    /// <exception cref="InvalidNameException">
+    ///   If the name is invalid, throw an InvalidNameException.
+    /// </exception>
+    /// <exception cref="CircularException">
+    ///   <para>
+    ///     If changing the contents of the named cell to be a formula that would
+    ///     cause a circular dependency, throw a CircularException, and no
+    ///     change is made to the spreadsheet.
+    ///   </para>
+    /// </exception>
+    /// <param name="name"> The name of the cell </param>
+    /// <param name="contents"> The contents of to which set the cells contents to be</param>
+    /// <param name="dependents"> The list of dependents to pass into to update the dependencyGraph</param>
+    /// <returns>
+    ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
+    /// </returns>
+    private IList<string> SetCellContentsGeneralized(string name, object contents, HashSet<string> dependents)
+    {
+        _spreadsheet[name] = new Cell(contents);
+        _dependencyGraph.ReplaceDependents(name, dependents);
+        return GetCellsToRecalculate(name).ToList();
     }
 
     /// <summary>
