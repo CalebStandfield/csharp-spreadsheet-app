@@ -74,9 +74,13 @@ using CS3500.DependencyGraph;
 /// </summary>
 public class Spreadsheet
 {
+    // A Dictionary that hold all non-empty cells that represent the spreadsheet
     private readonly Dictionary<string, Cell> _spreadsheet = new();
+    
+    // The dependencyGraph that will keep track dependencies of the cells
     private readonly DependencyGraph _dependencyGraph = new();
 
+    // Regex to help with determining if a name is valid
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
     /// <summary>
@@ -322,7 +326,9 @@ public class Spreadsheet
     }
 
     /// <summary>
-    ///   Normalizes the given possible cell name.
+    ///   <para>
+    ///     Normalizes the given possible cell name.
+    ///   </para>
     /// </summary>
     /// <param name="token">The name to be normalized.</param>
     /// <returns>
@@ -343,11 +349,12 @@ public class Spreadsheet
 
     /// <summary>
     ///   <para>
-    ///     Represents a cell inside a spreadsheet.
+    ///     A nested class that represents a cell inside a spreadsheet.
     ///     Each cell is tied to a name via the spreadsheetDictionary.
     ///     Cells hold their contents. 
     ///   </para>
     /// </summary>
+    /// <param name="contents">The contents of which this cell holds</param>
     private class Cell(object contents)
     {
         /// <summary>
