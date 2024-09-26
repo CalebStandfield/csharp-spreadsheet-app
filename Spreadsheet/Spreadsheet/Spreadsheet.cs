@@ -226,12 +226,16 @@ public class Spreadsheet
     }
 
     /// <summary>
-    ///   Set the contents of the named cell to the given contents.
+    ///   <para>
+    ///     Set the contents of the named cell to the given contents.
+    ///     If the passed in contents are of type formula a possible CircularException may happen.
+    ///   </para>
     /// </summary>
     /// <exception cref="InvalidNameException">
     ///   If the name is invalid, throw an InvalidNameException.
     /// </exception>
     /// <exception cref="CircularException">
+    ///  
     ///   <para>
     ///     If changing the contents of the named cell to be a formula that would
     ///     cause a circular dependency, throw a CircularException, and no
@@ -244,7 +248,7 @@ public class Spreadsheet
     /// <returns>
     ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
     /// </returns>
-    private IList<string> SetCellContentsGeneralized(string name, object contents, HashSet<string> dependents)
+    private IList<string> SetCellContentsHelper(string name, object contents, HashSet<string> dependents)
     {
         _spreadsheet[name] = new Cell(contents);
         _dependencyGraph.ReplaceDependents(name, dependents);
