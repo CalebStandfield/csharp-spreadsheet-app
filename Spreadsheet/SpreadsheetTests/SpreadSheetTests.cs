@@ -239,27 +239,31 @@ public class SpreadSheetTests
     }
 
     [TestMethod]
-    public void SetCellContents_NoDependentsFormula_EmptyList()
+    public void SetCellContents_NoDependentsFormula_ListOfItself()
     {
         var s = new Spreadsheet();
         var f = new Formula("2 + 2");
-        Assert.AreEqual(s.SetCellContents("C1", f).ToString(), new List<string>().ToString());
+        Assert.IsTrue(s.SetCellContents("C1", f).SequenceEqual(new List<string>{"C1"}));
     }
     
     [TestMethod]
-    public void SetCellContents_SingleDependentFormula_ListOfS1()
+    public void SetCellContents_SingleDependentFormula_ListOfS1AndC1()
     {
         var s = new Spreadsheet();
         var f = new Formula("S1 + 2");
-        Assert.AreEqual(s.SetCellContents("C1", f).ToString(), new List<string>{"S1"}.ToString());
+        Assert.IsTrue(s.SetCellContents("C1", f).SequenceEqual(new List<string>{"C1"}));
+        Assert.IsTrue(s.SetCellContents("S1", 1).SequenceEqual(new List<string>{"S1", "C1"}));
     }
     
     [TestMethod]
-    public void SetCellContents_MultiDependentFormula_ListDependents()
+    public void SetCellContents_MultiDependentFormula_ListDependees()
     {
         var s = new Spreadsheet();
-        var f = new Formula("S1 + S2");
-        Assert.AreEqual(s.SetCellContents("C1", f).ToString(), new List<string>{"S1", "S2"}.ToString());
+        var a1 = new Formula("B1 + C1");
+        var b1 = new Formula("1 + C1");
+        Assert.IsTrue(s.SetCellContents("A1", a1).SequenceEqual(new List<string>{"A1"}));
+        Assert.IsTrue(s.SetCellContents("B1", b1).SequenceEqual(new List<string>{"B1", "A1"}));
+        Assert.IsTrue(s.SetCellContents("C1", 1).SequenceEqual(new List<string>{"C1", "B1", "A1"}));
     }
     
     [TestMethod]
@@ -287,23 +291,23 @@ public class SpreadSheetTests
         s.SetCellContents("D1", f4);
         var f5 = new Formula("15");
         s.SetCellContents("E1", f5);
-        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "C1", "D1"}.ToString());
+        Assert.IsTrue(s.SetCellContents("A1", f1).SequenceEqual(new List<string>{"A1", "D1", "B1", "C1"}));
     }
     
     [TestMethod]
-    public void SetCellContents_A1sListIsEmptyAfterChange_ListDependents()
+    public void SetCellContents_A1IsRemoved_B1sListChangedToReflectThat()
     {
         var s = new Spreadsheet();
-        var f1 = new Formula("B1 + C1");
-        var f2 = new Formula("C1 + D1");
+        var f1 = new Formula("B1 + 2");
         s.SetCellContents("A1", f1);
-        s.SetCellContents("B1", f2);
-        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "C1", "D1"}.ToString());
-        Assert.AreEqual(s.SetCellContents("A1", new Formula("5")).ToString(), new List<string>().ToString());
+        Assert.IsTrue(s.SetCellContents("A1", f1).SequenceEqual(new List<string>{"A1"}));
+        Assert.IsTrue(s.SetCellContents("B1", 2).SequenceEqual(new List<string>{"B1", "A1"}));
+        s.SetCellContents("A1", string.Empty);
+        Assert.IsTrue(s.SetCellContents("B1", 2).SequenceEqual(new List<string>{"B1"}));
     }
     
     [TestMethod]
-    public void SetCellContents_C1GetsChanged_ReturnListNoLongerUpdatesC1()
+    public void SetCellContents_C1GetsChanged_ReturnListNoLongerContainsC1()
     {
         var s = new Spreadsheet();
         var f1 = new Formula("5");
@@ -316,9 +320,9 @@ public class SpreadSheetTests
         s.SetCellContents("D1", f4);
         var f5 = new Formula("15");
         s.SetCellContents("E1", f5);
-        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "C1", "D1"}.ToString());
+        Assert.IsTrue(s.SetCellContents("A1", f1).SequenceEqual(new List<string>{"A1", "D1", "B1", "C1"}));
         s.SetCellContents("C1", "Hi");
-        Assert.AreEqual(s.SetCellContents("A1", f1).ToString(), new List<string>{"A1", "B1", "D1"}.ToString());
+        Assert.IsTrue(s.SetCellContents("A1", f1).SequenceEqual(new List<string>{"A1", "D1", "B1"}));
     }
     
     [TestMethod]
@@ -355,7 +359,7 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
-    public void SetCellContents_LongTreeOfConnectingFormulas_ListAllDependents()
+    public void SetCellContents_LongTreeOfConnectingFormulas_ListGoesInOrderBottomToTop()
     {
         var s = new Spreadsheet();
         var a1 = new Formula("1 + B1");
@@ -366,7 +370,7 @@ public class SpreadSheetTests
         s.SetCellContents("B1", b1);
         s.SetCellContents("C1", c1);
         s.SetCellContents("D1", d1);
-        Assert.AreEqual(s.SetCellContents("E1", 1).ToString(), new List<string>{"A1", "B1", "C1", "D1", "E1"}.ToString());
+        Assert.IsTrue(s.SetCellContents("E1", 1).SequenceEqual(new List<string>{"E1", "D1", "C1", "B1", "A1"}));
     }
 
     #endregion

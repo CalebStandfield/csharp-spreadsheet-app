@@ -147,7 +147,7 @@ public class Spreadsheet
     public IList<string> SetCellContents(string name, double number)
     {
         var normalizedCellName = NormalizedName(name);
-        _spreadsheet[normalizedCellName] = new Cell(normalizedCellName, number);
+        _spreadsheet[normalizedCellName] = new Cell(number);
         _dependencyGraph.ReplaceDependents(normalizedCellName, []);
         return GetCellsToRecalculate(normalizedCellName).ToList();
     }
@@ -173,7 +173,8 @@ public class Spreadsheet
             _dependencyGraph.ReplaceDependents(normalizedCellName, []);
             return GetCellsToRecalculate(normalizedCellName).ToList();
         }
-        _spreadsheet[normalizedCellName] = new Cell(normalizedCellName, text);
+
+        _spreadsheet[normalizedCellName] = new Cell(text);
         _dependencyGraph.ReplaceDependents(normalizedCellName, []);
         return GetCellsToRecalculate(normalizedCellName).ToList();
     }
@@ -200,7 +201,7 @@ public class Spreadsheet
     {
         var normalizedCellName = NormalizedName(name);
         var dependents = formula.GetVariables();
-        _spreadsheet[normalizedCellName] = new Cell(normalizedCellName, formula);
+        _spreadsheet[normalizedCellName] = new Cell(formula);
         _dependencyGraph.ReplaceDependents(normalizedCellName, dependents);
         return GetCellsToRecalculate(normalizedCellName).ToList();
     }
@@ -288,12 +289,18 @@ public class Spreadsheet
     }
 
     /// <summary>
-    ///   A helper for the GetCellsToRecalculate method.
+    ///   <para>
+    ///     A helper for the GetCellsToRecalculate method.
+    ///     This method performs a topological sort on the name passed in; in which it gets the
+    ///     direct dependents of the name (cell) and starts with adding the name as the first cell that is visited.
+    ///     This signifies that this cell should be the first cell that will be updated when the return list is used
+    ///     calculate in what order to recalculate cells.
+    ///   </para>
     /// </summary>
-    /// <param name="start"></param>
-    /// <param name="name"></param>
-    /// <param name="visited"></param>
-    /// <param name="changed"></param>
+    /// <param name="start">The first node that will be visited</param>
+    /// <param name="name">The name of the nodes to grab direct dependents from</param>
+    /// <param name="visited">A HashSet that indicated what has already been visited</param>
+    /// <param name="changed">A Linked list that retains the order in which cells should be updated</param>
     /// <exception cref="CircularException"></exception>
     private void Visit(string start, string name, ISet<string> visited, LinkedList<string> changed)
     {
@@ -336,10 +343,12 @@ public class Spreadsheet
 
     /// <summary>
     ///   <para>
-    ///     
+    ///     Represents a cell inside a spreadsheet.
+    ///     Each cell is tied to a name via the spreadsheetDictionary.
+    ///     Cells hold their contents. 
     ///   </para>
     /// </summary>
-    private class Cell(string cellName, object contents)
+    private class Cell(object contents)
     {
         /// <summary>
         ///   <para>
