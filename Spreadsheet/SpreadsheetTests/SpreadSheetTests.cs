@@ -16,7 +16,7 @@ public class SpreadSheetTests
         var s = new Spreadsheet();
         Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 0);
         var emptySet = s.GetNamesOfAllNonemptyCells();
-        Assert.AreEqual(emptySet.ToString(), new HashSet<string>().ToString());
+        Assert.IsTrue(emptySet.SequenceEqual(new HashSet<string>()));
     }
 
     [TestMethod]
@@ -26,7 +26,7 @@ public class SpreadSheetTests
         s.SetCellContents("a1", 1);
         Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 1);
         var a1Set = s.GetNamesOfAllNonemptyCells();
-        Assert.AreEqual(a1Set.ToString(), new HashSet<string> { "A1" }.ToString());
+        Assert.IsTrue(a1Set.SequenceEqual(new HashSet<string>{"A1"}));
     }
 
     [TestMethod]
@@ -36,7 +36,7 @@ public class SpreadSheetTests
         s.SetCellContents("A1", 1);
         Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 1);
         var a1Set = s.GetNamesOfAllNonemptyCells();
-        Assert.AreEqual(a1Set.ToString(), new HashSet<string> { "A1" }.ToString());
+        Assert.IsTrue(a1Set.SequenceEqual(new HashSet<string>{"A1"}));
     }
 
     [TestMethod]
@@ -48,7 +48,7 @@ public class SpreadSheetTests
         s.SetCellContents("C1", 3);
         Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 3);
         var a1Set = s.GetNamesOfAllNonemptyCells();
-        Assert.AreEqual(a1Set.ToString(), new HashSet<string> { "A1", "B1", "C1" }.ToString());
+        Assert.IsTrue(a1Set.SequenceEqual(new HashSet<string>{"A1", "B1", "C1"}));
     }
 
     [TestMethod]
@@ -60,7 +60,7 @@ public class SpreadSheetTests
         s.SetCellContents("C1", new Formula("2 + 2"));
         Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 3);
         var a1Set = s.GetNamesOfAllNonemptyCells();
-        Assert.AreEqual(a1Set.ToString(), new HashSet<string> { "A1", "B1", "C1" }.ToString());
+        Assert.IsTrue(a1Set.SequenceEqual(new HashSet<string>{"A1", "B1", "C1"}));
     }
 
     [TestMethod]
@@ -72,7 +72,7 @@ public class SpreadSheetTests
         s.SetCellContents("C1", new Formula("2 + 2"));
         Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 3);
         var a1Set = s.GetNamesOfAllNonemptyCells();
-        Assert.AreEqual(a1Set.ToString(), new HashSet<string> { "A1", "B1", "C1" }.ToString());
+        Assert.IsTrue(a1Set.SequenceEqual(new HashSet<string>{"A1", "B1", "C1"}));
     }
 
     #endregion
@@ -154,24 +154,35 @@ public class SpreadSheetTests
     public void SetCellContents_CellAccessInvalidNameDouble_ThrowsInvalidNameException()
     {
         var s = new Spreadsheet();
-        var l = new List<string>();
-        Assert.AreEqual(s.SetCellContents("C", 1), l);
+        s.SetCellContents("C", 1);
     }
 
     [TestMethod]
-    public void SetCellContents_NoDependentsDouble_EmptyList()
+    public void SetCellContents_NoDependentsDouble_ListOfItself()
     {
         var s = new Spreadsheet();
-        Assert.AreEqual(s.SetCellContents("C1", 1).ToString(), new List<string>().ToString());
+        Assert.IsTrue(s.SetCellContents("C1", 1).SequenceEqual(new List<string>{"C1"}));
     }
     
     [TestMethod]
-    public void SetCellContents_FormulaWithDependentsToDouble_EmptyList()
+    public void SetCellContents_XmlCommentForDoubleSetCell_ListIsAccurateAccordingToXmlComment()
     {
         var s = new Spreadsheet();
-        var f = new Formula("B1 + C2");
-        Assert.AreEqual(s.SetCellContents("A1", f).ToString(), new List<string> {"B1", "C1"}.ToString());
-        Assert.AreEqual(s.SetCellContents("C1", 1.0).ToString(), new List<string>().ToString());
+        var b1 = new Formula("A1 * 2");
+        var c1 = new Formula("B1 + A1");
+        s.SetCellContents("B1", b1);
+        s.SetCellContents("C1", c1);
+        Assert.IsTrue(s.SetCellContents("A1", 1).SequenceEqual(new List<string>{"A1", "B1", "C1"}));
+        
+    }
+    
+    [TestMethod]
+    public void SetCellContents_OneDependentOneDependee_ListOfItselfThenDependee()
+    {
+        var s = new Spreadsheet();
+        var a1 = new Formula("B1 + 1");
+        Assert.IsTrue(s.SetCellContents("A1", a1).SequenceEqual(new List<string>{"A1"}));
+        Assert.IsTrue(s.SetCellContents("B1", 1).SequenceEqual(new List<string>{"B1", "A1"}));
     }
 
     #endregion
@@ -183,32 +194,14 @@ public class SpreadSheetTests
     public void SetCellContents_CellAccessInvalidNameText_ThrowsInvalidNameException()
     {
         var s = new Spreadsheet();
-        var l = new List<string>();
-        Assert.AreEqual(s.SetCellContents("C", "C"), l);
+        s.SetCellContents("C", "C");
     }
 
     [TestMethod]
-    public void SetCellContents_NoDependentsText_EmptyList()
+    public void SetCellContents_NoDependentsText_ListOfItself()
     {
         var s = new Spreadsheet();
-        Assert.AreEqual(s.SetCellContents("C1", "C").ToString(), new List<string>().ToString());
-    }
-    
-    [TestMethod]
-    public void SetCellContents_FormulaWithDependentsToText_EmptyList()
-    {
-        var s = new Spreadsheet();
-        var f = new Formula("B1 + C2");
-        Assert.AreEqual(s.SetCellContents("A1", f).ToString(), new List<string> {"B1", "C1"}.ToString());
-        Assert.AreEqual(s.SetCellContents("C1", "C").ToString(), new List<string>().ToString());
-    }
-    
-    [TestMethod]
-    public void SetCellContents_SetToEmptyString_EmptyList()
-    {
-        var s = new Spreadsheet();
-        Assert.AreEqual(s.SetCellContents("C1", "C").ToString(), new List<string>().ToString());
-        Assert.AreEqual(s.SetCellContents("C1", string.Empty).ToString(), new List<string>().ToString());
+        Assert.IsTrue(s.SetCellContents("C1", "C").SequenceEqual(new List<string>{"C1"}));
     }
     
     [TestMethod]
@@ -217,7 +210,7 @@ public class SpreadSheetTests
         var s = new Spreadsheet();
         s.SetCellContents("C1", "C");
         Assert.AreEqual(s.GetCellContents("C1"), "C");
-        Assert.AreEqual(s.SetCellContents("C1", string.Empty).ToString(), new List<string>().ToString());
+        s.SetCellContents("C1", string.Empty);
         Assert.AreEqual(s.GetCellContents("C1"), string.Empty);
     }
     
@@ -227,10 +220,10 @@ public class SpreadSheetTests
         var s = new Spreadsheet();
         s.SetCellContents("C1", "C");
         Assert.AreEqual(s.GetCellContents("C1"), "C");
-        Assert.AreEqual(s.GetNamesOfAllNonemptyCells().ToString(), new HashSet<string> {"C1"}.ToString());
+        Assert.IsTrue(s.GetNamesOfAllNonemptyCells().SequenceEqual(new List<string>{"C1"}));
         s.SetCellContents("C1", string.Empty);
         Assert.AreEqual(s.GetCellContents("C1"), string.Empty);
-        Assert.AreEqual(s.GetNamesOfAllNonemptyCells().ToString(), new HashSet<string>().ToString());
+        Assert.IsTrue(s.GetNamesOfAllNonemptyCells().SequenceEqual(new List<string>()));
     }
 
     #endregion
@@ -238,11 +231,11 @@ public class SpreadSheetTests
     #region SetCellContentsFormula
 
     [TestMethod]
+    [ExpectedException(typeof(InvalidNameException))]
     public void SetCellContents_CellAccessInvalidNameFormula_ThrowsInvalidNameException()
     {
         var s = new Spreadsheet();
-        var f = new Formula("2 + 2");
-        Assert.AreEqual(s.SetCellContents("C1", f).ToString(), new List<string>().ToString());
+        s.SetCellContents("C", new Formula("2 + 2"));
     }
 
     [TestMethod]
