@@ -372,6 +372,36 @@ public class SpreadSheetTests
         s.SetCellContents("D1", d1);
         Assert.IsTrue(s.SetCellContents("E1", 1).SequenceEqual(new List<string>{"E1", "D1", "C1", "B1", "A1"}));
     }
+    
+    [TestMethod]
+    public void SetCellContents_CircularExceptionDoesNotCauseChangeToGraphContents_NoChange()
+    {
+        var s = new Spreadsheet();
+        var a1 = new Formula("A1 + 1");
+        s.SetCellContents("A1", 1);
+        Assert.AreEqual(s.GetCellContents("A1"), 1.0);
+        Assert.ThrowsException<CircularException>(() => s.SetCellContents("A1", a1));
+        Assert.AreEqual(s.GetCellContents("A1"), 1.0);
+    }
+    
+    [TestMethod]
+    public void SetCellContents_CircularExceptionDoesNotCauseChangeToGraphListOfDependencies_NoChange()
+    {
+        var s = new Spreadsheet();
+        var f1 = new Formula("5");
+        s.SetCellContents("A1", f1);
+        var f2 = new Formula("A1 + 2");
+        s.SetCellContents("B1", f2);
+        var f3 = new Formula("A1 + B1");
+        s.SetCellContents("C1", f3);
+        var f4 = new Formula("A1 * 7");
+        s.SetCellContents("D1", f4);
+        var f5 = new Formula("15");
+        s.SetCellContents("E1", f5);
+        Assert.IsTrue(s.SetCellContents("A1", f1).SequenceEqual(new List<string>{"A1", "D1", "B1", "C1"}));
+        Assert.ThrowsException<CircularException>(() => s.SetCellContents("C1", new Formula("C1")));
+        Assert.IsTrue(s.SetCellContents("A1", f1).SequenceEqual(new List<string>{"A1", "D1", "B1", "C1"}));
+    }
 
     #endregion
 

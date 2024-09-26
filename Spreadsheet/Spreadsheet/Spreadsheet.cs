@@ -76,7 +76,7 @@ public class Spreadsheet
 {
     // A Dictionary that hold all non-empty cells that represent the spreadsheet
     private readonly Dictionary<string, Cell> _spreadsheet = new();
-    
+
     // The dependencyGraph that will keep track dependencies of the cells
     private readonly DependencyGraph _dependencyGraph = new();
 
@@ -206,10 +206,23 @@ public class Spreadsheet
     public IList<string> SetCellContents(string name, Formula formula)
     {
         var normalizedCellName = NormalizedName(name);
-        var dependents = formula.GetVariables();
-        _spreadsheet[normalizedCellName] = new Cell(formula);
-        _dependencyGraph.ReplaceDependents(normalizedCellName, dependents);
-        return GetCellsToRecalculate(normalizedCellName).ToList();
+        
+        var originalCellContents = GetCellContents(normalizedCellName);
+        var originalDependents = _dependencyGraph.GetDependents(normalizedCellName).ToList();
+
+        try
+        {
+            var dependents = formula.GetVariables();
+            _spreadsheet[normalizedCellName] = new Cell(formula);
+            _dependencyGraph.ReplaceDependents(normalizedCellName, dependents);
+            return GetCellsToRecalculate(normalizedCellName).ToList();
+        }
+        catch (CircularException)
+        {
+            _spreadsheet[normalizedCellName] = new Cell(originalCellContents);
+            _dependencyGraph.ReplaceDependents(normalizedCellName, originalDependents);
+            throw new CircularException();
+        }
     }
 
     /// <summary>
