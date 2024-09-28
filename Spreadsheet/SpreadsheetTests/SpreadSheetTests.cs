@@ -6,6 +6,11 @@ using CS3500.Spreadsheet;
 
 namespace SpreadsheetTests;
 
+/// <summary>
+///   <para>
+///     Tester class for SpreadSheet, ensures all methods method work as intended
+///   </para>
+/// </summary>
 [TestClass]
 public class SpreadSheetTests
 {
