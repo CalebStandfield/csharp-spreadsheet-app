@@ -222,6 +222,13 @@ public class Spreadsheet
             // Reset the spreadsheet to its original state
             // Reset contents of cell
             _spreadsheet[normalizedCellName] = new Cell(originalCellContents);
+            
+            // Check if originalCellContents is the empty string
+            if (originalCellContents is string contents && originalCellContents.Equals(string.Empty))
+            {
+                // Call to SetCellContents to remove cell as it is empty
+                _ = SetCellContents(normalizedCellName, contents);
+            }
             // Reset the dependents of cell
             _dependencyGraph.ReplaceDependents(normalizedCellName, originalDependents);
             throw new CircularException();
