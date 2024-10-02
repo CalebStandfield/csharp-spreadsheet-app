@@ -61,7 +61,6 @@ public class DependencyGraph
     private readonly Dictionary<string, HashSet<string>> _dependees;
 
     // Size of the dependencyGraph
-    private int _size;
 
     /// <summary>
     ///   <para>
@@ -74,7 +73,7 @@ public class DependencyGraph
         // Forwards and backwards dictionaries 
         _dependents = new Dictionary<string, HashSet<string>>();
         _dependees = new Dictionary<string, HashSet<string>>();
-        _size = 0;
+        Size = 0;
     }
 
     /// <summary>
@@ -82,10 +81,7 @@ public class DependencyGraph
     ///     The number of ordered pairs in the DependencyGraph.
     ///   </para>
     /// </summary>
-    public int Size
-    {
-        get { return _size; }
-    }
+    public int Size { get; private set; }
 
     /// <summary>
     ///   <para>
@@ -185,14 +181,14 @@ public class DependencyGraph
             // Key exists. Try to add dependent to HashSet
             if (dependeesHashSet.Add(dependent))
             {
-                _size++;
+                Size++;
             }
         }
         // Key did not exist. Create new (K, V) pair
         else
         {
             _dependents.Add(dependee, [dependent]);
-            _size++;
+            Size++;
         }
     }
 
@@ -250,7 +246,7 @@ public class DependencyGraph
         if (!_dependents.TryGetValue(dependee, out var dependeesHashSet)) return;
         if (!dependeesHashSet.Remove(dependent)) return;
         // Key existed and value was removed decrease size
-        _size--;
+        Size--;
         if (dependeesHashSet.Count == 0)
         {
             // Key had no values associated, remove key
