@@ -84,6 +84,16 @@ public class Spreadsheet
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
     /// <summary>
+    ///   <para>
+    ///     The default zero argument constructor that creates a new
+    ///     spreadsheet in a default blank state.
+    ///   </para>
+    /// </summary>
+    public Spreadsheet()
+    {
+    }
+
+    /// <summary>
     ///   Provides a copy of the normalized names of all the cells in the spreadsheet
     ///   that contain information (i.e., non-empty cells).
     /// </summary>
@@ -121,6 +131,81 @@ public class Spreadsheet
         return _spreadsheet.TryGetValue(NormalizedName(name), out var cell)
             ? cell.Contents
             : string.Empty;
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Set the contents of the named cell to be the provided string
+    ///     which will either represent (1) a string, (2) a number, or 
+    ///     (3) a formula (based on the prepended '=' character).
+    ///   </para>
+    ///   <para>
+    ///     Rules of parsing the input string:
+    ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///       <para>
+    ///         If 'content' parses as a double, the contents of the named
+    ///         cell becomes that double.
+    ///       </para>
+    ///     </item>
+    ///     <item>
+    ///         If the string does not begin with an '=', the contents of the 
+    ///         named cell becomes 'content'.
+    ///     </item>
+    ///     <item>
+    ///       <para>
+    ///         If 'content' begins with the character '=', an attempt is made
+    ///         to parse the remainder of content into a Formula f using the Formula
+    ///         constructor.  There are then three possibilities:
+    ///       </para>
+    ///       <list type="number">
+    ///         <item>
+    ///           If the remainder of content cannot be parsed into a Formula, a 
+    ///           CS3500.Formula.FormulaFormatException is thrown.
+    ///         </item>
+    ///         <item>
+    ///           Otherwise, if changing the contents of the named cell to be f
+    ///           would cause a circular dependency, a CircularException is thrown,
+    ///           and no change is made to the spreadsheet.
+    ///         </item>
+    ///         <item>
+    ///           Otherwise, the contents of the named cell becomes f.
+    ///         </item>
+    ///       </list>
+    ///     </item>
+    ///   </list>
+    /// </summary>
+    /// <returns>
+    ///   <para>
+    ///     The method returns a list consisting of the name plus the names 
+    ///     of all other cells whose value depends, directly or indirectly, 
+    ///     on the named cell. The order of the list should be any order 
+    ///     such that if cells are re-evaluated in that order, their dependencies 
+    ///     are satisfied by the time they are evaluated.
+    ///   </para>
+    ///   <example>
+    ///     For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+    ///     list {A1, B1, C1} is returned.
+    ///   </example>
+    /// </returns>
+    /// <exception cref="InvalidNameException">
+    ///     If name is invalid, throws an InvalidNameException.
+    /// </exception>
+    /// <exception cref="CircularException">
+    ///     If a formula will result in a circular dependency, throws CircularException.
+    /// </exception>
+    public IList<string> SetContentsOfCell(string name, string content)
+    {
+        var normalizedName = NormalizedName(name);
+        if (double.TryParse(content, out var number))
+        {
+            return SetCellContents(normalizedName, number);
+        }
+
+        return content.StartsWith('=')
+            ? SetCellContents(normalizedName, new Formula(content[1..]))
+            : SetCellContents(normalizedName, content);
     }
 
     /// <summary>
@@ -222,13 +307,14 @@ public class Spreadsheet
             // Reset the spreadsheet to its original state
             // Reset contents of cell
             _spreadsheet[normalizedCellName] = new Cell(originalCellContents);
-            
+
             // Check if originalCellContents is the empty string
             if (originalCellContents is string contents && originalCellContents.Equals(string.Empty))
             {
                 // Call to SetCellContents to remove cell as it is empty
                 _ = SetCellContents(normalizedCellName, contents);
             }
+
             // Reset the dependents of cell
             _dependencyGraph.ReplaceDependents(normalizedCellName, originalDependents);
             throw new CircularException();
@@ -431,6 +517,129 @@ public class Spreadsheet
         /// </summary>
         public object Contents { get; } = contents;
     }
+
+    /// <summary>
+    /// True if this spreadsheet has been changed since it was 
+    /// created or saved (whichever happened most recently),
+    /// False otherwise.
+    /// </summary>
+    public bool Changed { get; private set; }
+
+    /// <summary>
+    /// Constructs a spreadsheet using the saved data in the file referred to by
+    /// the given filename. 
+    /// <see cref="Save(string)"/>
+    /// </summary>
+    /// <exception cref="SpreadsheetReadWriteException">
+    ///   Thrown if the file can not be loaded into a spreadsheet for any reason
+    /// </exception>
+    /// <param name="filename">The path to the file containing the spreadsheet to load</param>
+    public Spreadsheet(string filename)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Writes the contents of this spreadsheet to the named file using a JSON format.
+    ///     If the file already exists, overwrite it.
+    ///   </para>
+    ///   <para>
+    ///     The output JSON should look like the following.
+    ///   </para>
+    ///   <para>
+    ///     For example, consider a spreadsheet that contains a cell "A1" 
+    ///     with contents being the double 5.0, and a cell "B3" with contents 
+    ///     being the Formula("A1+2"), and a cell "C4" with the contents "hello".
+    ///   </para>
+    ///   <para>
+    ///      This method would produce the following JSON string:
+    ///   </para>
+    ///   <code>
+    ///   {
+    ///     "Cells": {
+    ///       "A1": {
+    ///         "StringForm": "5"
+    ///       },
+    ///       "B3": {
+    ///         "StringForm": "=A1+2"
+    ///       },
+    ///       "C4": {
+    ///         "StringForm": "hello"
+    ///       }
+    ///     }
+    ///   }
+    ///   </code>
+    ///   <para>
+    ///     You can achieve this by making sure your data structure is a dictionary 
+    ///     and that the contained objects (Cells) have property named "StringForm"
+    ///     (if this name does not match your existing code, use the JsonPropertyName 
+    ///     attribute).
+    ///   </para>
+    ///   <para>
+    ///     There can be 0 cells in the dictionary, resulting in { "Cells" : {} } 
+    ///   </para>
+    ///   <para>
+    ///     Further, when writing the value of each cell...
+    ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///       If the contents is a string, the value of StringForm is that string
+    ///     </item>
+    ///     <item>
+    ///       If the contents is a double d, the value of StringForm is d.ToString()
+    ///     </item>
+    ///     <item>
+    ///       If the contents is a Formula f, the value of StringForm is "=" + f.ToString()
+    ///     </item>
+    ///   </list>
+    /// </summary>
+    /// <param name="filename"> The name (with path) of the file to save to.</param>
+    /// <exception cref="SpreadsheetReadWriteException">
+    ///   If there are any problems opening, writing, or closing the file, 
+    ///   the method should throw a SpreadsheetReadWriteException with an
+    ///   explanatory message.
+    /// </exception>
+    public void Save(string filename)
+    {
+        Changed = false;
+    }
+    
+    /// <summary>
+    ///   <para>
+    ///     Return the value of the named cell, as defined by
+    ///     <see cref="GetCellValue(string)"/>.
+    ///   </para>
+    /// </summary>
+    /// <param name="name"> The cell in question. </param>
+    /// <returns>
+    ///   <see cref="GetCellValue(string)"/>
+    /// </returns>
+    /// <exception cref="InvalidNameException">
+    ///   If the provided name is invalid, throws an InvalidNameException.
+    /// </exception>
+    public object this[string name]
+    {
+        get { throw new NotImplementedException(); }
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Return the value of the named cell.
+    ///   </para>
+    /// </summary>
+    /// <param name="name"> The cell in question. </param>
+    /// <returns>
+    ///   Returns the value (as opposed to the contents) of the named cell.  The return
+    ///   value should be either a string, a double, or a CS3500.Formula.FormulaError.
+    /// </returns>
+    /// <exception cref="InvalidNameException">
+    ///   If the provided name is invalid, throws an InvalidNameException.
+    /// </exception>
+    public object GetCellValue(string name)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 /// <summary>
@@ -446,3 +655,23 @@ public class CircularException : Exception;
 ///   </para>
 /// </summary>
 public class InvalidNameException : Exception;
+
+/// <summary>
+/// <para>
+///   Thrown to indicate that a read or write attempt has failed with
+///   an expected error message informing the user of what went wrong.
+/// </para>
+/// </summary>
+public class SpreadsheetReadWriteException : Exception
+{
+    /// <summary>
+    ///   <para>
+    ///     Creates the exception with a message defining what went wrong.
+    ///   </para>
+    /// </summary>
+    /// <param name="msg"> An informative message to the user. </param>
+    public SpreadsheetReadWriteException(string msg)
+        : base(msg)
+    {
+    }
+}
