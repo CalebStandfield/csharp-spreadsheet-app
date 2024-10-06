@@ -84,6 +84,13 @@ public class Spreadsheet
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
     /// <summary>
+    /// True if this spreadsheet has been changed since it was 
+    /// created or saved (whichever happened most recently),
+    /// False otherwise.
+    /// </summary>
+    public bool Changed { get; private set; }
+
+    /// <summary>
     ///   <para>
     ///     The default zero argument constructor that creates a new
     ///     spreadsheet in a default blank state.
@@ -91,6 +98,86 @@ public class Spreadsheet
     /// </summary>
     public Spreadsheet()
     {
+    }
+
+    /// <summary>
+    /// Constructs a spreadsheet using the saved data in the file referred to by
+    /// the given filename. 
+    /// <see cref="Save(string)"/>
+    /// </summary>
+    /// <exception cref="SpreadsheetReadWriteException">
+    ///   Thrown if the file can not be loaded into a spreadsheet for any reason
+    /// </exception>
+    /// <param name="filename">The path to the file containing the spreadsheet to load</param>
+    public Spreadsheet(string filename)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Writes the contents of this spreadsheet to the named file using a JSON format.
+    ///     If the file already exists, overwrite it.
+    ///   </para>
+    ///   <para>
+    ///     The output JSON should look like the following.
+    ///   </para>
+    ///   <para>
+    ///     For example, consider a spreadsheet that contains a cell "A1" 
+    ///     with contents being the double 5.0, and a cell "B3" with contents 
+    ///     being the Formula("A1+2"), and a cell "C4" with the contents "hello".
+    ///   </para>
+    ///   <para>
+    ///      This method would produce the following JSON string:
+    ///   </para>
+    ///   <code>
+    ///   {
+    ///     "Cells": {
+    ///       "A1": {
+    ///         "StringForm": "5"
+    ///       },
+    ///       "B3": {
+    ///         "StringForm": "=A1+2"
+    ///       },
+    ///       "C4": {
+    ///         "StringForm": "hello"
+    ///       }
+    ///     }
+    ///   }
+    ///   </code>
+    ///   <para>
+    ///     You can achieve this by making sure your data structure is a dictionary 
+    ///     and that the contained objects (Cells) have property named "StringForm"
+    ///     (if this name does not match your existing code, use the JsonPropertyName 
+    ///     attribute).
+    ///   </para>
+    ///   <para>
+    ///     There can be 0 cells in the dictionary, resulting in { "Cells" : {} } 
+    ///   </para>
+    ///   <para>
+    ///     Further, when writing the value of each cell...
+    ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///       If the contents is a string, the value of StringForm is that string
+    ///     </item>
+    ///     <item>
+    ///       If the contents is a double d, the value of StringForm is d.ToString()
+    ///     </item>
+    ///     <item>
+    ///       If the contents is a Formula f, the value of StringForm is "=" + f.ToString()
+    ///     </item>
+    ///   </list>
+    /// </summary>
+    /// <param name="filename"> The name (with path) of the file to save to.</param>
+    /// <exception cref="SpreadsheetReadWriteException">
+    ///   If there are any problems opening, writing, or closing the file, 
+    ///   the method should throw a SpreadsheetReadWriteException with an
+    ///   explanatory message.
+    /// </exception>
+    public void Save(string filename)
+    {
+        Changed = false;
     }
 
     /// <summary>
@@ -199,6 +286,7 @@ public class Spreadsheet
     {
         // Normalize name to pass into subsequent methods
         var normalizedName = NormalizedName(name);
+        
         if (double.TryParse(content, out var number))
         {
             return SetCellContents(normalizedName, number);
@@ -498,112 +586,6 @@ public class Spreadsheet
 
     /// <summary>
     ///   <para>
-    ///     A nested class that represents a cell inside a spreadsheet.
-    ///     Each cell is tied to a name via the spreadsheetDictionary.
-    ///     Cells hold their contents. 
-    ///   </para>
-    /// </summary>
-    /// <param name="contents">The contents of which this cell holds</param>
-    private class Cell(object contents)
-    {
-        /// <summary>
-        ///   <para>
-        ///     Contains getter and setter for the use of easy access in the spreadSheet class.
-        ///     Represents the contents of a cell.
-        ///   </para>
-        /// </summary>
-        public object Contents { get; } = contents;
-    }
-
-    /// <summary>
-    /// True if this spreadsheet has been changed since it was 
-    /// created or saved (whichever happened most recently),
-    /// False otherwise.
-    /// </summary>
-    public bool Changed { get; private set; }
-
-    /// <summary>
-    /// Constructs a spreadsheet using the saved data in the file referred to by
-    /// the given filename. 
-    /// <see cref="Save(string)"/>
-    /// </summary>
-    /// <exception cref="SpreadsheetReadWriteException">
-    ///   Thrown if the file can not be loaded into a spreadsheet for any reason
-    /// </exception>
-    /// <param name="filename">The path to the file containing the spreadsheet to load</param>
-    public Spreadsheet(string filename)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    ///   <para>
-    ///     Writes the contents of this spreadsheet to the named file using a JSON format.
-    ///     If the file already exists, overwrite it.
-    ///   </para>
-    ///   <para>
-    ///     The output JSON should look like the following.
-    ///   </para>
-    ///   <para>
-    ///     For example, consider a spreadsheet that contains a cell "A1" 
-    ///     with contents being the double 5.0, and a cell "B3" with contents 
-    ///     being the Formula("A1+2"), and a cell "C4" with the contents "hello".
-    ///   </para>
-    ///   <para>
-    ///      This method would produce the following JSON string:
-    ///   </para>
-    ///   <code>
-    ///   {
-    ///     "Cells": {
-    ///       "A1": {
-    ///         "StringForm": "5"
-    ///       },
-    ///       "B3": {
-    ///         "StringForm": "=A1+2"
-    ///       },
-    ///       "C4": {
-    ///         "StringForm": "hello"
-    ///       }
-    ///     }
-    ///   }
-    ///   </code>
-    ///   <para>
-    ///     You can achieve this by making sure your data structure is a dictionary 
-    ///     and that the contained objects (Cells) have property named "StringForm"
-    ///     (if this name does not match your existing code, use the JsonPropertyName 
-    ///     attribute).
-    ///   </para>
-    ///   <para>
-    ///     There can be 0 cells in the dictionary, resulting in { "Cells" : {} } 
-    ///   </para>
-    ///   <para>
-    ///     Further, when writing the value of each cell...
-    ///   </para>
-    ///   <list type="bullet">
-    ///     <item>
-    ///       If the contents is a string, the value of StringForm is that string
-    ///     </item>
-    ///     <item>
-    ///       If the contents is a double d, the value of StringForm is d.ToString()
-    ///     </item>
-    ///     <item>
-    ///       If the contents is a Formula f, the value of StringForm is "=" + f.ToString()
-    ///     </item>
-    ///   </list>
-    /// </summary>
-    /// <param name="filename"> The name (with path) of the file to save to.</param>
-    /// <exception cref="SpreadsheetReadWriteException">
-    ///   If there are any problems opening, writing, or closing the file, 
-    ///   the method should throw a SpreadsheetReadWriteException with an
-    ///   explanatory message.
-    /// </exception>
-    public void Save(string filename)
-    {
-        Changed = false;
-    }
-    
-    /// <summary>
-    ///   <para>
     ///     Return the value of the named cell, as defined by
     ///     <see cref="GetCellValue(string)"/>.
     ///   </para>
@@ -636,6 +618,58 @@ public class Spreadsheet
     public object GetCellValue(string name)
     {
         throw new NotImplementedException();
+    }
+
+    private enum CellContentsType
+    {
+        Double,
+        String,
+        Formula
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     A nested class that represents a cell inside a spreadsheet.
+    ///     Each cell is tied to a name via the spreadsheetDictionary.
+    ///     Cells hold their contents. 
+    ///   </para>
+    /// </summary>
+    /// <param name="contents">The contents of which this cell holds</param>
+    private class Cell(object contents)
+    {
+        /// <summary>
+        ///   <para>
+        ///     Contains getter and setter for the use of easy access in the spreadSheet class.
+        ///     Represents the contents of a cell.
+        ///   </para>
+        /// </summary>
+        public object Contents { get; } = contents;
+
+        public object Value { get; private set; }
+
+        public CellContentsType ContentsType { get; set; }
+
+        private void SetValueOfCell()
+        {
+            switch (ContentsType)
+            {
+                case CellContentsType.Formula:
+                    EvaluateContentFormula();
+                    break;
+                case CellContentsType.Double:
+                    Value = double.Parse(Contents.ToString());
+                    break;
+                case CellContentsType.String:
+                    Value = Contents.ToString();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void EvaluateContentFormula()
+        {
+        }
     }
 }
 
