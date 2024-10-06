@@ -197,6 +197,7 @@ public class Spreadsheet
     /// </exception>
     public IList<string> SetContentsOfCell(string name, string content)
     {
+        // Normalize name to pass into subsequent methods
         var normalizedName = NormalizedName(name);
         if (double.TryParse(content, out var number))
         {
@@ -238,7 +239,7 @@ public class Spreadsheet
     private IList<string> SetCellContents(string name, double number)
     {
         // Return call to helper method
-        return SetCellContentsHelper(NormalizedName(name), number, []);
+        return SetCellContentsHelper(name, number, []);
     }
 
     /// <summary>
@@ -255,19 +256,17 @@ public class Spreadsheet
     /// </returns>
     private IList<string> SetCellContents(string name, string text)
     {
-        var normalizedCellName = NormalizedName(name);
-
         // If text is not the empty string then call helper method to replace cell with new contents
-        if (!text.Equals(string.Empty)) return SetCellContentsHelper(normalizedCellName, text, []);
+        if (!text.Equals(string.Empty)) return SetCellContentsHelper(name, text, []);
 
         // Text was the empty string, thus remove the key associated to the name
-        _spreadsheet.Remove(normalizedCellName);
+        _spreadsheet.Remove(name);
 
         // Update the dependency graph to remove possible dependents
-        _dependencyGraph.ReplaceDependents(normalizedCellName, []);
+        _dependencyGraph.ReplaceDependents(name, []);
 
         // Return call to helper method
-        return GetCellsToRecalculate(normalizedCellName).ToList();
+        return GetCellsToRecalculate(name).ToList();
     }
 
     /// <summary>
@@ -290,33 +289,31 @@ public class Spreadsheet
     /// </returns>
     private IList<string> SetCellContents(string name, Formula formula)
     {
-        var normalizedCellName = NormalizedName(name);
-
         // Keep track of the current state of the cell and dependency graph
-        var originalCellContents = GetCellContents(normalizedCellName);
-        var originalDependents = _dependencyGraph.GetDependents(normalizedCellName).ToList();
+        var originalCellContents = GetCellContents(name);
+        var originalDependents = _dependencyGraph.GetDependents(name).ToList();
 
         try
         {
             var dependents = formula.GetVariables();
             // Return call to helper method
-            return SetCellContentsHelper(normalizedCellName, formula, dependents.ToHashSet());
+            return SetCellContentsHelper(name, formula, dependents.ToHashSet());
         }
         catch (CircularException)
         {
             // Reset the spreadsheet to its original state
             // Reset contents of cell
-            _spreadsheet[normalizedCellName] = new Cell(originalCellContents);
+            _spreadsheet[name] = new Cell(originalCellContents);
 
             // Check if originalCellContents is the empty string
             if (originalCellContents is string contents && originalCellContents.Equals(string.Empty))
             {
                 // Call to SetCellContents to remove cell as it is empty
-                _ = SetCellContents(normalizedCellName, contents);
+                _ = SetCellContents(name, contents);
             }
 
             // Reset the dependents of cell
-            _dependencyGraph.ReplaceDependents(normalizedCellName, originalDependents);
+            _dependencyGraph.ReplaceDependents(name, originalDependents);
             throw new CircularException();
         }
     }
