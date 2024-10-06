@@ -235,7 +235,7 @@ public class Spreadsheet
     ///     evaluated, followed by B1, followed by C1.
     ///   </para>
     /// </returns>
-    public IList<string> SetCellContents(string name, double number)
+    private IList<string> SetCellContents(string name, double number)
     {
         // Return call to helper method
         return SetCellContentsHelper(NormalizedName(name), number, []);
@@ -253,7 +253,7 @@ public class Spreadsheet
     /// <returns>
     ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
     /// </returns>
-    public IList<string> SetCellContents(string name, string text)
+    private IList<string> SetCellContents(string name, string text)
     {
         var normalizedCellName = NormalizedName(name);
 
@@ -288,7 +288,7 @@ public class Spreadsheet
     /// <returns>
     ///   The same list as defined in <see cref="SetCellContents(string, double)"/>.
     /// </returns>
-    public IList<string> SetCellContents(string name, Formula formula)
+    private IList<string> SetCellContents(string name, Formula formula)
     {
         var normalizedCellName = NormalizedName(name);
 
