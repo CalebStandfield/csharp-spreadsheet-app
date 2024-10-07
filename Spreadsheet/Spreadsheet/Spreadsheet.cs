@@ -393,15 +393,15 @@ public class Spreadsheet
             // Reset contents of cell
             _spreadsheet[name] = new Cell(originalCellContents);
 
+            // Reset the dependents of cell
+            _dependencyGraph.ReplaceDependents(name, originalDependents);
+            
             // Check if originalCellContents is the empty string
             if (originalCellContents is string contents && originalCellContents.Equals(string.Empty))
             {
                 // Call to SetCellContents to remove cell as it is empty
                 _ = SetCellContents(name, contents);
             }
-
-            // Reset the dependents of cell
-            _dependencyGraph.ReplaceDependents(name, originalDependents);
             throw new CircularException();
         }
     }
