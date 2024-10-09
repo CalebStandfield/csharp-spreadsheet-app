@@ -617,7 +617,7 @@ public class Spreadsheet
     /// </exception>
     public object this[string name]
     {
-        get { throw new NotImplementedException(); }
+        get { return GetCellValue(name); }
     }
 
     /// <summary>
@@ -633,9 +633,10 @@ public class Spreadsheet
     /// <exception cref="InvalidNameException">
     ///   If the provided name is invalid, throws an InvalidNameException.
     /// </exception>
-    public object? GetCellValue(string name)
+    public object GetCellValue(string name)
     {
-        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) ? cell.Value : string.Empty;
+        _spreadsheet.TryGetValue(NormalizedName(name), out var cell);
+        return cell?.Value ?? string.Empty;
     }
 
     private enum CellContentsType
