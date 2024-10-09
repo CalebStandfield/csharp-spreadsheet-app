@@ -380,7 +380,7 @@ public class Spreadsheet
         // Keep track of the current state of the cell and dependency graph
         var originalCellContents = GetCellContents(name);
         var originalDependents = _dependencyGraph.GetDependents(name).ToHashSet();
-        
+
         try
         {
             var dependents = formula.GetVariables();
@@ -428,14 +428,29 @@ public class Spreadsheet
     /// </returns>
     private IList<string> SetCellContentsHelper(string name, object contents, HashSet<string> dependents)
     {
+        // Determine what the contents type is
+        var contentType = GetContentType(contents.ToString() ?? string.Empty);
+        
         // Make a new cell with passed in contents
-        _spreadsheet[name] = new Cell(contents);
+        _spreadsheet[name] = new Cell(contents, contentType);
 
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
 
         // Return call to GetCellsToRecalculate
         return GetCellsToRecalculate(name).ToList();
+    }
+
+    private CellContentsType GetContentType(string content)
+    {
+        if (double.TryParse(content, out _))
+        {
+            return CellContentsType.Double;
+        }
+
+        return content.StartsWith('=')
+            ? CellContentsType.Formula
+            : CellContentsType.String;
     }
 
     /// <summary>
@@ -612,9 +627,9 @@ public class Spreadsheet
     /// <exception cref="InvalidNameException">
     ///   If the provided name is invalid, throws an InvalidNameException.
     /// </exception>
-    public object GetCellValue(string name)
+    public object? GetCellValue(string name)
     {
-        throw new NotImplementedException();
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) ? cell.Value : string.Empty;
     }
 
     private enum CellContentsType
@@ -631,8 +646,7 @@ public class Spreadsheet
     ///     Cells hold their contents. 
     ///   </para>
     /// </summary>
-    /// <param name="contents">The contents of which this cell holds</param>
-    private class Cell(object contents)
+    private class Cell
     {
         /// <summary>
         ///   <para>
@@ -640,33 +654,52 @@ public class Spreadsheet
         ///     Represents the contents of a cell.
         ///   </para>
         /// </summary>
-        public object Contents { get; } = contents;
+        public object Contents { get; }
 
-        public object Value { get; private set; }
+        public object? Value { get; private set; }
 
-        public CellContentsType ContentsType { get; set; }
+        private CellContentsType ContentsType { get; }
+
+        public Cell(object contents, CellContentsType contentsType)
+        {
+            Contents = contents;
+            SetValueOfCell();
+            ContentsType = contentsType;
+        }
 
         private void SetValueOfCell()
         {
             switch (ContentsType)
             {
                 case CellContentsType.Formula:
-                    EvaluateContentFormula();
+                    //EvaluateContentFormula();
                     break;
                 case CellContentsType.Double:
-                    Value = double.Parse(Contents.ToString());
+                {
+                    if (double.TryParse(Contents.ToString(), out var number))
+                    {
+                        Value = number;
+                    }
+
                     break;
+                }
                 case CellContentsType.String:
                     Value = Contents.ToString();
-                    break;
-                default:
                     break;
             }
         }
 
-        private void EvaluateContentFormula()
-        {
-        }
+        // private void EvaluateContentFormula()
+        // {
+        //     var tempFormula = new Formula(Contents.ToString() ?? string.Empty);
+        //     tempFormula.GetVariables();
+        //     Value = tempFormula.Evaluate(GetValueFromVariableList());
+        // }
+        //
+        // private double GetValueFromVariableList(string variableName)
+        // {
+        //     return 0;
+        // }
     }
 }
 
