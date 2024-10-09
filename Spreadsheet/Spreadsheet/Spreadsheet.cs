@@ -352,6 +352,9 @@ public class Spreadsheet
 
         // Update the dependency graph to remove possible dependents
         _dependencyGraph.ReplaceDependents(name, []);
+        
+        // State of the spreadsheet has changed
+        Changed = true;
 
         // Return call to helper method
         return GetCellsToRecalculate(name).ToList();
@@ -436,6 +439,9 @@ public class Spreadsheet
 
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
+        
+        // State of the spreadsheet has changed
+        Changed = true;
 
         // Return call to GetCellsToRecalculate
         return GetCellsToRecalculate(name).ToList();
