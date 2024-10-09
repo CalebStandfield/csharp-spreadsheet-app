@@ -286,7 +286,7 @@ public class Spreadsheet
     {
         // Normalize name to pass into subsequent methods
         var normalizedName = NormalizedName(name);
-        
+
         if (double.TryParse(content, out var number))
         {
             return SetCellContents(normalizedName, number);
@@ -379,8 +379,8 @@ public class Spreadsheet
     {
         // Keep track of the current state of the cell and dependency graph
         var originalCellContents = GetCellContents(name);
-        var originalDependents = _dependencyGraph.GetDependents(name).ToList();
-
+        // var originalDependents = _dependencyGraph.GetDependents(name).ToList();
+        var originalDependents = _dependencyGraph.GetDependents(name).ToHashSet();
         try
         {
             var dependents = formula.GetVariables();
@@ -389,19 +389,16 @@ public class Spreadsheet
         }
         catch (CircularException)
         {
-            // Reset the spreadsheet to its original state
-            // Reset contents of cell
-            _spreadsheet[name] = new Cell(originalCellContents);
-
-            // Reset the dependents of cell
-            _dependencyGraph.ReplaceDependents(name, originalDependents);
-            
             // Check if originalCellContents is the empty string
             if (originalCellContents is string contents && originalCellContents.Equals(string.Empty))
             {
                 // Call to SetCellContents to remove cell as it is empty
                 _ = SetCellContents(name, contents);
             }
+
+            // Passing in original cell data to restore the cell, output not needed
+            _ = SetCellContentsHelper(name, originalCellContents, originalDependents);
+
             throw new CircularException();
         }
     }
