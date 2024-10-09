@@ -379,8 +379,8 @@ public class Spreadsheet
     {
         // Keep track of the current state of the cell and dependency graph
         var originalCellContents = GetCellContents(name);
-        // var originalDependents = _dependencyGraph.GetDependents(name).ToList();
         var originalDependents = _dependencyGraph.GetDependents(name).ToHashSet();
+        
         try
         {
             var dependents = formula.GetVariables();
