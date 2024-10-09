@@ -352,7 +352,7 @@ public class Spreadsheet
 
         // Update the dependency graph to remove possible dependents
         _dependencyGraph.ReplaceDependents(name, []);
-        
+
         // State of the spreadsheet has changed
         Changed = true;
 
@@ -433,13 +433,13 @@ public class Spreadsheet
     {
         // Determine what the contents type is
         var contentType = GetContentType(contents.ToString() ?? string.Empty);
-        
+
         // Make a new cell with passed in contents
         _spreadsheet[name] = new Cell(contents, contentType);
 
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
-        
+
         // State of the spreadsheet has changed
         Changed = true;
 
