@@ -404,4 +404,41 @@ public class SpreadSheetTests
     #endregion
     
     // --- GetCellValue ---
+    
+    #region GetCellValue
+
+    #region GetCellValueMethod
+
+    [TestMethod]
+    public void GetCellValueMethod_Double_ReturnsDouble()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "1");
+        Assert.AreEqual(s.GetCellValue("A1").ToString(), "1");
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_String_ReturnsString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "Hello");
+        Assert.AreEqual(s.GetCellValue("A1").ToString(), "Hello");
+    }
+    
+    #endregion
+
+    #region GetCellValueDirrectAccess
+    
+    [TestMethod]
+    public void GetCellValueAccess_Double_ReturnsDouble()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "1");
+        Assert.AreEqual(s["A1"].ToString(), "1");
+    }
+    
+    #endregion
+
+    #endregion
+    
 }
