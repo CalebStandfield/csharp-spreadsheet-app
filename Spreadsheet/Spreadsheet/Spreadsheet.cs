@@ -431,11 +431,14 @@ public class Spreadsheet
     /// </returns>
     private IList<string> SetCellContentsHelper(string name, object contents, HashSet<string> dependents)
     {
-        // Determine what the contents type is
-        var contentType = GetContentType(contents.ToString() ?? string.Empty);
-
-        // Make a new cell with passed in contents
-        _spreadsheet[name] = new Cell(contents, contentType);
+        // Create a new Cell
+        var cell = new Cell(contents);
+        
+        // Add the cell to the spreadsheet
+        _spreadsheet[name] = cell;
+        
+        // Set the value of the cell
+        SetValueOfCell(cell);
 
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
@@ -638,7 +641,49 @@ public class Spreadsheet
         _spreadsheet.TryGetValue(NormalizedName(name), out var cell);
         return cell?.Value ?? string.Empty;
     }
+    
+    private void SetValueOfCell(Cell cell)
+    {
+        var contentsType = GetContentType(cell.Contents.ToString() ?? string.Empty);
+        switch (contentsType)
+        {
+            case CellContentsType.Formula:
+                EvaluateContentFormula(cell.Contents.ToString() ?? string.Empty);
+                break;
+            case CellContentsType.Double:
+            {
+                if (double.TryParse(cell.Contents.ToString(), out var number))
+                {
+                    cell.Value = number;
+                }
 
+                break;
+            }
+            case CellContentsType.String:
+                cell.Value = cell.Contents.ToString();
+                break;
+        }
+    }
+    
+    private object EvaluateContentFormula(string contents)
+    {
+        return _ = new Formula(contents).Evaluate(LookupValueOfCellsDelegate);
+    }
+
+    private double LookupValueOfCellsDelegate(string name)
+    {
+        if (_spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is double number)
+        {
+            return number;
+        }
+        throw new ArgumentException("Cell doesn't exist or does not contain a numerical value");
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     An enum to signify the type of contents
+    ///   </para>
+    /// </summary>
     private enum CellContentsType
     {
         Double,
@@ -661,52 +706,16 @@ public class Spreadsheet
         ///     Represents the contents of a cell.
         ///   </para>
         /// </summary>
-        public object Contents { get; }
+        public object Contents { get ; }
 
-        public object? Value { get; private set; }
+        public object? Value { get; set; }
 
         private CellContentsType ContentsType { get; }
 
-        public Cell(object contents, CellContentsType contentsType)
+        public Cell(object contents)
         {
             Contents = contents;
-            SetValueOfCell();
-            ContentsType = contentsType;
         }
-
-        private void SetValueOfCell()
-        {
-            switch (ContentsType)
-            {
-                case CellContentsType.Formula:
-                    //EvaluateContentFormula();
-                    break;
-                case CellContentsType.Double:
-                {
-                    if (double.TryParse(Contents.ToString(), out var number))
-                    {
-                        Value = number;
-                    }
-
-                    break;
-                }
-                case CellContentsType.String:
-                    Value = Contents.ToString();
-                    break;
-            }
-        }
-
-        // private void EvaluateContentFormula()
-        // {
-        //     var tempFormula = new Formula(Contents.ToString() ?? string.Empty);
-        //     tempFormula.GetVariables();
-        //     Value = tempFormula.Evaluate(GetValueFromVariableList());
-        // }
-        //
-        // private double GetValueFromVariableList(string variableName)
-        // {
-        //     return 0;
-        // }
     }
 }
 

@@ -151,7 +151,7 @@ public class SpreadSheetTests
 
     #endregion
 
-    // --- SetCellContents
+    // --- SetCellContents ---
 
     #region SetCellContents
 
@@ -402,4 +402,6 @@ public class SpreadSheetTests
     #endregion
 
     #endregion
+    
+    // --- GetCellValue ---
 }
