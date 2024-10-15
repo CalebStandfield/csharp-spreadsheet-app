@@ -681,7 +681,7 @@ public class Spreadsheet
 
     /// <summary>
     ///   <para>
-    ///     An enum to signify the type of contents
+    ///     An enum to signify the type of contents to base value calculation off of
     ///   </para>
     /// </summary>
     private enum CellContentsType
