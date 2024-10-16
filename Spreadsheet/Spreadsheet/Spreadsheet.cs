@@ -638,8 +638,9 @@ public class Spreadsheet
     /// </exception>
     public object GetCellValue(string name)
     {
-        _spreadsheet.TryGetValue(NormalizedName(name), out var cell);
-        return cell?.Value ?? string.Empty;
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is not null 
+            ? cell.Value 
+            : string.Empty;
     }
     
     private void SetValueOfCell(Cell cell)
