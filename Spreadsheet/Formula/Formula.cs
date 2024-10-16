@@ -587,7 +587,7 @@ public class Formula
                 }
                 catch (ArgumentException)
                 {
-                    return new FormulaError("Can not parse token: " + token);
+                    return new FormulaError("Cell doesn't exist or does not contain a numerical value: " + token);
                 }
 
                 if (opStack.IsOnTop("*", "/"))
