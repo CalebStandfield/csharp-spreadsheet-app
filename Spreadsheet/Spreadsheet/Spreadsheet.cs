@@ -433,10 +433,10 @@ public class Spreadsheet
     {
         // Create a new Cell
         var cell = new Cell(contents);
-        
+
         // Add the cell to the spreadsheet
         _spreadsheet[name] = cell;
-        
+
         // Set the value of the cell
         SetValueOfCell(cell);
 
@@ -638,11 +638,11 @@ public class Spreadsheet
     /// </exception>
     public object GetCellValue(string name)
     {
-        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is not null 
-            ? cell.Value 
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is not null
+            ? cell.Value
             : string.Empty;
     }
-    
+
     private void SetValueOfCell(Cell cell)
     {
         var contentsType = GetContentType(cell.Contents.ToString() ?? string.Empty);
@@ -661,11 +661,12 @@ public class Spreadsheet
                 break;
             }
             case CellContentsType.String:
+            default:
                 cell.Value = cell.Contents.ToString();
                 break;
         }
     }
-    
+
     private object EvaluateContentFormula(string contents)
     {
         return _ = new Formula(contents).Evaluate(LookupValueOfCellsDelegate);
@@ -677,6 +678,7 @@ public class Spreadsheet
         {
             return number;
         }
+
         throw new ArgumentException("Cell doesn't exist or does not contain a numerical value");
     }
 
