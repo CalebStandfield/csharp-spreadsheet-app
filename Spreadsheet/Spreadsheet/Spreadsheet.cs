@@ -648,7 +648,7 @@ public class Spreadsheet
         switch (contentsType)
         {
             case CellContentsType.Formula:
-                EvaluateContentFormula(cell.Contents.ToString() ?? string.Empty);
+                cell.Value = EvaluateContentFormula(cell.Contents.ToString() ?? string.Empty);
                 break;
             case CellContentsType.Double:
             {
