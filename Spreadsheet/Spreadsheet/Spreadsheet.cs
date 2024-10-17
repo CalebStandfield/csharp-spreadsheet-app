@@ -287,14 +287,18 @@ public class Spreadsheet
         // Normalize name to pass into subsequent methods
         var normalizedName = NormalizedName(name);
 
-        if (double.TryParse(content, out var number))
-        {
-            return SetCellContents(normalizedName, number);
-        }
+        var contentType = GetContentType(content);
 
-        return content.StartsWith('=')
-            ? SetCellContents(normalizedName, new Formula(content[1..]))
-            : SetCellContents(normalizedName, content);
+        var retList = contentType switch
+        {
+            CellContentsType.Double => SetCellContents(normalizedName, double.Parse(content)),
+            CellContentsType.String => SetCellContents(normalizedName, content),
+            _ => SetCellContents(normalizedName, new Formula(content[1..]))
+        };
+
+        SetValueOfListOfCells(retList);
+
+        return retList;
     }
 
     /// <summary>
@@ -436,9 +440,6 @@ public class Spreadsheet
 
         // Add the cell to the spreadsheet
         _spreadsheet[name] = cell;
-
-        // Set the value of the cell
-        SetValueOfCell(cell);
 
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
@@ -645,15 +646,16 @@ public class Spreadsheet
 
     private void SetValueOfCell(Cell cell)
     {
-        var contentsType = GetContentType(cell.Contents.ToString() ?? string.Empty);
+        var contents = cell.Contents.ToString() ?? string.Empty;
+        var contentsType = GetContentType(contents);
         switch (contentsType)
         {
             case CellContentsType.Formula:
-                cell.Value = EvaluateContentFormula(cell.Contents.ToString() ?? string.Empty);
+                cell.Value = EvaluateContentFormula(contents);
                 break;
             case CellContentsType.Double:
             {
-                if (double.TryParse(cell.Contents.ToString(), out var number))
+                if (double.TryParse(contents, out var number))
                 {
                     cell.Value = number;
                 }
@@ -662,8 +664,19 @@ public class Spreadsheet
             }
             case CellContentsType.String:
             default:
-                cell.Value = cell.Contents.ToString();
+                cell.Value = contents;
                 break;
+        }
+    }
+
+    private void SetValueOfListOfCells(IList<string> cells)
+    {
+        foreach (var cellName in cells)
+        {
+            if (_spreadsheet.TryGetValue(NormalizedName(cellName), out var cell))
+            {
+                SetValueOfCell(cell);
+            }
         }
     }
 
@@ -701,7 +714,7 @@ public class Spreadsheet
     ///     Cells hold their contents. 
     ///   </para>
     /// </summary>
-    private class Cell
+    private class Cell(object contents)
     {
         /// <summary>
         ///   <para>
@@ -709,16 +722,11 @@ public class Spreadsheet
         ///     Represents the contents of a cell.
         ///   </para>
         /// </summary>
-        public object Contents { get ; }
+        public object Contents { get; } = contents;
 
         public object? Value { get; set; }
 
         private CellContentsType ContentsType { get; }
-
-        public Cell(object contents)
-        {
-            Contents = contents;
-        }
     }
 }
 

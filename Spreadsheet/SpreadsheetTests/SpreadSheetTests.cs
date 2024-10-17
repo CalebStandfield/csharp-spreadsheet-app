@@ -408,13 +408,21 @@ public class SpreadSheetTests
     #region GetCellValue
 
     #region GetCellValueMethod
+    
+    [TestMethod]
+    public void GetCellValueMethod_UninitializedCell_ReturnsEmptyString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "1");
+        Assert.AreEqual(string.Empty, s.GetCellValue("B1").ToString());
+    }
 
     [TestMethod]
     public void GetCellValueMethod_Double_ReturnsDouble()
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "1");
-        Assert.AreEqual(s.GetCellValue("A1").ToString(), "1");
+        Assert.AreEqual("1", s.GetCellValue("A1").ToString());
     }
     
     [TestMethod]
@@ -422,7 +430,15 @@ public class SpreadSheetTests
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "Hello");
-        Assert.AreEqual(s.GetCellValue("A1").ToString(), "Hello");
+        Assert.AreEqual("Hello", s.GetCellValue("A1").ToString());
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_CompleteCorrectFormula_ReturnsDoubleValue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=2 + 2");
+        Assert.AreEqual(4, s.GetCellValue("A1"));
     }
     
     #endregion
@@ -434,7 +450,7 @@ public class SpreadSheetTests
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "1");
-        Assert.AreEqual(s["A1"].ToString(), "1");
+        Assert.AreEqual("1", s["A1"].ToString());
     }
     
     #endregion
