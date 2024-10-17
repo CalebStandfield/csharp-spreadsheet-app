@@ -9,6 +9,7 @@
 // Implementation by Caleb Standfield
 // Date, 09/26/24
 
+using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 
 namespace CS3500.Spreadsheet;
@@ -124,8 +125,53 @@ public class Spreadsheet
     /// <param name="filename">The path to the file containing the spreadsheet to load</param>
     public Spreadsheet(string filename)
     {
-        throw new NotImplementedException();
+        try
+        {
+            if (!File.Exists(filename))
+            {
+                throw new SpreadsheetReadWriteException("File does not exist.");
+            }
+
+            var jsonString = File.ReadAllText(filename);
+            var tempSpreadSheet = JsonSerializer.Deserialize<Dictionary<string, Cell>>(jsonString) 
+                                  ?? throw new SpreadsheetReadWriteException("Failed to load spreadsheet data from file.");
+            foreach (var key in tempSpreadSheet.Keys)
+            {
+                if (tempSpreadSheet.TryGetValue(key, out var cell))
+                {
+                    SetContentsOfCell(key, cell.Contents.ToString()!);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw new SpreadsheetReadWriteException("Error reading the file: (ex.Message}");
+        }
+        // try
+        // {
+        //     if (!File.Exists(filename))
+        //     {
+        //         throw new SpreadsheetReadWriteException("File does not exist");
+        //     }
+        //
+        //     var json = JsonSerializer.Serialize(_spreadsheet);
+        //     var jsonOptions = new
+        //         JsonSerializerOptions
+        //         {
+        //             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        //         };
+        //     using (var writer = new StreamWriter(filename))
+        //     {
+        //         var json = JsonSerializer.Serialize(_spreadsheet);
+        //         writer.Write(json);
+        //     }
+        // }
+        // catch (Exception)
+        // {
+        //     // ignored
+        // }
     }
+
 
     /// <summary>
     ///   <para>
@@ -190,18 +236,12 @@ public class Spreadsheet
     /// </exception>
     public void Save(string filename)
     {
-        if (Changed)
+        var options = new JsonSerializerOptions
         {
-            try
-            {
-                var json = JsonSerializer.Serialize(_spreadsheet);
-            }
-            catch (SpreadsheetReadWriteException)
-            {
-
-            }
-            
-        }
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        File.WriteAllText(filename, JsonSerializer.Serialize(GetNamesOfAllNonemptyCells(), options));
         Changed = false;
     }
 
@@ -238,7 +278,7 @@ public class Spreadsheet
     /// </returns>
     public object GetCellContents(string name)
     {
-        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) 
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell)
             ? cell.Contents // Cell existed, return contents
             : string.Empty; // Cell did not exist, default return of the empty string
     }
@@ -264,7 +304,7 @@ public class Spreadsheet
             ? CellContentsType.Formula
             : CellContentsType.String;
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Get the ContentType of the passed object representing the contents.
@@ -513,7 +553,7 @@ public class Spreadsheet
 
         // Get the content type to assign to cell
         cell.ContentType = GetContentType(contents);
-        
+
         // Sets the StringForm of the cell
         cell.StringForm = cell.ContentType switch
         {
@@ -534,7 +574,7 @@ public class Spreadsheet
     }
 
     #endregion
-    
+
     #region GetAndSetValueMethods
 
     /// <summary>
@@ -657,6 +697,7 @@ public class Spreadsheet
             // Return the number
             return number;
         }
+
         // Was not a number or the cell did not exist
         throw new ArgumentException("Cell doesn't exist or does not contain a numerical value");
     }

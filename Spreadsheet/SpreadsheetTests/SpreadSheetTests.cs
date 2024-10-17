@@ -814,9 +814,17 @@ public class SpreadSheetTests
         var s = new Spreadsheet();
         var initialSpreadsheetJson = "{\"Cells\":{\"A1\":{\"StringForm\":\"2\"}}}";
         var fileName = "save.txt";
+        
         File.WriteAllText(fileName, initialSpreadsheetJson);
+        Console.WriteLine(File.ReadAllText(fileName));
     }
 
+    // var options = new JsonSerializerOptions
+    // {
+    //     WriteIndented = true,
+    //     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    // };
+    // File.WriteAllText(filename, JsonSerializer.Serialize(GetNamesOfAllNonemptyCells(), options));
     #endregion
 
     #endregion
