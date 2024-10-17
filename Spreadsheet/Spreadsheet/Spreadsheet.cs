@@ -74,13 +74,25 @@ using CS3500.DependencyGraph;
 /// </summary>
 public class Spreadsheet
 {
-    // A Dictionary that hold all non-empty cells that represent the spreadsheet
+    /// <summary>
+    ///   <para>
+    ///     A Dictionary that hold all non-empty cells that represent the spreadsheet.
+    ///   </para>
+    /// </summary>
     private readonly Dictionary<string, Cell> _spreadsheet = new();
 
-    // The dependencyGraph that will keep track dependencies of the cells
+    /// <summary>
+    ///   <para>
+    ///     The dependencyGraph that will keep track dependencies of the cells.
+    ///   </para>
+    /// </summary>
     private readonly DependencyGraph _dependencyGraph = new();
 
-    // Regex to help with determining if a name is valid
+    /// <summary>
+    ///   <para>
+    ///     Regex to help with determining if a name is valid.
+    ///   </para>
+    /// </summary>
     private const string VariableRegExPattern = @"[a-zA-Z]+\d+";
 
     /// <summary>
@@ -213,23 +225,51 @@ public class Spreadsheet
     /// </returns>
     public object GetCellContents(string name)
     {
-        // If TryGetValue successes access the cell and return the contents of cell
-        // If TryGetValue fails the cell does not exist return string.Empty as default
         return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) 
-            ? cell.Contents
-            : string.Empty;
+            ? cell.Contents // Cell existed, return contents
+            : string.Empty; // Cell did not exist, default return of the empty string
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Get the ContentType of a passed in string.
+    ///     Can either be of type double, string, or Formula.
+    ///   </para>
+    /// </summary>
+    /// <param name="content">The string form of contents</param>
+    /// <returns>The corresponding ContentType of the parsed string</returns>
     private static CellContentsType GetContentType(string content)
     {
+        // Attempt to parse as double
         if (double.TryParse(content, out _))
         {
             return CellContentsType.Double;
         }
 
+        // If first char is '=' then is of type Formula, else string
         return content.StartsWith('=')
             ? CellContentsType.Formula
             : CellContentsType.String;
+    }
+    
+    /// <summary>
+    ///   <para>
+    ///     Get the ContentType of the passed object representing the contents.
+    ///     Can either be of type double, string, or formula
+    ///   </para>
+    /// </summary>
+    /// <param name="contents">The object representing the contents of a cell</param>
+    /// <returns>The corresponding ContentType of the parsed object</returns>
+    private static CellContentsType GetContentType(object contents)
+    {
+        return contents switch
+        {
+            // Use pattern to determine what ContentType to return
+            double => CellContentsType.Double,
+            Formula => CellContentsType.Formula,
+            // Default to string
+            _ => CellContentsType.String,
+        };
     }
 
     #region SetContentsOfCellMethods
@@ -301,15 +341,18 @@ public class Spreadsheet
         // Normalize name to pass into subsequent methods
         var normalizedName = NormalizedName(name);
 
+        // Retrieve content type to determine which private helper method to call
         var contentType = GetContentType(content);
 
         var retList = contentType switch
         {
             CellContentsType.Double => SetCellContents(normalizedName, double.Parse(content)),
             CellContentsType.String => SetCellContents(normalizedName, content),
+            // First char is '=', pass the remaining string as the contents
             _ => SetCellContents(normalizedName, new Formula(content[1..]))
         };
 
+        // Using the ordered return list calculate each value
         SetValueOfListOfCells(retList);
 
         return retList;
@@ -455,12 +498,8 @@ public class Spreadsheet
         // Add the cell to the spreadsheet
         _spreadsheet[name] = cell;
 
-        cell.ContentsType = contents switch
-        {
-            double => CellContentsType.Double,
-            string => CellContentsType.String,
-            _ => CellContentsType.Formula,
-        };
+        // Get the content type to assign to cell
+        cell.ContentType = GetContentType(contents);
 
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
@@ -510,37 +549,54 @@ public class Spreadsheet
     public object GetCellValue(string name)
     {
         return _spreadsheet.TryGetValue(NormalizedName(name), out var cell)
-            ? cell.Value
-            : string.Empty;
+            ? cell.Value // Cell existed, return the value
+            : string.Empty; // Cell does not exist, default return of the empty string
     }
 
+    /// <summary>
+    ///   <param>
+    ///     Takes in a cell and determins based of the cells contents what type of value can be parsed
+    ///     from the contents, then assigns the parsed value to the cells value field.
+    ///   </param>
+    /// </summary>
+    /// <param name="cell">The cell to be parsed and assigned a value to</param>
     private void SetValueOfCell(Cell cell)
     {
-        var contents = cell.Contents.ToString() ?? string.Empty;
-        var contentsType = cell.ContentsType;
+        // Get contents as a string
+        var contents = cell.Contents.ToString();
+        // From the given cell grab its content type
+        var contentsType = cell.ContentType;
         switch (contentsType)
         {
             case CellContentsType.Formula:
-                cell.Value = EvaluateContentFormula(contents);
+                // Type formula, call method to begin Evaluation of contents
+                cell.Value = EvaluateContentFormula(contents!);
                 break;
             case CellContentsType.Double:
             {
-                if (double.TryParse(contents, out var number))
-                {
-                    cell.Value = number;
-                }
-
+                // Type double, parse the contents to a double
+                cell.Value = double.Parse(contents!);
                 break;
             }
+            // For string fall to the default case
             case CellContentsType.String:
             default:
-                cell.Value = contents;
+                // Assign value to the string form
+                cell.Value = contents!;
                 break;
         }
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Sets the value of all the cells in the provided list.
+    ///     List must be ordered of which cells to be evaluated first.
+    ///   </para>
+    /// </summary>
+    /// <param name="cells">The ordered list of cells to evaluate</param>
     private void SetValueOfListOfCells(IList<string> cells)
     {
+        // Iterate through each cell and set the value
         foreach (var cellName in cells)
         {
             if (_spreadsheet.TryGetValue(NormalizedName(cellName), out var cell))
@@ -550,18 +606,36 @@ public class Spreadsheet
         }
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Calls the Evaluate method on the passed in contents.
+    ///   </para>
+    /// </summary>
+    /// <param name="contents">The contents to be evaluated</param>
+    /// <returns>A double of the contents, or a FormulaError if the contents could not be parsed into a double</returns>
     private object EvaluateContentFormula(string contents)
     {
         return _ = new Formula(contents).Evaluate(LookupValueOfCellsDelegate);
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Returns the value of the cell if it is a double, otherwise this method will throw an exception
+    ///     to be cought by the Formula class to return a FromulaError.
+    ///   </para>
+    /// </summary>
+    /// <param name="name">The cell to retrieve the value from</param>
+    /// <returns>A double of which is held inside the cell as a value</returns>
+    /// <exception cref="ArgumentException">Throws an exception when the cell passed in doesn't contain a number as its value</exception>
     private double LookupValueOfCellsDelegate(string name)
     {
+        // Get the cell from the spreadsheet and check if it is a double
         if (_spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is double number)
         {
+            // Return the number
             return number;
         }
-
+        // Was not a number or the cell did not exist
         throw new ArgumentException("Cell doesn't exist or does not contain a numerical value");
     }
 
@@ -739,9 +813,21 @@ public class Spreadsheet
         /// </summary>
         public object Contents { get; } = contents;
 
-        public object Value { get; set; }
+        /// <summary>
+        ///   <para>
+        ///     Represents the value of the cell, is assigned value by the spreadsheet class
+        ///     at a later time.
+        ///   </para>
+        /// </summary>
+        public object Value { get; set; } = null!;
 
-        public CellContentsType ContentsType { get; set; }
+        /// <summary>
+        ///   <para>
+        ///     Represents what type of contents it holds can be of type double, string, formula, or formula error,
+        ///     is assigned by the spreadsheet class at a later time 
+        ///   </para>
+        /// </summary>
+        public CellContentsType ContentType { get; set; }
     }
 }
 
