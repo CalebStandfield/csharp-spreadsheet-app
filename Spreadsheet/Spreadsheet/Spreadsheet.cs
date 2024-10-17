@@ -189,6 +189,12 @@ public class Spreadsheet
     /// </exception>
     public void Save(string filename)
     {
+        if (Changed)
+        {
+            // use a counter 
+            // if its 0 then no change
+            // if its > 0 then there was a change
+        }
         Changed = false;
     }
 

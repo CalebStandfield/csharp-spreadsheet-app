@@ -764,6 +764,27 @@ public class SpreadSheetTests
     }
     
     #endregion
+    
+    #endregion
+    
+    // --- Changed ---
+    
+    #region Changed
+
+    [TestMethod]
+    public void Changed_NewSpreadsheet_ChangedFalse()
+    {
+        var s = new Spreadsheet();
+        Assert.IsFalse(s.Changed);
+    }
+    
+    [TestMethod]
+    public void Changed_SetContentsOfCell_ChangedTrue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=5");
+        Assert.IsTrue(s.Changed);
+    }
 
     #endregion
 }
