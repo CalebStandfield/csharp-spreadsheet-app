@@ -9,6 +9,7 @@
 // Implementation by Caleb Standfield
 // Date, 09/26/24
 
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 
 namespace CS3500.Spreadsheet;
@@ -441,6 +442,13 @@ public class Spreadsheet
         // Add the cell to the spreadsheet
         _spreadsheet[name] = cell;
 
+        cell.ContentsType = contents switch
+        {
+            double => CellContentsType.Double,
+            string => CellContentsType.String,
+            _ => CellContentsType.Formula,
+        };
+
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
 
@@ -504,7 +512,7 @@ public class Spreadsheet
     private void SetValueOfCell(Cell cell)
     {
         var contents = cell.Contents.ToString() ?? string.Empty;
-        var contentsType = GetContentType(contents);
+        var contentsType = cell.ContentsType;
         switch (contentsType)
         {
             case CellContentsType.Formula:
@@ -726,7 +734,12 @@ public class Spreadsheet
 
         public object? Value { get; set; }
 
-        private CellContentsType ContentsType { get; }
+        public CellContentsType ContentsType { get; set; }
+
+        public void SetContentTypeOfCell(CellContentsType contentsType)
+        {
+            ContentsType = contentsType;
+        }
     }
 }
 

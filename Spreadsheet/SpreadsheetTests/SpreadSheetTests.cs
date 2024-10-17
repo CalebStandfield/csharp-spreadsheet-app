@@ -438,7 +438,7 @@ public class SpreadSheetTests
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "=2 + 2");
-        Assert.AreEqual(4, s.GetCellValue("A1"));
+        Assert.AreEqual(4.0, s.GetCellValue("A1"));
     }
     
     #endregion
