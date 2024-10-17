@@ -464,6 +464,95 @@ public class Spreadsheet
     }
 
     /// <summary>
+    ///   <para>
+    ///     Return the value of the named cell, as defined by
+    ///     <see cref="GetCellValue(string)"/>.
+    ///   </para>
+    /// </summary>
+    /// <param name="name"> The cell in question. </param>
+    /// <returns>
+    ///   <see cref="GetCellValue(string)"/>
+    /// </returns>
+    /// <exception cref="InvalidNameException">
+    ///   If the provided name is invalid, throws an InvalidNameException.
+    /// </exception>
+    public object this[string name]
+    {
+        get { return GetCellValue(name); }
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Return the value of the named cell.
+    ///   </para>
+    /// </summary>
+    /// <param name="name"> The cell in question. </param>
+    /// <returns>
+    ///   Returns the value (as opposed to the contents) of the named cell.  The return
+    ///   value should be either a string, a double, or a CS3500.Formula.FormulaError.
+    /// </returns>
+    /// <exception cref="InvalidNameException">
+    ///   If the provided name is invalid, throws an InvalidNameException.
+    /// </exception>
+    public object GetCellValue(string name)
+    {
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is not null
+            ? cell.Value
+            : string.Empty;
+    }
+
+    private void SetValueOfCell(Cell cell)
+    {
+        var contents = cell.Contents.ToString() ?? string.Empty;
+        var contentsType = GetContentType(contents);
+        switch (contentsType)
+        {
+            case CellContentsType.Formula:
+                cell.Value = EvaluateContentFormula(contents);
+                break;
+            case CellContentsType.Double:
+            {
+                if (double.TryParse(contents, out var number))
+                {
+                    cell.Value = number;
+                }
+
+                break;
+            }
+            case CellContentsType.String:
+            default:
+                cell.Value = contents;
+                break;
+        }
+    }
+
+    private void SetValueOfListOfCells(IList<string> cells)
+    {
+        foreach (var cellName in cells)
+        {
+            if (_spreadsheet.TryGetValue(NormalizedName(cellName), out var cell))
+            {
+                SetValueOfCell(cell);
+            }
+        }
+    }
+
+    private object EvaluateContentFormula(string contents)
+    {
+        return _ = new Formula(contents).Evaluate(LookupValueOfCellsDelegate);
+    }
+
+    private double LookupValueOfCellsDelegate(string name)
+    {
+        if (_spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is double number)
+        {
+            return number;
+        }
+
+        throw new ArgumentException("Cell doesn't exist or does not contain a numerical value");
+    }
+
+    /// <summary>
     ///   Returns an enumeration, without duplicates, of the names of all cells whose
     ///   values depend directly on the value of the named cell.
     /// </summary>
@@ -604,95 +693,6 @@ public class Spreadsheet
         }
 
         throw new InvalidNameException();
-    }
-
-    /// <summary>
-    ///   <para>
-    ///     Return the value of the named cell, as defined by
-    ///     <see cref="GetCellValue(string)"/>.
-    ///   </para>
-    /// </summary>
-    /// <param name="name"> The cell in question. </param>
-    /// <returns>
-    ///   <see cref="GetCellValue(string)"/>
-    /// </returns>
-    /// <exception cref="InvalidNameException">
-    ///   If the provided name is invalid, throws an InvalidNameException.
-    /// </exception>
-    public object this[string name]
-    {
-        get { return GetCellValue(name); }
-    }
-
-    /// <summary>
-    ///   <para>
-    ///     Return the value of the named cell.
-    ///   </para>
-    /// </summary>
-    /// <param name="name"> The cell in question. </param>
-    /// <returns>
-    ///   Returns the value (as opposed to the contents) of the named cell.  The return
-    ///   value should be either a string, a double, or a CS3500.Formula.FormulaError.
-    /// </returns>
-    /// <exception cref="InvalidNameException">
-    ///   If the provided name is invalid, throws an InvalidNameException.
-    /// </exception>
-    public object GetCellValue(string name)
-    {
-        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is not null
-            ? cell.Value
-            : string.Empty;
-    }
-
-    private void SetValueOfCell(Cell cell)
-    {
-        var contents = cell.Contents.ToString() ?? string.Empty;
-        var contentsType = GetContentType(contents);
-        switch (contentsType)
-        {
-            case CellContentsType.Formula:
-                cell.Value = EvaluateContentFormula(contents);
-                break;
-            case CellContentsType.Double:
-            {
-                if (double.TryParse(contents, out var number))
-                {
-                    cell.Value = number;
-                }
-
-                break;
-            }
-            case CellContentsType.String:
-            default:
-                cell.Value = contents;
-                break;
-        }
-    }
-
-    private void SetValueOfListOfCells(IList<string> cells)
-    {
-        foreach (var cellName in cells)
-        {
-            if (_spreadsheet.TryGetValue(NormalizedName(cellName), out var cell))
-            {
-                SetValueOfCell(cell);
-            }
-        }
-    }
-
-    private object EvaluateContentFormula(string contents)
-    {
-        return _ = new Formula(contents).Evaluate(LookupValueOfCellsDelegate);
-    }
-
-    private double LookupValueOfCellsDelegate(string name)
-    {
-        if (_spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is double number)
-        {
-            return number;
-        }
-
-        throw new ArgumentException("Cell doesn't exist or does not contain a numerical value");
     }
 
     /// <summary>
