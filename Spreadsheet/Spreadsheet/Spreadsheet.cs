@@ -215,7 +215,7 @@ public class Spreadsheet
     {
         // If TryGetValue successes access the cell and return the contents of cell
         // If TryGetValue fails the cell does not exist return string.Empty as default
-        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell)
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) 
             ? cell.Contents
             : string.Empty;
     }
@@ -509,7 +509,7 @@ public class Spreadsheet
     /// </exception>
     public object GetCellValue(string name)
     {
-        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell) && cell.Value is not null
+        return _spreadsheet.TryGetValue(NormalizedName(name), out var cell)
             ? cell.Value
             : string.Empty;
     }
@@ -739,7 +739,7 @@ public class Spreadsheet
         /// </summary>
         public object Contents { get; } = contents;
 
-        public object? Value { get; set; }
+        public object Value { get; set; }
 
         public CellContentsType ContentsType { get; set; }
     }
