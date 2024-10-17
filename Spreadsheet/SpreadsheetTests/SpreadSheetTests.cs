@@ -785,6 +785,39 @@ public class SpreadSheetTests
         s.SetContentsOfCell("A1", "=5");
         Assert.IsTrue(s.Changed);
     }
+    
+    [TestMethod]
+    public void Changed_SetContentsOfCellDeleteCell_ChangedTrue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=5");
+        Assert.IsTrue(s.Changed);
+        s.SetContentsOfCell("A1", string.Empty);
+        Assert.IsTrue(s.Changed);
+    }
+    
+    [TestMethod]
+    public void Changed_SetContentsOfCellSaveThenReset_ChangedTrue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=5");
+        Assert.IsTrue(s.Changed);
+    }
+    
+    // --- Save ---
+
+    #region Save
+
+    [TestMethod]
+    public void Save_SaveSpreadSheet_SavesToSpreadsheet()
+    {
+        var s = new Spreadsheet();
+        var initialSpreadsheetJson = "{\"Cells\":{\"A1\":{\"StringForm\":\"2\"}}}";
+        var fileName = "save.txt";
+        File.WriteAllText(fileName, initialSpreadsheetJson);
+    }
+
+    #endregion
 
     #endregion
 }

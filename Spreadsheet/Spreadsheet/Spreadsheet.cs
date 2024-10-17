@@ -15,6 +15,7 @@ namespace CS3500.Spreadsheet;
 
 using CS3500.Formula;
 using CS3500.DependencyGraph;
+using System.Text.Json;
 
 /// <summary>
 ///   <para>
@@ -191,9 +192,15 @@ public class Spreadsheet
     {
         if (Changed)
         {
-            // use a counter 
-            // if its 0 then no change
-            // if its > 0 then there was a change
+            try
+            {
+                var json = JsonSerializer.Serialize(_spreadsheet);
+            }
+            catch (SpreadsheetReadWriteException)
+            {
+
+            }
+            
         }
         Changed = false;
     }
@@ -506,6 +513,15 @@ public class Spreadsheet
 
         // Get the content type to assign to cell
         cell.ContentType = GetContentType(contents);
+        
+        // Sets the StringForm of the cell
+        cell.StringForm = cell.ContentType switch
+        {
+            // If type Formula prepend an equals sign
+            CellContentsType.Formula => "=" + contents,
+            // Default of double or string
+            _ => contents.ToString()!
+        };
 
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
@@ -818,6 +834,14 @@ public class Spreadsheet
         ///   </para>
         /// </summary>
         public object Contents { get; } = contents;
+
+        /// <summary>
+        ///   <para>
+        ///     Contains getter and setter for the use of easy access in the spreadSheet class.
+        ///     Represents the contents of a cell.
+        ///   </para>
+        /// </summary>
+        public string StringForm { get; set; } = null!;
 
         /// <summary>
         ///   <para>
