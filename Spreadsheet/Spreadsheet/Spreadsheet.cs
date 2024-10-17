@@ -742,11 +742,6 @@ public class Spreadsheet
         public object? Value { get; set; }
 
         public CellContentsType ContentsType { get; set; }
-
-        public void SetContentTypeOfCell(CellContentsType contentsType)
-        {
-            ContentsType = contentsType;
-        }
     }
 }
 
