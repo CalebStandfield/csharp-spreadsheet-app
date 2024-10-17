@@ -413,8 +413,19 @@ public class SpreadSheetTests
     public void GetCellValueMethod_UninitializedCell_ReturnsEmptyString()
     {
         var s = new Spreadsheet();
-        s.SetContentsOfCell("A1", "1");
-        Assert.AreEqual(string.Empty, s.GetCellValue("B1").ToString());
+        Assert.AreEqual(string.Empty, s.GetCellValue("B1"));
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_DeletedCell_ReturnsEmptyString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "Hello");
+        Assert.AreEqual("Hello", s.GetCellValue("A1"));
+        // Technically deletes cell not just set the contents to be the empty string
+        s.SetContentsOfCell("A1", string.Empty);
+        Assert.AreEqual(string.Empty, s.GetCellValue("A1"));
+        Assert.AreEqual(s.GetCellValue("A1"), s.GetCellValue("B1"));
     }
 
     [TestMethod]
@@ -422,7 +433,17 @@ public class SpreadSheetTests
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "1");
-        Assert.AreEqual("1", s.GetCellValue("A1").ToString());
+        Assert.AreEqual(1.0 , s.GetCellValue("A1"));
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_AttemptReassignment_ReturnsNewDouble()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "1");
+        Assert.AreEqual(1.0, s.GetCellValue("A1"));
+        s.SetContentsOfCell("A1", "2");
+        Assert.AreEqual(2.0, s.GetCellValue("A1"));
     }
     
     [TestMethod]
@@ -430,7 +451,17 @@ public class SpreadSheetTests
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "Hello");
-        Assert.AreEqual("Hello", s.GetCellValue("A1").ToString());
+        Assert.AreEqual("Hello", s.GetCellValue("A1"));
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_AttemptReassignment_ReturnsNewString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "Hello");
+        Assert.AreEqual("Hello", s.GetCellValue("A1"));
+        s.SetContentsOfCell("A1", "World");
+        Assert.AreEqual("World", s.GetCellValue("A1"));
     }
     
     [TestMethod]
@@ -450,16 +481,286 @@ public class SpreadSheetTests
         Assert.AreEqual(4.0, s.GetCellValue("B1"));
     }
     
+    [TestMethod]
+    public void GetCellValueMethod_FormulaWithCellsNotYetCreated_ReturnsFormulaError()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.IsInstanceOfType<FormulaError>(s.GetCellValue("B1"));
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(FormulaFormatException))]
+    public void GetCellValueMethod_FormulaContentsWithOnlyEquals_ReturnsFormulaFormatException()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "=");
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_MalformedFormulaEqualsSignMisplaced_ReturnsString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", " =2 + 2");
+        Assert.AreEqual(" =2 + 2", s.GetCellValue("B1"));
+        
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_MalformedFormulaNoEqualsSign_ReturnsString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "2 + 2");
+        Assert.AreEqual("2 + 2", s.GetCellValue("B1"));
+        
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_FirstReturnsFormulaErrorButThenCreateA1_EvaluatesItselfAgainReturnsDouble()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.IsInstanceOfType<FormulaError>(s.GetCellValue("B1"));
+        s.SetContentsOfCell("A1", "=2 + 2");
+        Assert.AreEqual(6.0, s.GetCellValue("B1"));
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_ReturnsFormulaErrorAfterA1ChangesToString_EvaluatesItselfAgainReturnsFormulaError()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=2 + 2");
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.AreEqual(6.0, s.GetCellValue("B1"));
+        s.SetContentsOfCell("A1", "Hello World");
+        Assert.IsInstanceOfType<FormulaError>(s.GetCellValue("B1"));
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_GetCellsToRecalculateMethodXmlExample_EvaluatesMultipleChainsOfCells()
+    {
+        var s = new Spreadsheet();
+        const string f1 = "=5";
+        s.SetContentsOfCell("A1", f1);
+        const string f2 = "=A1 + 2";
+        s.SetContentsOfCell("B1", f2);
+        const string f3 = "=A1 + B1";
+        s.SetContentsOfCell("C1", f3);
+        const string f4 = "=A1 * 7";
+        s.SetContentsOfCell("D1", f4);
+        const string f5 = "=15";
+        s.SetContentsOfCell("E1", f5);
+        Assert.AreEqual(5.0 ,s.GetCellValue("A1"));
+        Assert.AreEqual(7.0 ,s.GetCellValue("B1"));
+        Assert.AreEqual(12.0 ,s.GetCellValue("C1"));
+        Assert.AreEqual(35.0 ,s.GetCellValue("D1"));
+        Assert.AreEqual(15.0 ,s.GetCellValue("E1"));
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_GetCellsToRecalculateMethodXmlExampleChangedA1_AllCellsRecalculatedToCorrectDoubles()
+    {
+        var s = new Spreadsheet();
+        const string f1 = "=5";
+        s.SetContentsOfCell("A1", f1);
+        const string f2 = "=A1 + 2";
+        s.SetContentsOfCell("B1", f2);
+        const string f3 = "=A1 + B1";
+        s.SetContentsOfCell("C1", f3);
+        const string f4 = "=A1 * 7";
+        s.SetContentsOfCell("D1", f4);
+        const string f5 = "=15";
+        s.SetContentsOfCell("E1", f5);
+        Assert.AreEqual(5.0 ,s.GetCellValue("A1"));
+        Assert.AreEqual(7.0 ,s.GetCellValue("B1"));
+        Assert.AreEqual(12.0 ,s.GetCellValue("C1"));
+        Assert.AreEqual(35.0 ,s.GetCellValue("D1"));
+        Assert.AreEqual(15.0 ,s.GetCellValue("E1"));
+        s.SetContentsOfCell("A1", "=4");
+        Assert.AreEqual(4.0 ,s.GetCellValue("A1"));
+        Assert.AreEqual(6.0 ,s.GetCellValue("B1"));
+        Assert.AreEqual(10.0 ,s.GetCellValue("C1"));
+        Assert.AreEqual(28.0 ,s.GetCellValue("D1"));
+        Assert.AreEqual(15.0 ,s.GetCellValue("E1"));
+    }
+    
     #endregion
 
     #region GetCellValueDirrectAccess
     
     [TestMethod]
+    public void GetCellValueAccess_UninitializedCell_ReturnsEmptyString()
+    {
+        var s = new Spreadsheet();
+        Assert.AreEqual(string.Empty, s["B1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_DeletedCell_ReturnsEmptyString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "Hello");
+        Assert.AreEqual("Hello", s["A1"]);
+        // Technically deletes cell not just set the contents to be the empty string
+        s.SetContentsOfCell("A1", string.Empty);
+        Assert.AreEqual(string.Empty, s["A1"]);
+        Assert.AreEqual(s["A1"], s["B1"]);
+    }
+
+    [TestMethod]
     public void GetCellValueAccess_Double_ReturnsDouble()
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "1");
-        Assert.AreEqual("1", s["A1"].ToString());
+        Assert.AreEqual(1.0 , s["A1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_AttemptReassignment_ReturnsNewDouble()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "1");
+        Assert.AreEqual(1.0, s["A1"]);
+        s.SetContentsOfCell("A1", "2");
+        Assert.AreEqual(2.0, s["A1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_String_ReturnsString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "Hello");
+        Assert.AreEqual("Hello", s["A1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_AttemptReassignment_ReturnsNewString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "Hello");
+        Assert.AreEqual("Hello", s["A1"]);
+        s.SetContentsOfCell("A1", "World");
+        Assert.AreEqual("World", s["A1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_CorrectFormulaNoVariables_ReturnsDoubleValue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=2 + 2");
+        Assert.AreEqual(4.0, s["A1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_CorrectFormulaWithVariables_ReturnsDoubleValue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "2");
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.AreEqual(4.0, s["B1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_FormulaWithCellsNotYetCreated_ReturnsFormulaError()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.IsInstanceOfType<FormulaError>(s["B1"]);
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(FormulaFormatException))]
+    public void GetCellValueAccess_FormulaContentsWithOnlyEquals_ReturnsFormulaFormatException()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "=");
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_MalformedFormulaEqualsSignMisplaced_ReturnsString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", " =2 + 2");
+        Assert.AreEqual(" =2 + 2", s["B1"]);
+        
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_MalformedFormulaNoEqualsSign_ReturnsString()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "2 + 2");
+        Assert.AreEqual("2 + 2", s["B1"]);
+        
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_FirstReturnsFormulaErrorButThenCreateA1_EvaluatesItselfAgainReturnsDouble()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.IsInstanceOfType<FormulaError>(s["B1"]);
+        s.SetContentsOfCell("A1", "=2 + 2");
+        Assert.AreEqual(6.0, s["B1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_ReturnsFormulaErrorAfterA1ChangesToString_EvaluatesItselfAgainReturnsFormulaError()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=2 + 2");
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.AreEqual(6.0, s["B1"]);
+        s.SetContentsOfCell("A1", "Hello World");
+        Assert.IsInstanceOfType<FormulaError>(s["B1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_GetCellsToRecalculateMethodXmlExample_EvaluatesMultipleChainsOfCells()
+    {
+        var s = new Spreadsheet();
+        const string f1 = "=5";
+        s.SetContentsOfCell("A1", f1);
+        const string f2 = "=A1 + 2";
+        s.SetContentsOfCell("B1", f2);
+        const string f3 = "=A1 + B1";
+        s.SetContentsOfCell("C1", f3);
+        const string f4 = "=A1 * 7";
+        s.SetContentsOfCell("D1", f4);
+        const string f5 = "=15";
+        s.SetContentsOfCell("E1", f5);
+        Assert.AreEqual(5.0 ,s["A1"]);
+        Assert.AreEqual(7.0 ,s["B1"]);
+        Assert.AreEqual(12.0 ,s["C1"]);
+        Assert.AreEqual(35.0 ,s["D1"]);
+        Assert.AreEqual(15.0 ,s["E1"]);
+    }
+    
+    [TestMethod]
+    public void GetCellValueAccess_GetCellsToRecalculateMethodXmlExampleChangedA1_AllCellsRecalculatedToCorrectDoubles()
+    {
+        var s = new Spreadsheet();
+        const string f1 = "=5";
+        s.SetContentsOfCell("A1", f1);
+        const string f2 = "=A1 + 2";
+        s.SetContentsOfCell("B1", f2);
+        const string f3 = "=A1 + B1";
+        s.SetContentsOfCell("C1", f3);
+        const string f4 = "=A1 * 7";
+        s.SetContentsOfCell("D1", f4);
+        const string f5 = "=15";
+        s.SetContentsOfCell("E1", f5);
+        Assert.AreEqual(5.0 ,s["A1"]);
+        Assert.AreEqual(7.0 ,s["B1"]);
+        Assert.AreEqual(12.0 ,s["C1"]);
+        Assert.AreEqual(35.0 ,s["D1"]);
+        Assert.AreEqual(15.0 ,s["E1"]);
+        s.SetContentsOfCell("A1", "=4");
+        Assert.AreEqual(4.0 ,s["A1"]);
+        Assert.AreEqual(6.0 ,s["B1"]);
+        Assert.AreEqual(10.0 ,s["C1"]);
+        Assert.AreEqual(28.0 ,s["D1"]);
+        Assert.AreEqual(15.0 ,s["E1"]);
     }
     
     #endregion
