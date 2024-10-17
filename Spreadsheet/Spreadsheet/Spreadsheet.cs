@@ -220,6 +220,20 @@ public class Spreadsheet
             : string.Empty;
     }
 
+    private static CellContentsType GetContentType(string content)
+    {
+        if (double.TryParse(content, out _))
+        {
+            return CellContentsType.Double;
+        }
+
+        return content.StartsWith('=')
+            ? CellContentsType.Formula
+            : CellContentsType.String;
+    }
+
+    #region SetContentsOfCellMethods
+
     /// <summary>
     ///   <para>
     ///     Set the contents of the named cell to be the provided string
@@ -413,7 +427,7 @@ public class Spreadsheet
     /// <summary>
     ///   <para>
     ///     Set the contents of the named cell to the given contents.
-    ///     If the passed in contents are of type formula a possible CircularException may happen.
+    ///     If the contents passed in are of type formula a possible CircularException may happen.
     ///   </para>
     /// </summary>
     /// <exception cref="InvalidNameException">
@@ -458,17 +472,9 @@ public class Spreadsheet
         return GetCellsToRecalculate(name).ToList();
     }
 
-    private CellContentsType GetContentType(string content)
-    {
-        if (double.TryParse(content, out _))
-        {
-            return CellContentsType.Double;
-        }
-
-        return content.StartsWith('=')
-            ? CellContentsType.Formula
-            : CellContentsType.String;
-    }
+    #endregion
+    
+    #region GetAndSetValueMethods
 
     /// <summary>
     ///   <para>
@@ -558,6 +564,8 @@ public class Spreadsheet
 
         throw new ArgumentException("Cell doesn't exist or does not contain a numerical value");
     }
+
+    #endregion
 
     /// <summary>
     ///   Returns an enumeration, without duplicates, of the names of all cells whose
