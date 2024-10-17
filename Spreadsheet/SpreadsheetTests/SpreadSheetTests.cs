@@ -434,11 +434,20 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
-    public void GetCellValueMethod_CompleteCorrectFormula_ReturnsDoubleValue()
+    public void GetCellValueMethod_CorrectFormulaNoVariables_ReturnsDoubleValue()
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "=2 + 2");
         Assert.AreEqual(4.0, s.GetCellValue("A1"));
+    }
+    
+    [TestMethod]
+    public void GetCellValueMethod_CorrectFormulaWithVariables_ReturnsDoubleValue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "2");
+        s.SetContentsOfCell("B1", "=A1 + 2");
+        Assert.AreEqual(4.0, s.GetCellValue("B1"));
     }
     
     #endregion

@@ -9,7 +9,6 @@
 // Implementation by Caleb Standfield
 // Date, 09/26/24
 
-using System.Net.Mime;
 using System.Text.RegularExpressions;
 
 namespace CS3500.Spreadsheet;
