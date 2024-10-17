@@ -10,6 +10,7 @@
 // Date, 09/26/24
 
 using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace CS3500.Spreadsheet;
@@ -103,6 +104,17 @@ public class Spreadsheet
     /// False otherwise.
     /// </summary>
     public bool Changed { get; private set; }
+    
+    /// <summary>
+    ///   <para>
+    ///     Create json options and reuse options instead of new object creation at each method call
+    ///   </para>
+    /// </summary>
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
 
     /// <summary>
     ///   <para>
@@ -133,43 +145,22 @@ public class Spreadsheet
             }
 
             var jsonString = File.ReadAllText(filename);
-            var tempSpreadSheet = JsonSerializer.Deserialize<Dictionary<string, Cell>>(jsonString) 
-                                  ?? throw new SpreadsheetReadWriteException("Failed to load spreadsheet data from file.");
-            foreach (var key in tempSpreadSheet.Keys)
+            var tempSpreadSheet = JsonSerializer.Deserialize<Dictionary<string, Cell>>(jsonString)
+                                  ?? throw new SpreadsheetReadWriteException(
+                                      "Failed to deserialize spreadsheet.");
+            // Normalized name throws InvalidNameException if name is not valid
+            foreach (var name in tempSpreadSheet.Keys.Select(NormalizedName))
             {
-                if (tempSpreadSheet.TryGetValue(key, out var cell))
+                if (tempSpreadSheet.TryGetValue(name, out var cell))
                 {
-                    SetContentsOfCell(key, cell.Contents.ToString()!);
+                    SetContentsOfCell(name, cell.Contents.ToString()!);
                 }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw new SpreadsheetReadWriteException("Error reading the file: (ex.Message}");
+            throw new SpreadsheetReadWriteException($"Error reading the file: {ex.Message}");
         }
-        // try
-        // {
-        //     if (!File.Exists(filename))
-        //     {
-        //         throw new SpreadsheetReadWriteException("File does not exist");
-        //     }
-        //
-        //     var json = JsonSerializer.Serialize(_spreadsheet);
-        //     var jsonOptions = new
-        //         JsonSerializerOptions
-        //         {
-        //             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        //         };
-        //     using (var writer = new StreamWriter(filename))
-        //     {
-        //         var json = JsonSerializer.Serialize(_spreadsheet);
-        //         writer.Write(json);
-        //     }
-        // }
-        // catch (Exception)
-        // {
-        //     // ignored
-        // }
     }
 
 
@@ -236,13 +227,21 @@ public class Spreadsheet
     /// </exception>
     public void Save(string filename)
     {
-        var options = new JsonSerializerOptions
+        try
         {
-            WriteIndented = true,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
-        File.WriteAllText(filename, JsonSerializer.Serialize(GetNamesOfAllNonemptyCells(), options));
-        Changed = false;
+            // Serialize the dictionary into the json format
+
+            // Write the json to the given file path
+            File.WriteAllText(filename, JsonSerializer.Serialize(new { Cells = _spreadsheet}, JsonOptions));
+
+            // Changed is now false
+            Changed = false;
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions and throw a SpreadsheetReadWriteException
+            throw new SpreadsheetReadWriteException("Failed to save the spreadsheet: " + ex.Message);
+        }
     }
 
     /// <summary>
@@ -874,6 +873,7 @@ public class Spreadsheet
         ///     Represents the contents of a cell.
         ///   </para>
         /// </summary>
+        [JsonIgnore]
         public object Contents { get; } = contents;
 
         /// <summary>
@@ -890,6 +890,7 @@ public class Spreadsheet
         ///     at a later time.
         ///   </para>
         /// </summary>
+        [JsonIgnore]
         public object Value { get; set; } = null!;
 
         /// <summary>
@@ -898,6 +899,7 @@ public class Spreadsheet
         ///     is assigned by the spreadsheet class at a later time 
         ///   </para>
         /// </summary>
+        [JsonIgnore]
         public CellContentsType ContentType { get; set; }
     }
 }

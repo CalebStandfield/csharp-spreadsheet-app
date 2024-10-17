@@ -804,6 +804,8 @@ public class SpreadSheetTests
         Assert.IsTrue(s.Changed);
     }
     
+    #endregion
+    
     // --- Save ---
 
     #region Save
@@ -812,20 +814,43 @@ public class SpreadSheetTests
     public void Save_SaveSpreadSheet_SavesToSpreadsheet()
     {
         var s = new Spreadsheet();
-        var initialSpreadsheetJson = "{\"Cells\":{\"A1\":{\"StringForm\":\"2\"}}}";
-        var fileName = "save.txt";
+        const string initialSpreadsheetJson = "{\"Cells\":{\"A1\":{\"StringForm\":\"2\"}}}";
+        const string fileName = "save.txt";
         
         File.WriteAllText(fileName, initialSpreadsheetJson);
         Console.WriteLine(File.ReadAllText(fileName));
     }
-
-    // var options = new JsonSerializerOptions
-    // {
-    //     WriteIndented = true,
-    //     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    // };
-    // File.WriteAllText(filename, JsonSerializer.Serialize(GetNamesOfAllNonemptyCells(), options));
+    
+    [TestMethod]
+    public void SpreadSheetConstructorLoad_PrebuildSpreadSheet_SavesToFile()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=2");
+        const string fileName = "save.txt";
+        s.Save(fileName);
+        Console.WriteLine(File.ReadAllText(fileName));
+    }
+    
+    [TestMethod]
+    public void Save_ClassSlidesExample_SavesToFile()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "hi!");
+        s.SetContentsOfCell("C2", "=A1+1");
+        const string fileName = "save.txt";
+        s.Save(fileName);
+        Console.WriteLine(File.ReadAllText(fileName));
+    }
+    
     #endregion
+    
+    #region Load
 
+    [TestMethod]
+    public void Load_LoadSpreadSheet_LoadsSpreadsheet()
+    {
+        
+    }
+    
     #endregion
 }
