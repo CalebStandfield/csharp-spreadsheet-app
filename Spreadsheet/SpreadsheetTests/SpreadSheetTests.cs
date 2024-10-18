@@ -838,6 +838,24 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
+    public void SpreadSheetConstructorLoad_FilePathNotFound_FailsToSave()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=2");
+        Assert.ThrowsException<SpreadsheetReadWriteException>(() => s.Save("/some/nonsense/path.txt"));
+    }
+    
+    [TestMethod]
+    public void SpreadSheetConstructorLoad_FilePathNotFound_ChangeIsStillTrue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=2");
+        Assert.IsTrue(s.Changed);
+        Assert.ThrowsException<SpreadsheetReadWriteException>(() => s.Save("/some/nonsense/path.txt"));
+        Assert.IsTrue(s.Changed);
+    }
+    
+    [TestMethod]
     public void Save_ClassSlidesExample_SavesToFile()
     {
         var s = new Spreadsheet();
@@ -849,6 +867,8 @@ public class SpreadSheetTests
     }
     
     #endregion
+    
+    // --- Load ---
     
     #region Load
 
@@ -867,6 +887,22 @@ public class SpreadSheetTests
         Console.WriteLine(File.ReadAllText(fileName));
         var s = new Spreadsheet(fileName);
         Assert.AreEqual(2.0 ,s.GetCellContents("A1"));
+    }
+    
+    [TestMethod]
+    public void SpreadSheetConstructorLoad_CellsIsMalformed_DeserializeFails()
+    {
+        const string initialSpreadsheetJson = "{\"Sells\":{\"A1\":{\"StringForm\":\"2\"}}}";
+        const string fileName = "save.txt";
+        File.WriteAllText(fileName, initialSpreadsheetJson);
+        Console.WriteLine(File.ReadAllText(fileName));
+        Assert.ThrowsException<SpreadsheetReadWriteException>(() => new Spreadsheet(fileName));
+    }
+    
+    [TestMethod]
+    public void SpreadSheetConstructorLoad_FileNameNotFound_DeserializeFails()
+    {
+        Assert.ThrowsException<SpreadsheetReadWriteException>(() => new Spreadsheet("/some/nonsense/path.txt"));
     }
     
     [TestMethod]
