@@ -142,12 +142,11 @@ public class SpreadSheetTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidNameException))]
     public void GetCellContents_CellAccessWithInvalidName_ThrowsInvalidNameException()
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("C1", "1");
-        Assert.AreEqual(s.GetCellContents("c"), 1.0);
+        Assert.ThrowsException<InvalidNameException>(() => s.GetCellContents("c"));
     }
 
     [TestMethod]
@@ -170,11 +169,10 @@ public class SpreadSheetTests
     #region SetCellContentsDouble
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidNameException))]
     public void SetCellContents_CellAccessInvalidNameDouble_ThrowsInvalidNameException()
     {
         var s = new Spreadsheet();
-        s.SetContentsOfCell("C", "1");
+        Assert.ThrowsException<InvalidNameException>(() => s.SetContentsOfCell("C", "1"));
     }
 
     [TestMethod]
@@ -209,11 +207,10 @@ public class SpreadSheetTests
     #region SetCellContentsText
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidNameException))]
     public void SetCellContents_CellAccessInvalidNameText_ThrowsInvalidNameException()
     {
         var s = new Spreadsheet();
-        s.SetContentsOfCell("C", "C");
+        Assert.ThrowsException<InvalidNameException>(() => s.SetContentsOfCell("C", "C"));
     }
 
     [TestMethod]
@@ -250,11 +247,10 @@ public class SpreadSheetTests
     #region SetCellContentsFormula
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidNameException))]
     public void SetCellContents_CellAccessInvalidNameFormula_ThrowsInvalidNameException()
     {
         var s = new Spreadsheet();
-        s.SetContentsOfCell("C", new Formula("2 + 2").ToString());
+        Assert.ThrowsException<InvalidNameException>(() => s.SetContentsOfCell("C", "=2 + 2"));
     }
 
     [TestMethod]
@@ -334,25 +330,22 @@ public class SpreadSheetTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(CircularException))]
     public void SetCellContents_CycleAtStartOfFormula_ThrowsCircularException()
     {
         var s = new Spreadsheet();
         const string f1 = "=A1 + B1";
-        s.SetContentsOfCell("A1", f1);
+        Assert.ThrowsException<CircularException>(() => s.SetContentsOfCell("A1", f1));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(CircularException))]
     public void SetCellContents_CycleAtEndOfFormula_ThrowsCircularException()
     {
         var s = new Spreadsheet();
         const string f1 = "=B1 + C1 + D1 + E1 + F1 + G1 + A1";
-        s.SetContentsOfCell("A1", f1);
+        Assert.ThrowsException<CircularException>(() => s.SetContentsOfCell("A1", f1));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(CircularException))]
     public void SetCellContents_CycleAtEndOfFormulaTree_ThrowsCircularException()
     {
         var s = new Spreadsheet();
@@ -363,7 +356,7 @@ public class SpreadSheetTests
         s.SetContentsOfCell("A1", a1);
         s.SetContentsOfCell("B1", b1);
         s.SetContentsOfCell("C1", c1);
-        s.SetContentsOfCell("D1", d1);
+        Assert.ThrowsException<CircularException>(() => s.SetContentsOfCell("D1", d1));
     }
 
     [TestMethod]
@@ -502,20 +495,11 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
-    [ExpectedException(typeof(FormulaFormatException))]
-    public void GetCellValueMethod_FormulaContentsWithOnlyEquals_ReturnsFormulaFormatException()
-    {
-        var s = new Spreadsheet();
-        s.SetContentsOfCell("B1", "=");
-    }
-    
-    [TestMethod]
     public void GetCellValueMethod_MalformedFormulaEqualsSignMisplaced_ReturnsString()
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("B1", " =2 + 2");
         Assert.AreEqual(" =2 + 2", s.GetCellValue("B1"));
-        
     }
     
     [TestMethod]
@@ -681,11 +665,10 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
-    [ExpectedException(typeof(FormulaFormatException))]
     public void GetCellValueAccess_FormulaContentsWithOnlyEquals_ReturnsFormulaFormatException()
     {
         var s = new Spreadsheet();
-        s.SetContentsOfCell("B1", "=");
+        Assert.ThrowsException<FormulaFormatException>(() => s.SetContentsOfCell("B1", "="));
     }
     
     [TestMethod]
@@ -831,10 +814,10 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
-    public void Changed_SetContentsOfCellCausesCircularDependency_ChangedFalse()
+    public void Changed_SetContentsOfCellCausesCircularDependency_ChangedTrue()
     {
         var s = new Spreadsheet();
-        s.SetContentsOfCell("A1", "=A1 + 5");
+        Assert.ThrowsException<CircularException>(() => s.SetContentsOfCell("A1", "=A1"));
         Assert.IsTrue(s.Changed);
     }
     
@@ -843,17 +826,6 @@ public class SpreadSheetTests
     // --- Save ---
 
     #region Save
-
-    [TestMethod]
-    public void Save_SaveSpreadSheet_SavesToSpreadsheet()
-    {
-        var s = new Spreadsheet();
-        const string initialSpreadsheetJson = "{\"Cells\":{\"A1\":{\"StringForm\":\"2\"}}}";
-        const string fileName = "save.txt";
-        
-        File.WriteAllText(fileName, initialSpreadsheetJson);
-        Console.WriteLine(File.ReadAllText(fileName));
-    }
     
     [TestMethod]
     public void SpreadSheetConstructorLoad_PrebuildSpreadSheet_SavesToFile()
@@ -881,10 +853,79 @@ public class SpreadSheetTests
     #region Load
 
     [TestMethod]
-    public void Load_LoadSpreadSheet_LoadsSpreadsheet()
+    public void SpreadSheetConstructorLoad_LoadSpreadSheet_LoadsSpreadsheet()
     {
         
     }
     
+    [TestMethod]
+    public void SpreadSheetConstructorLoad_SaveSpreadSheet_DeserializeIntoSpreadsheet()
+    {
+        const string initialSpreadsheetJson = "{\"Cells\":{\"A1\":{\"StringForm\":\"2\"}}}";
+        const string fileName = "save.txt";
+        File.WriteAllText(fileName, initialSpreadsheetJson);
+        Console.WriteLine(File.ReadAllText(fileName));
+        var s = new Spreadsheet(fileName);
+        Assert.AreEqual(2.0 ,s.GetCellContents("A1"));
+    }
+    
+    [TestMethod]
+    public void SpreadSheetConstructorLoad_CellNameNotValid_DeserializeFails()
+    {
+        const string initialSpreadsheetJson = "{\"Cells\":{\"BEANS\":{\"StringForm\":\"2\"}}}";
+        const string fileName = "save.txt";
+        File.WriteAllText(fileName, initialSpreadsheetJson);
+        Console.WriteLine(File.ReadAllText(fileName));
+        Assert.ThrowsException<SpreadsheetReadWriteException>(() => new Spreadsheet(fileName));
+    }
+    
+    [TestMethod]
+    public void SpreadSheetConstructorLoad_ClassSlidesExample_DeserializeIntoSpreadsheet()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "hi!");
+        s.SetContentsOfCell("C2", "=A1+1");
+        const string fileName = "save.txt";
+        s.Save(fileName);
+        Console.WriteLine(File.ReadAllText(fileName));
+        s = new Spreadsheet(fileName);
+        Assert.AreEqual("hi!", s.GetCellContents("A1"));
+        Assert.AreEqual("A1+1", s.GetCellContents("C2").ToString());
+        Assert.AreEqual("hi!", s.GetCellValue("A1"));
+        Assert.IsInstanceOfType<FormulaError>(s.GetCellValue("C2"));
+    }
+    
     #endregion
+    
+    // public Spreadsheet(string filename)
+    // {
+    //     try
+    //     {
+    //         // Check if filename is valid
+    //         if (!File.Exists(filename))
+    //         {
+    //             throw new SpreadsheetReadWriteException("File does not exist.");
+    //         }
+    //
+    //         // Attempt to deserialize the file into a temporary dictionary 
+    //         var tempDictionary = JsonSerializer.Deserialize<Dictionary<string, Cell>>(File.ReadAllText(filename))
+    //                              ?? throw new SpreadsheetReadWriteException(
+    //                                  "Failed to deserialize spreadsheet.");
+    //         // Normalized name throws InvalidNameException if name is not valid
+    //         foreach (var name in tempDictionary.Keys.Select(NormalizedName))
+    //         {
+    //             if (tempDictionary.TryGetValue(name, out var cell))
+    //             {
+    //                 // Will throw CircularException if one occurs
+    //                 SetContentsOfCell(name, cell.Contents.ToString()!);
+    //             }
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
+    //     }
+    // }
+    //
+    // Write unit tests for this constructor follow this unit test pattern-
 }

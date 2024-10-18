@@ -145,17 +145,25 @@ public class Spreadsheet
                 throw new SpreadsheetReadWriteException("File does not exist.");
             }
 
-            // Attempt to deserialize the file into a temporary dictionary 
-            var tempDictionary = JsonSerializer.Deserialize<Dictionary<string, Cell>>(File.ReadAllText(filename))
-                                  ?? throw new SpreadsheetReadWriteException(
-                                      "Failed to deserialize spreadsheet.");
-            // Normalized name throws InvalidNameException if name is not valid
-            foreach (var name in tempDictionary.Keys.Select(NormalizedName))
+            using (var doc = JsonDocument.Parse(File.ReadAllText(filename)))
             {
-                if (tempDictionary.TryGetValue(name, out var cell))
+                // Check if the "Cells" property exists
+                if (doc.RootElement.TryGetProperty("Cells", out var cellsElement) &&
+                    cellsElement.ValueKind == JsonValueKind.Object)
                 {
-                    // Will throw CircularException if one occurs
-                    SetContentsOfCell(name, cell.Contents.ToString()!);
+                    // Deserialize each cell entry
+                    foreach (var property in cellsElement.EnumerateObject())
+                    {
+                        var cellName = property.Name;
+                        var cellContent =
+                            property.Value.GetProperty("StringForm").GetString(); // Example for StringForm
+
+                        SetContentsOfCell(cellName, cellContent!);
+                    }
+                }
+                else
+                {
+                    throw new SpreadsheetReadWriteException("Failed to find 'Cells' in spreadsheet data.");
                 }
             }
         }
@@ -163,8 +171,32 @@ public class Spreadsheet
         {
             throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
         }
+        // Check if filename is valid
+        // if (!File.Exists(filename))
+        // {
+        //     throw new SpreadsheetReadWriteException("File does not exist.");
+        // }
+        //
+        //         // Attempt to deserialize the file into a temporary dictionary 
+        //         var tempDictionary = JsonSerializer.Deserialize<Dictionary<string, Cell>>(File.ReadAllText(filename))
+        //                               ?? throw new SpreadsheetReadWriteException(
+        //                                   "Failed to deserialize spreadsheet.");
+        //         // Normalized name throws InvalidNameException if name is not valid
+        //         foreach (var name in tempDictionary.Keys.Select(NormalizedName))
+        //         {
+        //             if (tempDictionary.TryGetValue(name, out var cell))
+        //             {
+        //                 // Will throw CircularException if one occurs
+        //                 SetContentsOfCell(name, cell.Contents.ToString()!);
+        //             }
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
+        //     }
+        // }
     }
-
 
     /// <summary>
     ///   <para>
@@ -397,7 +429,7 @@ public class Spreadsheet
         {
             CellContentsType.Double => SetCellContents(normalizedName, double.Parse(content)),
             CellContentsType.String => SetCellContents(normalizedName, content),
-            // First char is '=', pass the remaining string as the contents
+            // First char is '=', pass in the remaining string as the contents
             _ => SetCellContents(normalizedName, new Formula(content[1..]))
         };
 
@@ -613,7 +645,7 @@ public class Spreadsheet
 
     /// <summary>
     ///   <param>
-    ///     Takes in a cell and determins based of the cells contents what type of value can be parsed
+    ///     Takes in a cell and determines based of the cells contents what type of value can be parsed
     ///     from the contents, then assigns the parsed value to the cells value field.
     ///   </param>
     /// </summary>
