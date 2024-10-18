@@ -82,7 +82,8 @@ public class Spreadsheet
     ///     A Dictionary that hold all non-empty cells that represent the spreadsheet.
     ///   </para>
     /// </summary>
-    private readonly Dictionary<string, Cell> _spreadsheet = new();
+    [JsonPropertyName("Cells")] [JsonInclude]
+    private Dictionary<string, Cell> _spreadsheet = new();
 
     /// <summary>
     ///   <para>
@@ -103,6 +104,7 @@ public class Spreadsheet
     /// created or saved (whichever happened most recently),
     /// False otherwise.
     /// </summary>
+    [JsonIgnore]
     public bool Changed { get; private set; }
 
     /// <summary>
@@ -110,6 +112,7 @@ public class Spreadsheet
     ///     Create json options and reuse options instead of new object creation at each method call
     ///   </para>
     /// </summary>
+    /// 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -137,33 +140,59 @@ public class Spreadsheet
     /// <param name="filename">The path to the file containing the spreadsheet to load</param>
     public Spreadsheet(string filename)
     {
+        // try
+        // {
+        //     // Check if filename is valid
+        //     if (!File.Exists(filename))
+        //     {
+        //         throw new SpreadsheetReadWriteException("File does not exist.");
+        //     }
+        //
+        //     using var json = JsonDocument.Parse(File.ReadAllText(filename));
+        //     // Check if the "Cells" property exists
+        //     if (json.RootElement.TryGetProperty("Cells", out var cellElement) &&
+        //         cellElement.ValueKind == JsonValueKind.Object)
+        //     {
+        //         // Deserialize each cell entry
+        //         foreach (var property in cellElement.EnumerateObject())
+        //         {
+        //             var cellContent =
+        //                 property.Value.GetProperty("StringForm").GetString();
+        //
+        //             SetContentsOfCell(property.Name, cellContent!);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         throw new SpreadsheetReadWriteException("Failed to find \"Cells\" in spreadsheet data.");
+        //     }
+        // }
+        // catch (Exception ex)
+        // {
+        //     throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
+        // }
+
+        //Check if filename is valid
         try
         {
-            // Check if filename is valid
             if (!File.Exists(filename))
             {
                 throw new SpreadsheetReadWriteException("File does not exist.");
             }
 
-            using (var doc = JsonDocument.Parse(File.ReadAllText(filename)))
+            // Attempt to deserialize the file into a temporary dictionary 
+            var tempSpreadSheet = JsonSerializer.Deserialize<Spreadsheet>(File.ReadAllText(filename));
+            if (tempSpreadSheet is null)
             {
-                // Check if the "Cells" property exists
-                if (doc.RootElement.TryGetProperty("Cells", out var cellsElement) &&
-                    cellsElement.ValueKind == JsonValueKind.Object)
+                throw new SpreadsheetReadWriteException("Deserialized Spreadsheet resulted in a null Spreadsheet.");
+            }
+            //Normalized name throws InvalidNameException if name is not valid
+            foreach (var name in tempSpreadSheet._spreadsheet.Keys.Select(NormalizedName))
+            {
+                if (tempSpreadSheet._spreadsheet.TryGetValue(name, out var cell))
                 {
-                    // Deserialize each cell entry
-                    foreach (var property in cellsElement.EnumerateObject())
-                    {
-                        var cellName = property.Name;
-                        var cellContent =
-                            property.Value.GetProperty("StringForm").GetString(); // Example for StringForm
-
-                        SetContentsOfCell(cellName, cellContent!);
-                    }
-                }
-                else
-                {
-                    throw new SpreadsheetReadWriteException("Failed to find 'Cells' in spreadsheet data.");
+                    // Will throw CircularException if one occurs
+                    SetContentsOfCell(name, cell.StringForm);
                 }
             }
         }
@@ -171,32 +200,8 @@ public class Spreadsheet
         {
             throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
         }
-        // Check if filename is valid
-        // if (!File.Exists(filename))
-        // {
-        //     throw new SpreadsheetReadWriteException("File does not exist.");
-        // }
-        //
-        //         // Attempt to deserialize the file into a temporary dictionary 
-        //         var tempDictionary = JsonSerializer.Deserialize<Dictionary<string, Cell>>(File.ReadAllText(filename))
-        //                               ?? throw new SpreadsheetReadWriteException(
-        //                                   "Failed to deserialize spreadsheet.");
-        //         // Normalized name throws InvalidNameException if name is not valid
-        //         foreach (var name in tempDictionary.Keys.Select(NormalizedName))
-        //         {
-        //             if (tempDictionary.TryGetValue(name, out var cell))
-        //             {
-        //                 // Will throw CircularException if one occurs
-        //                 SetContentsOfCell(name, cell.Contents.ToString()!);
-        //             }
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
-        //     }
-        // }
     }
+
 
     /// <summary>
     ///   <para>
@@ -436,6 +441,9 @@ public class Spreadsheet
         // Using the ordered return list calculate each value
         SetValueOfListOfCells(retList);
 
+        // A change was made set to true
+        Changed = true;
+
         return retList;
     }
 
@@ -494,9 +502,6 @@ public class Spreadsheet
 
         // Update the dependency graph to remove possible dependents
         _dependencyGraph.ReplaceDependents(name, []);
-
-        // State of the spreadsheet has changed
-        Changed = true;
 
         // Return call to helper method
         return GetCellsToRecalculate(name).ToList();
@@ -594,9 +599,6 @@ public class Spreadsheet
         // Create the dependencies that this new cell is associated with
         _dependencyGraph.ReplaceDependents(name, dependents);
 
-        // State of the spreadsheet has changed
-        Changed = true;
-
         // Return call to GetCellsToRecalculate
         return GetCellsToRecalculate(name).ToList();
     }
@@ -618,10 +620,7 @@ public class Spreadsheet
     /// <exception cref="InvalidNameException">
     ///   If the provided name is invalid, throws an InvalidNameException.
     /// </exception>
-    public object this[string name]
-    {
-        get { return GetCellValue(name); }
-    }
+    public object this[string name] => GetCellValue(name);
 
     /// <summary>
     ///   <para>
@@ -711,7 +710,7 @@ public class Spreadsheet
     /// <summary>
     ///   <para>
     ///     Returns the value of the cell if it is a double, otherwise this method will throw an exception
-    ///     to be cought by the Formula class to return a FromulaError.
+    ///     to be caught by the Formula class to return a FormulaError.
     ///   </para>
     /// </summary>
     /// <param name="name">The cell to retrieve the value from</param>
@@ -894,7 +893,7 @@ public class Spreadsheet
     ///     Cells hold their contents. 
     ///   </para>
     /// </summary>
-    private class Cell(object contents)
+    private class Cell
     {
         /// <summary>
         ///   <para>
@@ -903,7 +902,7 @@ public class Spreadsheet
         ///   </para>
         /// </summary>
         [JsonIgnore]
-        public object Contents { get; } = contents;
+        public object Contents { get; }
 
         /// <summary>
         ///   <para>
@@ -930,6 +929,18 @@ public class Spreadsheet
         /// </summary>
         [JsonIgnore]
         public CellContentsType ContentType { get; set; }
+
+        public Cell()
+        {
+            Contents = string.Empty;
+            StringForm = string.Empty;
+            Value = new object();
+        }
+
+        public Cell(object contents)
+        {
+            Contents = contents;
+        }
     }
 }
 
