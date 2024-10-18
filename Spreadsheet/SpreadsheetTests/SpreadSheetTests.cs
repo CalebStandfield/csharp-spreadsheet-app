@@ -36,6 +36,18 @@ public class SpreadSheetTests
         var a1Set = s.GetNamesOfAllNonemptyCells();
         Assert.IsTrue(a1Set.SequenceEqual(new HashSet<string> { "A1" }));
     }
+    
+    [TestMethod]
+    public void GetNamesOfAllNonemptyCells_ReAssignSToNewSpreadSheet_ElementsDoNotPersist()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("a1", "1");
+        Assert.AreEqual(s.GetNamesOfAllNonemptyCells().Count, 1);
+        Assert.IsTrue(s.GetNamesOfAllNonemptyCells().SequenceEqual(new HashSet<string> { "A1" }));
+        s = new Spreadsheet();
+        Assert.AreNotEqual(s.GetNamesOfAllNonemptyCells().Count, 1);
+        Assert.IsFalse(s.GetNamesOfAllNonemptyCells().SequenceEqual(new HashSet<string> { "A1" }));
+    }
 
     [TestMethod]
     public void GetNamesOfAllNonemptyCells_OneElementA1_Count1AndListOfA1()
@@ -797,10 +809,32 @@ public class SpreadSheetTests
     }
     
     [TestMethod]
-    public void Changed_SetContentsOfCellSaveThenReset_ChangedTrue()
+    public void Changed_SetContentsOfCellSave_ChangedFalse()
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "=5");
+        Assert.IsTrue(s.Changed);
+        s.Save("test.txt");
+        Assert.IsFalse(s.Changed);
+    }
+    
+    [TestMethod]
+    public void Changed_SetContentsOfCellSaveThenReAssignToSameContents_ChangedTrue()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=5");
+        Assert.IsTrue(s.Changed);
+        s.Save("test.txt");
+        Assert.IsFalse(s.Changed);
+        s.SetContentsOfCell("A1", "=5");
+        Assert.IsTrue(s.Changed);
+    }
+    
+    [TestMethod]
+    public void Changed_SetContentsOfCellCausesCircularDependency_ChangedFalse()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "=A1 + 5");
         Assert.IsTrue(s.Changed);
     }
     

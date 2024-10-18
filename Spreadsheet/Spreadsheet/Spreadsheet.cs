@@ -104,7 +104,7 @@ public class Spreadsheet
     /// False otherwise.
     /// </summary>
     public bool Changed { get; private set; }
-    
+
     /// <summary>
     ///   <para>
     ///     Create json options and reuse options instead of new object creation at each method call
@@ -139,27 +139,29 @@ public class Spreadsheet
     {
         try
         {
+            // Check if filename is valid
             if (!File.Exists(filename))
             {
                 throw new SpreadsheetReadWriteException("File does not exist.");
             }
 
-            var jsonString = File.ReadAllText(filename);
-            var tempSpreadSheet = JsonSerializer.Deserialize<Dictionary<string, Cell>>(jsonString)
+            // Attempt to deserialize the file into a temporary dictionary 
+            var tempDictionary = JsonSerializer.Deserialize<Dictionary<string, Cell>>(File.ReadAllText(filename))
                                   ?? throw new SpreadsheetReadWriteException(
                                       "Failed to deserialize spreadsheet.");
             // Normalized name throws InvalidNameException if name is not valid
-            foreach (var name in tempSpreadSheet.Keys.Select(NormalizedName))
+            foreach (var name in tempDictionary.Keys.Select(NormalizedName))
             {
-                if (tempSpreadSheet.TryGetValue(name, out var cell))
+                if (tempDictionary.TryGetValue(name, out var cell))
                 {
+                    // Will throw CircularException if one occurs
                     SetContentsOfCell(name, cell.Contents.ToString()!);
                 }
             }
         }
         catch (Exception ex)
         {
-            throw new SpreadsheetReadWriteException($"Error reading the file: {ex.Message}");
+            throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
         }
     }
 
@@ -229,16 +231,16 @@ public class Spreadsheet
     {
         try
         {
-            // Serialize the dictionary into the json format
-
-            // Write the json to the given file path
-            File.WriteAllText(filename, JsonSerializer.Serialize(new { Cells = _spreadsheet}, JsonOptions));
+            // Serialize the dictionary into the json format and write to file path
+            File.WriteAllText(filename, JsonSerializer.Serialize(new { Cells = _spreadsheet }, JsonOptions));
 
             // Changed is now false
             Changed = false;
         }
         catch (Exception ex)
         {
+            // Save failed revert Changed state
+            Changed = true;
             // Handle any exceptions and throw a SpreadsheetReadWriteException
             throw new SpreadsheetReadWriteException("Failed to save the spreadsheet: " + ex.Message);
         }
