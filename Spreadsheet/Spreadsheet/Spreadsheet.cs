@@ -253,13 +253,8 @@ public class Spreadsheet
     /// </returns>
     public ISet<string> GetNamesOfAllNonemptyCells()
     {
-        var nonEmptyCellNames = new HashSet<string>();
-        foreach (var name in _spreadsheet.Where(name => !string.IsNullOrEmpty(name.Value.ToString())))
-        {
-            nonEmptyCellNames.Add(name.Key);
-        }
-
-        return nonEmptyCellNames;
+        var nonEmptyCells = new HashSet<string>(_spreadsheet.Keys);
+        return nonEmptyCells;
     }
 
     /// <summary>
