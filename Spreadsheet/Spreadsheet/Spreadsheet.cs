@@ -9,16 +9,14 @@
 // Implementation by Caleb Standfield
 // Date, 09/26/24
 
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
-
 namespace CS3500.Spreadsheet;
 
 using CS3500.Formula;
 using CS3500.DependencyGraph;
 using System.Text.Json;
+using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 /// <summary>
 ///   <para>
