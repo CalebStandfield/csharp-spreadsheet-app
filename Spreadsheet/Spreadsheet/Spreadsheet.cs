@@ -9,6 +9,7 @@
 // Implementation by Caleb Standfield
 // Date, 09/26/24
 
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -140,39 +141,6 @@ public class Spreadsheet
     /// <param name="filename">The path to the file containing the spreadsheet to load</param>
     public Spreadsheet(string filename)
     {
-        // try
-        // {
-        //     // Check if filename is valid
-        //     if (!File.Exists(filename))
-        //     {
-        //         throw new SpreadsheetReadWriteException("File does not exist.");
-        //     }
-        //
-        //     using var json = JsonDocument.Parse(File.ReadAllText(filename));
-        //     // Check if the "Cells" property exists
-        //     if (json.RootElement.TryGetProperty("Cells", out var cellElement) &&
-        //         cellElement.ValueKind == JsonValueKind.Object)
-        //     {
-        //         // Deserialize each cell entry
-        //         foreach (var property in cellElement.EnumerateObject())
-        //         {
-        //             var cellContent =
-        //                 property.Value.GetProperty("StringForm").GetString();
-        //
-        //             SetContentsOfCell(property.Name, cellContent!);
-        //         }
-        //     }
-        //     else
-        //     {
-        //         throw new SpreadsheetReadWriteException("Failed to find \"Cells\" in spreadsheet data.");
-        //     }
-        // }
-        // catch (Exception ex)
-        // {
-        //     throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
-        // }
-
-        //Check if filename is valid
         try
         {
             if (!File.Exists(filename))
@@ -181,11 +149,11 @@ public class Spreadsheet
             }
 
             // Attempt to deserialize the file into a temporary dictionary 
-            var tempSpreadSheet = JsonSerializer.Deserialize<Spreadsheet>(File.ReadAllText(filename));
-            if (tempSpreadSheet is null)
-            {
-                throw new SpreadsheetReadWriteException("Deserialized Spreadsheet resulted in a null Spreadsheet.");
-            }
+            var tempSpreadSheet = JsonSerializer.Deserialize<Spreadsheet>(File.ReadAllText(filename))
+                                  // If null throw exception
+                                  ?? throw new SpreadsheetReadWriteException(
+                                      "Deserialized Spreadsheet resulted in a null Spreadsheet.");
+
             //Normalized name throws InvalidNameException if name is not valid
             foreach (var name in tempSpreadSheet._spreadsheet.Keys.Select(NormalizedName))
             {
@@ -195,9 +163,16 @@ public class Spreadsheet
                     SetContentsOfCell(name, cell.StringForm);
                 }
             }
+
+            // Set to false as SetContents of cell set it to true
+            // A new spreadSheet should start with changed as false
+            Changed = false;
+
         }
+        // Catch all exceptions
         catch (Exception ex)
         {
+            // Print out statement with reason appended
             throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
         }
     }
@@ -271,13 +246,12 @@ public class Spreadsheet
             // Serialize the dictionary into the json format and write to file path
             File.WriteAllText(filename, JsonSerializer.Serialize(new { Cells = _spreadsheet }, JsonOptions));
 
+            // Will throw before reaching this line if it fails
             // Changed is now false
             Changed = false;
         }
         catch (Exception ex)
         {
-            // Save failed revert Changed state
-            Changed = true;
             // Handle any exceptions and throw a SpreadsheetReadWriteException
             throw new SpreadsheetReadWriteException("Failed to save the spreadsheet: " + ex.Message);
         }
@@ -548,6 +522,10 @@ public class Spreadsheet
 
             // Passing in original cell data to restore the cell, output not needed
             _ = SetCellContentsHelper(name, originalCellContents, originalDependents);
+            
+            // Reevaluate value of the cell
+            _spreadsheet.TryGetValue(name, out var cell);
+            SetValueOfCell(cell!);
 
             throw new CircularException();
         }
@@ -910,7 +888,7 @@ public class Spreadsheet
         ///     Represents the contents of a cell.
         ///   </para>
         /// </summary>
-        public string StringForm { get; set; } = null!;
+        public string StringForm { get; set; }
 
         /// <summary>
         ///   <para>
@@ -919,7 +897,7 @@ public class Spreadsheet
         ///   </para>
         /// </summary>
         [JsonIgnore]
-        public object Value { get; set; } = null!;
+        public object Value { get; set; }
 
         /// <summary>
         ///   <para>
@@ -930,16 +908,30 @@ public class Spreadsheet
         [JsonIgnore]
         public CellContentsType ContentType { get; set; }
 
+        /// <summary>
+        ///   <para>
+        ///     Default constructor for a Cell makes a blank cell.
+        ///   </para>
+        /// </summary>
         public Cell()
         {
+            // Added in default constructor ensure deserialization works as intended
             Contents = string.Empty;
             StringForm = string.Empty;
             Value = new object();
         }
 
+        /// <summary>
+        ///   <para>
+        ///     Creates a cell with the contents passed in.
+        ///   </para>
+        /// </summary>
+        /// <param name="contents"></param>
         public Cell(object contents)
         {
             Contents = contents;
+            StringForm = string.Empty;
+            Value = new object();
         }
     }
 }
