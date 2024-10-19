@@ -128,6 +128,7 @@ public class Spreadsheet
     /// </summary>
     public Spreadsheet()
     {
+        Changed = false;
     }
 
     /// <summary>
@@ -167,7 +168,6 @@ public class Spreadsheet
             // Set to false as SetContents of cell set it to true
             // A new spreadSheet should start with changed as false
             Changed = false;
-
         }
         // Catch all exceptions
         catch (Exception ex)
@@ -176,7 +176,6 @@ public class Spreadsheet
             throw new SpreadsheetReadWriteException("Error reading the file: " + ex.Message);
         }
     }
-
 
     /// <summary>
     ///   <para>
@@ -522,7 +521,7 @@ public class Spreadsheet
 
             // Passing in original cell data to restore the cell, output not needed
             _ = SetCellContentsHelper(name, originalCellContents, originalDependents);
-            
+
             // Reevaluate value of the cell
             _spreadsheet.TryGetValue(name, out var cell);
             SetValueOfCell(cell!);
