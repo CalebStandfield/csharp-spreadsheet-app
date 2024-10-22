@@ -1,0 +1,13 @@
+{
+    "Cells": 
+    {
+        "B2": 
+        {
+            "StringForm" : "=A1"
+        },
+        "A1": 
+        {
+            "StringForm" : "=1"
+        }
+    }
+}

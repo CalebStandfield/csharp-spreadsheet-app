@@ -1,0 +1,22 @@
+{
+  "Cells": {
+    "A1": {
+      "StringForm": "12"
+    },
+    "B2": {
+      "StringForm": "=A1"
+    },
+    "C3": {
+      "StringForm": "hello"
+    },
+    "D4": {
+      "StringForm": "=B2+A1"
+    },
+    "E5": {
+      "StringForm": "EEEEE"
+    },
+    "F6": {
+      "StringForm": "333333"
+    }
+  }
+}

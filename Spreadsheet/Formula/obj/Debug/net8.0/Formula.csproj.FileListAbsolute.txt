@@ -1,0 +1,12 @@
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/bin/Debug/net8.0/Formula.deps.json
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/bin/Debug/net8.0/Formula.dll
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/bin/Debug/net8.0/Formula.pdb
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/Formula.GeneratedMSBuildEditorConfig.editorconfig
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/Formula.AssemblyInfoInputs.cache
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/Formula.AssemblyInfo.cs
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/Formula.csproj.CoreCompileInputs.cache
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/Formula.sourcelink.json
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/Formula.dll
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/refint/Formula.dll
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/Formula.pdb
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/Formula/obj/Debug/net8.0/ref/Formula.dll

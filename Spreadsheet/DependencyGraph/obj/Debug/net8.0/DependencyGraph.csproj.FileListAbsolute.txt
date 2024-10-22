@@ -1,0 +1,12 @@
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/bin/Debug/net8.0/DependencyGraph.deps.json
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/bin/Debug/net8.0/DependencyGraph.dll
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/bin/Debug/net8.0/DependencyGraph.pdb
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/DependencyGraph.GeneratedMSBuildEditorConfig.editorconfig
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/DependencyGraph.AssemblyInfoInputs.cache
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/DependencyGraph.AssemblyInfo.cs
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/DependencyGraph.csproj.CoreCompileInputs.cache
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/DependencyGraph.sourcelink.json
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/DependencyGraph.dll
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/refint/DependencyGraph.dll
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/DependencyGraph.pdb
+/Users/calebstandfield/Documents/GitHub/spreadsheet-CalebUofU/Spreadsheet/DependencyGraph/obj/Debug/net8.0/ref/DependencyGraph.dll
