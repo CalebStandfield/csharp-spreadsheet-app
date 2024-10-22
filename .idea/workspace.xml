@@ -20,7 +20,8 @@
     <option name="defaultAccountId" value="7111bc58-0e57-446c-a4a0-2af0a1599df9" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Spreadsheet/DependencyGraphTests/DependencyGraphTests.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/spreadsheet-CalebUofU-main/Spreadsheet/DependencyGraph/DependencyGraph.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/spreadsheet-CalebUofU-main/Spreadsheet/DependencyGraphTests/DependencyGraphTests.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -54,6 +55,7 @@
       <updated>1729567099438</updated>
       <workItem from="1729567100463" duration="734000" />
       <workItem from="1729567846841" duration="6723000" />
+      <workItem from="1729600582239" duration="76000" />
     </task>
     <task id="LOCAL-00001" summary="Unversioned Files">
       <option name="closed" value="true" />
