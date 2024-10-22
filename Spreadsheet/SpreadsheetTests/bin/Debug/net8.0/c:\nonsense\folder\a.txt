@@ -1,7 +1,0 @@
-{
-  "Cells": {
-    "A1": {
-      "StringForm": "hello!"
-    }
-  }
-}
