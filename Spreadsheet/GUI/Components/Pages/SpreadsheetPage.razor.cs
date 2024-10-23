@@ -62,7 +62,6 @@ public partial class SpreadsheetPage
     private void CellClicked(int row, int col)
     {
         _selectedCell = GetCellName(row, col);
-        Console.WriteLine(_selectedCell);
     }
     
     /// <summary>

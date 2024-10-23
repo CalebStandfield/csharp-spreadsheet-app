@@ -8,20 +8,13 @@
 
 <PageTitle>Spreadsheet</PageTitle>
 
-<span>
-    <input class="btn btn-primary" @onclick="SaveFile">Save>
-    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
-</span>
+<textarea class="no-resize" rows="1" wrap="hard" readonly>Cell: @_selectedCell</textarea>
+<textarea class="no-resize" rows="1" wrap="hard" readonly>Contents:</textarea>
+<input/> 
 
-<span>
-    <button class="btn btn-primary" @onclick="SaveFile">Save</button>
-    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
-</span>
 
-<span>
-    <button class="btn btn-primary" @onclick="SaveFile">Save</button>
-    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
-</span>
+<br/>
+<br/>
 
 <div>
     <div class="table-container">
@@ -59,6 +52,13 @@
     </div>
 </div>
 
+<br/>
+
+<span>
+    <button class="btn btn-primary" @onclick="SaveFile">Save</button>
+    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
+</span>
+
 <style>
     .spreadcell {
         width: 150px;
@@ -88,6 +88,12 @@
         width: 1000px;
         height: 500px;
         margin: -1px;
+    }
+</style>
+
+<style>
+    .no-resize {
+        resize: none;
     }
 </style>
 
