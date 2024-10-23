@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 /// <summary>
 ///   <para>
-///     
+///     TODO:
 ///   </para>
 /// </summary>
 public partial class SpreadsheetPage
@@ -26,6 +26,14 @@ public partial class SpreadsheetPage
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
     private const int Cols = 26;
+    
+    /// <summary>
+    ///   <para>
+    ///     The current selected cell of the spreadsheet.
+    ///     Default value of "A1".
+    ///   </para>
+    /// </summary>
+    private string _selectedCell = "A1";
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -53,8 +61,21 @@ public partial class SpreadsheetPage
     /// <param name="col">The column component of the cell's coordinates</param>
     private void CellClicked(int row, int col)
     {
+        _selectedCell = GetCellName(row, col);
+        Console.WriteLine(_selectedCell);
     }
-
+    
+    /// <summary>
+    ///   <para>
+    ///     TODO:
+    ///   </para>
+    /// </summary>
+    /// <param name="row">The row component of the cell's coordinates</param>
+    /// <param name="col">The column component of the cell's coordinates</param>
+    private string GetCellName(int row, int col)
+    {
+        return Alphabet[col].ToString() + (row + 1);
+    }
 
     /// <summary>
     /// Saves the current spreadsheet, by providing a download of a file
