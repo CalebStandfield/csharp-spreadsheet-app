@@ -38,7 +38,7 @@ public partial class SpreadsheetPage
 
 
     /// <summary>
-    ///   <para> Gets or sets the data for all of the cells in the spreadsheet GUI. </para>
+    ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
