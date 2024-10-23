@@ -21,7 +21,7 @@
                 <thead>
                     <tr class="fixed-header">
                         <th scope="col">&nbsp;</th>
-                        @for ( int col = 0; col < COLS; col++ )
+                        @for ( int col = 0; col < Cols; col++ )
                         {
                             <th scope="col">@Alphabet[col]</th>
                         }
@@ -29,11 +29,11 @@
                 </thead>
 
                 <tbody>
-                    @for ( int row = 0; row < ROWS; row++ )
+                    @for ( int row = 0; row < Rows; row++ )
                     {
                         <tr style="padding:0px !important;">
                             <th style="padding:0px !important;" scope="row" class="fixed-column">@(row + 1)</th>
-                            @for ( var col = 0; col < COLS; col++ )
+                            @for ( var col = 0; col < Cols; col++ )
                             {
                                 var r = row;
                                 var c = col;

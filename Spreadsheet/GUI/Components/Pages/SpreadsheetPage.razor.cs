@@ -18,12 +18,12 @@ public partial class SpreadsheetPage
     /// <summary>
     /// Based on your computer, you could shrink/grow this value based on performance.
     /// </summary>
-    private const int ROWS = 50;
+    private const int Rows = 50;
 
     /// <summary>
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
-    private const int COLS = 26;
+    private const int Cols = 26;
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -41,7 +41,7 @@ public partial class SpreadsheetPage
     ///   <para> Gets or sets the data for all of the cells in the spreadsheet GUI. </para>
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
-    private string[,] CellsBackingStore { get; set; } = new string[ROWS, COLS];
+    private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
 
 
     /// <summary>
@@ -75,27 +75,25 @@ public partial class SpreadsheetPage
     {
         try
         {
-            string fileContent = string.Empty;
+            var fileContent = string.Empty;
 
-            InputFileChangeEventArgs eventArgs = args as InputFileChangeEventArgs ?? throw new Exception("unable to get file name");
-            if ( eventArgs.FileCount == 1 )
+            var eventArgs = args as InputFileChangeEventArgs ?? throw new Exception("unable to get file name");
+            if (eventArgs.FileCount != 1) return;
+            var file = eventArgs.File;
+            if ( file is null )
             {
-                var file = eventArgs.File;
-                if ( file is null )
-                {
-                    return;
-                }
-
-                using var stream = file.OpenReadStream();
-                using var reader = new StreamReader(stream);
-
-                // fileContent will contain the contents of the loaded file
-                fileContent = await reader.ReadToEndAsync();
-
-                // TODO: Use the loaded fileContent to replace the current spreadsheet
-
-                StateHasChanged();
+                return;
             }
+
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream);
+
+            // fileContent will contain the contents of the loaded file
+            fileContent = await reader.ReadToEndAsync();
+
+            // TODO: Use the loaded fileContent to replace the current spreadsheet
+
+            StateHasChanged();
         }
         catch ( Exception e )
         {
