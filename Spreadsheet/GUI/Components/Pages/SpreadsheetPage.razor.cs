@@ -51,9 +51,8 @@ public partial class SpreadsheetPage
     /// </summary>
     /// <param name="row">The row component of the cell's coordinates</param>
     /// <param name="col">The column component of the cell's coordinates</param>
-    private void CellClicked( int row, int col )
+    private void CellClicked(int row, int col)
     {
-
     }
 
 
@@ -63,8 +62,8 @@ public partial class SpreadsheetPage
     /// </summary>
     private async void SaveFile()
     {
-        await JSRuntime.InvokeVoidAsync( "downloadFile", FileSaveName, 
-            "replace this with the json representation of the current spreadsheet" );
+        await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName,
+            "replace this with the json representation of the current spreadsheet");
     }
 
     /// <summary>
@@ -73,7 +72,7 @@ public partial class SpreadsheetPage
     /// replaces the current sheet with the loaded one.
     /// </summary>
     /// <param name="args">The event arguments, which contains the selected file name</param>
-    private async void HandleFileChooser( EventArgs args )
+    private async void HandleFileChooser(EventArgs args)
     {
         try
         {
@@ -82,7 +81,7 @@ public partial class SpreadsheetPage
             var eventArgs = args as InputFileChangeEventArgs ?? throw new Exception("unable to get file name");
             if (eventArgs.FileCount != 1) return;
             var file = eventArgs.File;
-            if ( file is null )
+            if (file is null)
             {
                 return;
             }
@@ -97,10 +96,9 @@ public partial class SpreadsheetPage
 
             StateHasChanged();
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
-            Debug.WriteLine( "an error occurred while loading the file..." + e );
+            Debug.WriteLine("an error occurred while loading the file..." + e);
         }
     }
-
 }

@@ -11,7 +11,7 @@
 
 <span>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
-    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser" />
+    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
 </span>
 
 <div>
@@ -19,31 +19,31 @@
         <div class="scrollable">
             <table class="table table-bordered">
                 <thead>
-                    <tr class="fixed-header">
-                        <th scope="col">&nbsp;</th>
-                        @for ( int col = 0; col < Cols; col++ )
-                        {
-                            <th scope="col">@Alphabet[col]</th>
-                        }
-                    </tr>
+                <tr class="fixed-header">
+                    <th scope="col">&nbsp;</th>
+                    @for (int col = 0; col < Cols; col++)
+                    {
+                        <th scope="col">@Alphabet[col]</th>
+                    }
+                </tr>
                 </thead>
 
                 <tbody>
-                    @for ( int row = 0; row < Rows; row++ )
-                    {
-                        <tr style="padding:0px !important;">
-                            <th style="padding:0px !important;" scope="row" class="fixed-column">@(row + 1)</th>
-                            @for ( var col = 0; col < Cols; col++ )
-                            {
-                                var r = row;
-                                var c = col;
+                @for (int row = 0; row < Rows; row++)
+                {
+                    <tr style="padding:0px !important;">
+                        <th style="padding:0px !important;" scope="row" class="fixed-column">@(row + 1)</th>
+                        @for (var col = 0; col < Cols; col++)
+                        {
+                            var r = row;
+                            var c = col;
 
-                                <td @onclick="() => CellClicked(r,c)" style="padding:0px !important;">
-                                    <p class="spreadcell"> @CellsBackingStore[r, c]  </p>
-                                </td>
-                            }
-                        </tr>
-                    }
+                            <td @onclick="() => CellClicked(r, c)" style="padding:0px !important;">
+                                <p class="spreadcell"> @CellsBackingStore[r, c] </p>
+                            </td>
+                        }
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>
