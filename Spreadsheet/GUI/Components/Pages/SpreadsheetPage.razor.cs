@@ -99,15 +99,16 @@ public partial class SpreadsheetPage
     /// </summary>
     /// <param name="row">The row component of the cell's coordinates</param>
     /// <param name="col">The column component of the cell's coordinates</param>
-    private void CellClicked(int row, int col)
+    private async void CellClicked(int row, int col)
     {
         _selectedCell = GetCellName(row, col);
         _selectedCellCoords = [row, col];
         _selectedCellValue = ValueOfCell(_selectedCell);
         _selectedCellInput = ContentsOfCell(_selectedCell);
+        await SelectElement();
     }
 
-    private async void SelectElement()
+    private async Task SelectElement()
     {
         await _inputElement.FocusAsync();
     }
