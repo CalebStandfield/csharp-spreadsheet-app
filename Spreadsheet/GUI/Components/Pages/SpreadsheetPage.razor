@@ -14,8 +14,8 @@
 </div>
 
 <div class="input-row">
-    <textarea class="input-label" readonly>Input --></textarea>
-    <input class="input-field" @oninput="ChangeCellContents" value="@_selectedCellInput"/>
+    <span class="input-label" readonly>Input --></span>
+    <input class="input-field" @onchange="AddToStack" @oninput = "ChangeCellContents" value="@_selectedCellInput"/>
 </div>
 
 <br/>
@@ -133,6 +133,7 @@
     }
 
     .input-label {
+        text-align: center;
         resize: none;
         width: 85px;
         height: 30px;

@@ -87,6 +87,7 @@ public partial class SpreadsheetPage
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
+    
 
 
     /// <summary>
@@ -97,13 +98,9 @@ public partial class SpreadsheetPage
     private void CellClicked(int row, int col)
     {
         _selectedCell = GetCellName(row, col);
-        _selectedCellCoords= [row, col];
+        _selectedCellCoords = [row, col];
         _selectedCellValue = ValueOfCell(_selectedCell);
         _selectedCellInput = ContentsOfCell(_selectedCell);
-        Console.WriteLine($"Selected Cell: {_selectedCell}");
-        Console.WriteLine($"Selected Cell: {_selectedCellCoords}");
-        Console.WriteLine($"Selected Cell: {_selectedCellValue}");
-        Console.WriteLine($"Selected Cell: {_selectedCellInput}");
     }
 
     /// <summary>
@@ -146,6 +143,11 @@ public partial class SpreadsheetPage
         ChangeCellContents(contents, _selectedCell);
         _selectedCellInput = contents;
         _selectedCellValue = ValueOfCell(_selectedCell);
+    }
+
+    private void AddToStack(ChangeEventArgs args)
+    {
+        
     }
 
     /// <summary>
@@ -200,7 +202,9 @@ public partial class SpreadsheetPage
         return [num-1, Array.IndexOf(Alphabet, cell[0])];
     }
 
-    /// <summary>
+    #region SaveClearLoad
+
+     /// <summary>
     /// Saves the current spreadsheet, by providing a download of a file
     /// containing the json representation of the spreadsheet.
     /// </summary>
@@ -269,4 +273,8 @@ public partial class SpreadsheetPage
             Debug.WriteLine("an error occurred while loading the file..." + e);
         }
     }
+
+    #endregion
+    
+    
 }
