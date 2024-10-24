@@ -8,14 +8,24 @@
 
 <PageTitle>Spreadsheet</PageTitle>
 
-<div class="line-style">
-    <textarea class="cell-field" readonly>Cell: @_selectedCell</textarea>
-    <textarea class="value-field" readonly>Value: @_selectedCellValue</textarea>
+<div class = "left-right">
+    <!-- Left side (Text areas) -->
+    <div class="line-style">
+        <textarea class = "cell-field" readonly>Cell: @_selectedCell</textarea>
+        <textarea class = "value-field" readonly>Value: @_selectedCellValue</textarea>
+    </div>
+
+    <!-- Right side (Buttons) -->
+    <div class="button-group">
+        <button @onclick = "Undo">Back</button>
+        <button @onclick = "Redo">Forward</button>
+        <button @onclick = "ClearSpreadsheet">Clear</button>
+    </div>
 </div>
 
 <div class="input-row">
-    <span class="input-label" readonly>Input --></span>
-    <input class="input-field" @onchange="AddToStack" @oninput = "ChangeCellContents" value="@_selectedCellInput"/>
+    <span class = "input-label" readonly>Input --></span>
+    <input class = "input-field" @onchange = "AddToStack" @oninput = "ChangeCellContents" value = "@_selectedCellInput"  @ref = "_inputElement"/>
 </div>
 
 <br/>
@@ -62,7 +72,6 @@
 <span>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
     <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
-    <button class="btn btn-primary" @onclick="ClearSpreadsheet">Clear</button>
 </span>
 
 <style>
@@ -101,11 +110,6 @@
         width: 1000px;
         height: 500px;
         margin: -1px;
-    }
-
-    .line-style {
-        display: flex;
-        gap: 10px;
     }
 
     .input-row {
@@ -149,8 +153,30 @@
         box-sizing: border-box;
         overflow: hidden;
     }
-</style>
+    
+    .left-right {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0 10px;
+        box-sizing: border-box;
+        }
 
+    .line-style {
+        display: flex;
+        flex: 1;
+        gap: 10px;
+        justify-content: flex-start;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
+</style>
 
 <script type="text/javascript">
     function focusElement(id) {

@@ -30,14 +30,14 @@ public partial class SpreadsheetPage
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
     private const int Cols = 26;
-    
+
     /// <summary>
     ///   <para>
     ///     The backing spreadsheet for the spreadsheet gui
     ///   </para>
     /// </summary>
     private Spreadsheet _spreadsheet = new();
-    
+
     /// <summary>
     ///   <para>
     ///     The current selected cell of the spreadsheet.
@@ -45,14 +45,14 @@ public partial class SpreadsheetPage
     ///   </para>
     /// </summary>
     private string _selectedCell = "A1";
-    
+
     /// <summary>
     ///   <para>
     ///     The current selected cell of the spreadsheet as a duo of numbers.
     ///     Default value of [0,0].
     ///   </para>
     /// </summary>
-    private int[] _selectedCellCoords = [0,0];
+    private int[] _selectedCellCoords = [0, 0];
 
     /// <summary>
     ///   <para>
@@ -61,7 +61,7 @@ public partial class SpreadsheetPage
     ///   </para>
     /// </summary>
     private string _selectedCellValue = string.Empty;
-    
+
     /// <summary>
     ///   <para>
     ///     The current inputted string of the selected cell of the spreadsheet.
@@ -70,6 +70,8 @@ public partial class SpreadsheetPage
     /// </summary>
     private string _selectedCellInput = string.Empty;
     
+    private ElementReference _inputElement;
+
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
     /// </summary>
@@ -87,8 +89,10 @@ public partial class SpreadsheetPage
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
-    
 
+    private Stack<CellInfoChanged> _back = new();
+
+    private Stack<CellInfoChanged> _forward = new();
 
     /// <summary>
     /// Handler for when a cell is clicked
@@ -103,6 +107,11 @@ public partial class SpreadsheetPage
         _selectedCellInput = ContentsOfCell(_selectedCell);
     }
 
+    private async void SelectElement()
+    {
+        await _inputElement.FocusAsync();
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -115,6 +124,7 @@ public partial class SpreadsheetPage
         {
             return "=" + contents;
         }
+
         return contents.ToString() ?? string.Empty;
     }
 
@@ -130,6 +140,7 @@ public partial class SpreadsheetPage
         {
             return error.Reason;
         }
+
         return value.ToString() ?? string.Empty;
     }
 
@@ -147,7 +158,6 @@ public partial class SpreadsheetPage
 
     private void AddToStack(ChangeEventArgs args)
     {
-        
     }
 
     /// <summary>
@@ -177,7 +187,7 @@ public partial class SpreadsheetPage
         //TODO:
         return;
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Get the name of the clicked cell.
@@ -189,7 +199,7 @@ public partial class SpreadsheetPage
     {
         return Alphabet[col].ToString() + (row + 1);
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Get the coordinates of the clicked cell from name.
@@ -199,12 +209,12 @@ public partial class SpreadsheetPage
     private int[] GetCellCoord(string cell)
     {
         int.TryParse(cell[1..], out var num);
-        return [num-1, Array.IndexOf(Alphabet, cell[0])];
+        return [num - 1, Array.IndexOf(Alphabet, cell[0])];
     }
 
     #region SaveClearLoad
 
-     /// <summary>
+    /// <summary>
     /// Saves the current spreadsheet, by providing a download of a file
     /// containing the json representation of the spreadsheet.
     /// </summary>
@@ -231,7 +241,6 @@ public partial class SpreadsheetPage
         var nonemptyCells = _spreadsheet.GetNamesOfAllNonemptyCells();
         foreach (var cell in nonemptyCells)
         {
-            
             ChangeCellContents(ContentsOfCell(cell), cell);
         }
     }
@@ -276,7 +285,19 @@ public partial class SpreadsheetPage
 
     #endregion
 
-    private class CellInfoChanged
+    private class CellInfoChanged(string name, string input, string value)
+    {
+        public string Name = name;
+        public string Input = input;
+        public string Value = value;
+    }
+
+    private void Undo()
+    {
+        
+    }
+
+    private void Redo()
     {
         
     }
