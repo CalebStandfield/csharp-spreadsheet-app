@@ -105,10 +105,18 @@ public partial class SpreadsheetPage
         _selectedCellCoords = [row, col];
         _selectedCellValue = ValueOfCell(_selectedCell);
         _selectedCellInput = ContentsOfCell(_selectedCell);
-        await SelectElement();
+        
+        // Select input area
+        await SelectInput();
     }
 
-    private async Task SelectElement()
+    /// <summary>
+    ///   <para>
+    ///     Private method to be called for when clicking a new cell.
+    ///     This then selects the input area to allow for typing directly after selecting a cell.
+    ///   </para>
+    /// </summary>
+    private async Task SelectInput()
     {
         await _inputElement.FocusAsync();
     }
