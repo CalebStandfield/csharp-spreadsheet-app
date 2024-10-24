@@ -8,9 +8,9 @@
 
 <PageTitle>Spreadsheet</PageTitle>
 
-<textarea class="no-resize" rows="1" wrap="hard" readonly>Cell: @_selectedCell</textarea>
-<textarea class="no-resize" rows="1" wrap="hard" readonly>Contents:</textarea>
-<input/> 
+<textarea class="no-resize" rows="1" readonly>Cell: @_selectedCell</textarea>
+<textarea class="no-resize" rows="1" readonly>Value: @_selectedCellValue</textarea>
+<input name="contentInput" @oninput="ChangeCellContents"/>
 
 
 <br/>

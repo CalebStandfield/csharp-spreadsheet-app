@@ -45,6 +45,14 @@ public partial class SpreadsheetPage
     private string _selectedCell = "A1";
 
     /// <summary>
+    ///   <para>
+    ///     The current value of the selected cell of the spreadsheet.
+    ///     Default value of an empty string.
+    ///   </para>
+    /// </summary>
+    private string _selectedCellValue = string.Empty;
+    
+    /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
     /// </summary>
     private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
@@ -71,6 +79,26 @@ public partial class SpreadsheetPage
     private void CellClicked(int row, int col)
     {
         _selectedCell = GetCellName(row, col);
+        _selectedCellValue = _spreadsheet.GetCellValue(_selectedCell).ToString() ?? string.Empty;
+    }
+
+    private void ChangeCellContents(ChangeEventArgs args)
+    {
+        var content = args.Value.ToString() ?? string.Empty;
+        try
+        {
+            _spreadsheet.SetContentsOfCell(_selectedCell, content);
+        }
+        catch (Exception e)
+        {
+            ErrorMessage(e.Message);
+        }
+    }
+
+    private void ErrorMessage(string message)
+    {
+        //TODO:
+        return;
     }
     
     /// <summary>
