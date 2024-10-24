@@ -100,8 +100,17 @@ public partial class SpreadsheetPage
         _selectedCellCoords= [row, col];
         _selectedCellValue = ValueOfCell(_selectedCell);
         _selectedCellInput = ContentsOfCell(_selectedCell);
+        Console.WriteLine($"Selected Cell: {_selectedCell}");
+        Console.WriteLine($"Selected Cell: {_selectedCellCoords}");
+        Console.WriteLine($"Selected Cell: {_selectedCellValue}");
+        Console.WriteLine($"Selected Cell: {_selectedCellInput}");
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     private string ContentsOfCell(string input)
     {
         var contents = _spreadsheet.GetCellContents(input);
@@ -112,6 +121,11 @@ public partial class SpreadsheetPage
         return contents.ToString() ?? string.Empty;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="cell"></param>
+    /// <returns></returns>
     private string ValueOfCell(string cell)
     {
         var value = _spreadsheet.GetCellValue(cell);
@@ -122,16 +136,28 @@ public partial class SpreadsheetPage
         return value.ToString() ?? string.Empty;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="args"></param>
     private void ChangeCellContents(ChangeEventArgs args)
     {
-        ChangeCellContents(args.Value!.ToString() ?? string.Empty);
+        var contents = args.Value!.ToString() ?? string.Empty;
+        ChangeCellContents(contents, _selectedCell);
+        _selectedCellInput = contents;
+        _selectedCellValue = ValueOfCell(_selectedCell);
     }
 
-    private void ChangeCellContents(string content)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="name"></param>
+    private void ChangeCellContents(string content, string name)
     {
         try
         {
-            var list = _spreadsheet.SetContentsOfCell(_selectedCell, content);
+            var list = _spreadsheet.SetContentsOfCell(name, content);
             foreach (var cell in list)
             {
                 var coords = GetCellCoord(cell);
@@ -141,11 +167,7 @@ public partial class SpreadsheetPage
         catch (Exception e)
         {
             ErrorMessage(e.Message);
-            return;
         }
-        
-        _selectedCellValue = ValueOfCell(_selectedCell);
-        CellsBackingStore[_selectedCellCoords[0], _selectedCellCoords[1]] = _selectedCellValue;
     }
 
     private void ErrorMessage(string message)
@@ -188,12 +210,23 @@ public partial class SpreadsheetPage
             "replace this with the json representation of the current spreadsheet");
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     private void ClearSpreadsheet()
     {
-        var cellsToClear = _spreadsheet.GetNamesOfAllNonemptyCells();
-        foreach (var cell in cellsToClear)
+        CellsBackingStore = new string[Rows, Cols];
+        _spreadsheet = new Spreadsheet();
+        CellClicked(0, 0);
+    }
+
+    private void LoadFromSpreadsheet()
+    {
+        var nonemptyCells = _spreadsheet.GetNamesOfAllNonemptyCells();
+        foreach (var cell in nonemptyCells)
         {
-            //_spreadsheet.SetContentsOfCell();
+            
+            ChangeCellContents(ContentsOfCell(cell), cell);
         }
     }
 
@@ -223,8 +256,10 @@ public partial class SpreadsheetPage
             // fileContent will contain the contents of the loaded file
             fileContent = await reader.ReadToEndAsync();
 
-            // TODO: Use the loaded fileContent to replace the current spreadsheet
-
+            // Clear First
+            ClearSpreadsheet();
+            _spreadsheet = new Spreadsheet(fileContent);
+            LoadFromSpreadsheet();
             StateHasChanged();
         }
         catch (Exception e)
