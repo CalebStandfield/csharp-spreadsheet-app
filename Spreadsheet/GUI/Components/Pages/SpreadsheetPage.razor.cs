@@ -170,9 +170,14 @@ public partial class SpreadsheetPage
         _selectedCellInput = contents;
         _selectedCellValue = ValueOfCell(_selectedCell);
     }
-
-    private void AddToStack(ChangeEventArgs args)
+    
+    private void UpdateUiWithoutCalculation(ChangeEventArgs args)
     {
+        var contents = args.Value!.ToString() ?? string.Empty;
+        _selectedCellInput = contents;
+        var coords = GetCellCoord(_selectedCell);
+        CellsBackingStore[coords[0], coords[1]] = contents;
+        
     }
 
     /// <summary>

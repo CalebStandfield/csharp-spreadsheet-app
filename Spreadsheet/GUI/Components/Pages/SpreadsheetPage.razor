@@ -25,7 +25,7 @@
 
 <div class="input-row">
     <span class = "input-label" readonly>Input --></span>
-    <input class = "input-field" @onchange = "AddToStack" @oninput = "ChangeCellContents" value = "@_selectedCellInput"  @ref = "_inputElement"/>
+    <input class = "input-field" @onchange = "ChangeCellContents" @oninput = "UpdateUiWithoutCalculation" value = "@_selectedCellInput"  @ref = "_inputElement"/>
 </div>
 
 <br/>
