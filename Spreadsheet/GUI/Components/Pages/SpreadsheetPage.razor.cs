@@ -2,6 +2,8 @@
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
+using CS3500.Spreadsheet;
+
 namespace GUI.Client.Pages;
 
 using Microsoft.AspNetCore.Components.Forms;
@@ -12,7 +14,7 @@ using System.Diagnostics;
 
 /// <summary>
 ///   <para>
-///     TODO:
+///     This class is the controller between the backend and front end of the spreadsheet
 ///   </para>
 /// </summary>
 public partial class SpreadsheetPage
@@ -26,6 +28,13 @@ public partial class SpreadsheetPage
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
     private const int Cols = 26;
+    
+    /// <summary>
+    ///   <para>
+    ///     The backing spreadsheet for the spreadsheet gui
+    ///   </para>
+    /// </summary>
+    private Spreadsheet _spreadsheet = new();
     
     /// <summary>
     ///   <para>
@@ -66,7 +75,7 @@ public partial class SpreadsheetPage
     
     /// <summary>
     ///   <para>
-    ///     TODO:
+    ///     Get the name of the clicked cell.
     ///   </para>
     /// </summary>
     /// <param name="row">The row component of the cell's coordinates</param>
