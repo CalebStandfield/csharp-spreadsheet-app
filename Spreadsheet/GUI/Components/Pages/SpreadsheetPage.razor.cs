@@ -206,8 +206,7 @@ public partial class SpreadsheetPage
     /// </summary>
     private async void SaveFile()
     {
-        await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName,
-            "replace this with the json representation of the current spreadsheet");
+        await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName, _spreadsheet.JsonString());
     }
 
     /// <summary>
@@ -220,6 +219,9 @@ public partial class SpreadsheetPage
         CellClicked(0, 0);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     private void LoadFromSpreadsheet()
     {
         var nonemptyCells = _spreadsheet.GetNamesOfAllNonemptyCells();
@@ -258,7 +260,7 @@ public partial class SpreadsheetPage
 
             // Clear First
             ClearSpreadsheet();
-            _spreadsheet = new Spreadsheet(fileContent);
+            _spreadsheet.CreateSpreadSheet(fileContent);
             LoadFromSpreadsheet();
             StateHasChanged();
         }
