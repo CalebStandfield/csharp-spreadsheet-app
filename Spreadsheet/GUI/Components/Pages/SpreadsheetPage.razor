@@ -65,7 +65,7 @@
             </table>
         </div>
     </div>
-    @if (ShowPopup)
+    @if (_showPopup)
     {
     <div class="modal">
         <div class="modal-content">
@@ -80,6 +80,7 @@
 
 <span>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
+    <input class = "Save as:" @onchange = "SaveFileAs" enterkeyhint="_.sprd"/>
     <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
 </span>
 

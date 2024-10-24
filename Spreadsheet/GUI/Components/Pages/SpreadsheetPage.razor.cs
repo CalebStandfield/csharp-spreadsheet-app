@@ -56,37 +56,46 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     The current value of the selected cell of the spreadsheet.
-    ///     Default value of an empty string.
-    ///   </para>
-    /// </summary>
-    private string _selectedCellValue = string.Empty;
-
-    /// <summary>
-    ///   <para>
     ///     The current inputted string of the selected cell of the spreadsheet.
     ///     Default value of an empty string.
     ///   </para>
     /// </summary>
     private string _selectedCellInput = string.Empty;
     
-    private ElementReference _inputElement;
+    /// <summary>
+    ///   <para>
+    ///     The current value of the selected cell of the spreadsheet.
+    ///     Default value of an empty string.
+    ///   </para>
+    /// </summary>
+    private string _selectedCellValue = string.Empty;
     
-    private string _exceptionMessage = string.Empty;
-    private bool ShowPopup = false;
+    /// <summary>
+    ///   <para>
+    ///     The current inputted string of the selected cell of the spreadsheet.
+    ///     Default value of an empty string.
+    ///   </para>
+    /// </summary>
+    private string _oldCellInput = string.Empty;
+    
+    /// <summary>
+    ///   <para>
+    ///     The current value of the selected cell of the spreadsheet.
+    ///     Default value of an empty string.
+    ///   </para>
+    /// </summary>
+    private string _oldCellValue = string.Empty;
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
     /// </summary>
     private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-
-
+    
     /// <summary>
     ///   Gets or sets the name of the file to be saved
     /// </summary>
     private string FileSaveName { get; set; } = "Spreadsheet.sprd";
-
-
+    
     /// <summary>
     ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
     ///   <remarks>Backing Store for HTML</remarks>
@@ -97,6 +106,12 @@ public partial class SpreadsheetPage
 
     private Stack<CellInfoChanged> _forward = new();
 
+    private ElementReference _inputElement;
+    
+    private string _exceptionMessage = string.Empty;
+    
+    private bool _showPopup = false;
+    
     /// <summary>
     /// Handler for when a cell is clicked
     /// </summary>
@@ -104,14 +119,13 @@ public partial class SpreadsheetPage
     /// <param name="col">The column component of the cell's coordinates</param>
     private async void CellClicked(int row, int col)
     {
+        
         _selectedCell = GetCellName(row, col);
         _selectedCellCoords = [row, col];
         _selectedCellInput = ContentsOfCell(_selectedCell);
         _selectedCellValue = ValueOfCell(_selectedCell);
-        Console.WriteLine($"Selected cell: {_selectedCell}");
-        Console.WriteLine($"Selected cell coords: {_selectedCellCoords}");
-        Console.WriteLine($"Selected cell input: {_selectedCellInput}");
-        Console.WriteLine($"Selected cell value: {_selectedCellValue}");
+        _oldCellInput = _selectedCellInput;
+        _oldCellValue = _selectedCellValue;
         // Select input area
         await SelectInput();
     }
@@ -160,7 +174,11 @@ public partial class SpreadsheetPage
     }
 
     /// <summary>
-    /// 
+    ///   <para>
+    ///     Changes the contents of the cell selected in the UI.
+    ///     This Method only triggers once the user presses enter or clicks away from the cell.
+    ///     Once the user has done this a value will be calculated and any possible exceptions will be thrown.
+    ///   </para>
     /// </summary>
     /// <param name="args"></param>
     private void ChangeCellContents(ChangeEventArgs args)
@@ -169,13 +187,30 @@ public partial class SpreadsheetPage
         ChangeCellContents(contents, _selectedCell);
         _selectedCellInput = contents;
         _selectedCellValue = ValueOfCell(_selectedCell);
+        _back.Push(new CellInfoChanged(_selectedCell, _oldCellInput, _oldCellValue));
+        _forward.Clear();
     }
     
+    /// <summary>
+    ///   <para>
+    ///     Updates the Ui of the spreadsheet without actually calculating the values.
+    ///     This then allows for the display to be updates when writing a formula but without,
+    ///     the formula throwing many exceptions, as when writing a formula many rules are broken
+    ///     before finishing a valid formula.
+    ///   </para>
+    ///   <para>
+    ///     The values and contents of the spreadsheet will be immediately calculated correctly
+    ///     once the user presses enter or clicks away from the cell (as this calls ChangeCellContents), thus overriding any partially incorrect
+    ///     data that this method might temporarily place into the spreadsheet
+    ///   </para>
+    /// </summary>
+    /// <param name="args"></param>
     private void UpdateUiWithoutCalculation(ChangeEventArgs args)
     {
         var contents = args.Value!.ToString() ?? string.Empty;
         _selectedCellInput = contents;
         var coords = GetCellCoord(_selectedCell);
+        _selectedCellValue = contents;
         CellsBackingStore[coords[0], coords[1]] = contents;
         
     }
@@ -196,15 +231,12 @@ public partial class SpreadsheetPage
                 CellsBackingStore[coords[0], coords[1]] = ValueOfCell(cell);
             }
         }
-        catch (FormulaFormatException e)
+        catch (Exception e)
         {
+            var coords = GetCellCoord(_selectedCell);
+            _spreadsheet.SetContentsOfCell(name, _oldCellInput);
+            CellsBackingStore[coords[0], coords[1]] = _oldCellValue;
             HandleException(e);
-            Console.WriteLine(e.Message);
-        }
-        catch (CircularException e)
-        {
-            HandleException(e);
-            Console.WriteLine(e.Message);
         }
     }
     
@@ -212,14 +244,14 @@ public partial class SpreadsheetPage
     private void HandleException(Exception e)
     {
         _exceptionMessage = e.Message;
-        ShowPopup = true;
+        _showPopup = true;
         StateHasChanged();
     }
 
     // Close the popup
     private void ClosePopup()
     {
-        ShowPopup = false;
+        _showPopup = false;
     }
 
     /// <summary>
@@ -257,6 +289,11 @@ public partial class SpreadsheetPage
         await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName, _spreadsheet.JsonString());
     }
 
+    private void SaveFileAs(ChangeEventArgs args)
+    {
+        FileSaveName = (args.Value ?? "spreadsheet") + ".sprd";
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -264,6 +301,8 @@ public partial class SpreadsheetPage
     {
         CellsBackingStore = new string[Rows, Cols];
         _spreadsheet = new Spreadsheet();
+        _back.Clear();
+        _forward.Clear();
         CellClicked(0, 0);
     }
 
@@ -319,19 +358,38 @@ public partial class SpreadsheetPage
 
     #endregion
 
-    private class CellInfoChanged(string name, string input)
+    private class CellInfoChanged(string name, string input, string value)
     {
         public string Name = name;
         public string Input = input;
+        public string Value = value;
     }
 
     private void Undo()
     {
-        
+        UpdateStack(_back, _forward);
     }
 
     private void Redo()
     {
-        
+        UpdateStack(_forward, _back);
+    }
+
+    private void UpdateStack(Stack<CellInfoChanged> changes, Stack<CellInfoChanged> reverseChanges)
+    {
+        CellInfoChanged change;
+        try
+        {
+            change = changes.Pop();
+        }        
+        catch (Exception e)
+        {
+            return;
+        }
+        reverseChanges.Push(new CellInfoChanged(change.Name, ContentsOfCell(change.Name), ValueOfCell(change.Name)));
+        _selectedCell = change.Name;
+        _selectedCellInput = change.Input;
+        _selectedCellValue = change.Value;
+        ChangeCellContents(change.Input, change.Name);  
     }
 }
