@@ -11,7 +11,7 @@
 <div class="input-container">
     <textarea class="no-resize" rows="1" readonly>Cell: @_selectedCell</textarea>
     <textarea class="no-resize" rows="1" readonly>Value: @_selectedCellValue</textarea>
-    <input name="contentInput" @oninput="ChangeCellContents" class="input-field"/>
+    <input class="input-field" @oninput="ChangeCellContents" value = "@_selectedCellInput"/>
 </div>
 
 <br/>

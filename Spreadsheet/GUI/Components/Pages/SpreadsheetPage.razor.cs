@@ -2,7 +2,9 @@
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
+using CS3500.Formula;
 using CS3500.Spreadsheet;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GUI.Client.Pages;
 
@@ -43,6 +45,14 @@ public partial class SpreadsheetPage
     ///   </para>
     /// </summary>
     private string _selectedCell = "A1";
+    
+    /// <summary>
+    ///   <para>
+    ///     The current selected cell of the spreadsheet as a duo of numbers.
+    ///     Default value of [0,0].
+    ///   </para>
+    /// </summary>
+    private int[] _selectedCellCoords = [0,0];
 
     /// <summary>
     ///   <para>
@@ -51,6 +61,14 @@ public partial class SpreadsheetPage
     ///   </para>
     /// </summary>
     private string _selectedCellValue = string.Empty;
+    
+    /// <summary>
+    ///   <para>
+    ///     The current inputted string of the selected cell of the spreadsheet.
+    ///     Default value of an empty string.
+    ///   </para>
+    /// </summary>
+    private string _selectedCellInput = string.Empty;
     
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -79,7 +97,29 @@ public partial class SpreadsheetPage
     private void CellClicked(int row, int col)
     {
         _selectedCell = GetCellName(row, col);
-        _selectedCellValue = _spreadsheet.GetCellValue(_selectedCell).ToString() ?? string.Empty;
+        _selectedCellCoords= [row, col];
+        _selectedCellValue = ValueOfCell(_selectedCell);
+        _selectedCellInput = ContentsOfCell(_selectedCell);
+    }
+
+    private string ContentsOfCell(string input)
+    {
+        object contents = _spreadsheet.GetCellContents(input);
+        if (contents is Formula)
+        {
+            return "=" + contents;
+        }
+        return contents.ToString() ?? string.Empty;
+    }
+
+    private string ValueOfCell(string cell)
+    {
+        var value = _spreadsheet.GetCellValue(cell);
+        if (value is FormulaError)
+        {
+            return ((FormulaError)value).Reason;
+        }
+        return value.ToString() ?? string.Empty;
     }
 
     private void ChangeCellContents(ChangeEventArgs args)
@@ -87,12 +127,21 @@ public partial class SpreadsheetPage
         var content = args.Value.ToString() ?? string.Empty;
         try
         {
-            _spreadsheet.SetContentsOfCell(_selectedCell, content);
+            var list = _spreadsheet.SetContentsOfCell(_selectedCell, content);
+            foreach (string cell in list)
+            {
+                int[] coords = GetCellCoord(cell);
+                CellsBackingStore[coords[0], coords[1]] = ValueOfCell(cell);
+            }
         }
         catch (Exception e)
         {
             ErrorMessage(e.Message);
+            return;
         }
+        
+        _selectedCellValue = ValueOfCell(_selectedCell);
+        CellsBackingStore[_selectedCellCoords[0], _selectedCellCoords[1]] = _selectedCellValue;
     }
 
     private void ErrorMessage(string message)
@@ -111,6 +160,18 @@ public partial class SpreadsheetPage
     private string GetCellName(int row, int col)
     {
         return Alphabet[col].ToString() + (row + 1);
+    }
+    
+    /// <summary>
+    ///   <para>
+    ///     Get the coordinates of the clicked cell from name.
+    ///   </para>
+    /// </summary>
+    /// <param name="cell">The name of the cell.</param>
+    private int[] GetCellCoord(string cell)
+    {
+        int.TryParse(cell[1..], out var num);
+        return [num-1, Array.IndexOf(Alphabet, cell[0])];
     }
 
     /// <summary>
