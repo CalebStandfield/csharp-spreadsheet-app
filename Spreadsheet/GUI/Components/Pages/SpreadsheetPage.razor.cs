@@ -71,6 +71,9 @@ public partial class SpreadsheetPage
     private string _selectedCellInput = string.Empty;
     
     private ElementReference _inputElement;
+    
+    private string _exceptionMessage = string.Empty;
+    private bool ShowPopup = false;
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -103,9 +106,12 @@ public partial class SpreadsheetPage
     {
         _selectedCell = GetCellName(row, col);
         _selectedCellCoords = [row, col];
-        _selectedCellValue = ValueOfCell(_selectedCell);
         _selectedCellInput = ContentsOfCell(_selectedCell);
-        
+        _selectedCellValue = ValueOfCell(_selectedCell);
+        Console.WriteLine($"Selected cell: {_selectedCell}");
+        Console.WriteLine($"Selected cell coords: {_selectedCellCoords}");
+        Console.WriteLine($"Selected cell input: {_selectedCellInput}");
+        Console.WriteLine($"Selected cell value: {_selectedCellValue}");
         // Select input area
         await SelectInput();
     }
@@ -185,16 +191,30 @@ public partial class SpreadsheetPage
                 CellsBackingStore[coords[0], coords[1]] = ValueOfCell(cell);
             }
         }
-        catch (Exception e)
+        catch (FormulaFormatException e)
         {
-            ErrorMessage(e.Message);
+            HandleException(e);
+            Console.WriteLine(e.Message);
+        }
+        catch (CircularException e)
+        {
+            HandleException(e);
+            Console.WriteLine(e.Message);
         }
     }
-
-    private void ErrorMessage(string message)
+    
+    // This method handles the exception and shows the popup
+    private void HandleException(Exception e)
     {
-        //TODO:
-        return;
+        _exceptionMessage = e.Message;
+        ShowPopup = true;
+        StateHasChanged();
+    }
+
+    // Close the popup
+    private void ClosePopup()
+    {
+        ShowPopup = false;
     }
 
     /// <summary>
@@ -294,11 +314,10 @@ public partial class SpreadsheetPage
 
     #endregion
 
-    private class CellInfoChanged(string name, string input, string value)
+    private class CellInfoChanged(string name, string input)
     {
         public string Name = name;
         public string Input = input;
-        public string Value = value;
     }
 
     private void Undo()

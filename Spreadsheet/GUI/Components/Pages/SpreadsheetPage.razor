@@ -40,7 +40,7 @@
                     <th scope="col">&nbsp;</th>
                     @for (var col = 0; col < Cols; col++)
                     {
-                    <th scope="col">@Alphabet[col]</th>
+                        <th scope="col">@Alphabet[col]</th>
                     }
                 </tr>
                 </thead>
@@ -48,23 +48,32 @@
                 <tbody>
                 @for (var row = 0; row < Rows; row++)
                 {
-                <tr style="padding:0 !important;">
-                    <th style="padding:0 !important;" scope="row" class="fixed-column">@(row + 1)</th>
-                    @for (var col = 0; col < Cols; col++)
-                    {
-                    var r = row;
-                    var c = col;
+                    <tr style="padding:0 !important;">
+                        <th style="padding:0 !important;" scope="row" class="fixed-column">@(row + 1)</th>
+                        @for (var col = 0; col < Cols; col++)
+                        {
+                            var r = row;
+                            var c = col;
 
-                    <td @onclick="() => CellClicked(r, c)" class="spreadsheet-cell">
-                        <p class="spreadcell"> @CellsBackingStore[r, c] </p>
-                    </td>
-                    }
-                </tr>
+                            <td @onclick="() => CellClicked(r, c)" class="spreadsheet-cell">
+                                <p class="spreadcell"> @CellsBackingStore[r, c] </p>
+                            </td>
+                        }
+                    </tr>
                 }
                 </tbody>
             </table>
         </div>
     </div>
+    @if (ShowPopup)
+    {
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close" @onclick="ClosePopup">&times;</span>
+            <p>@_exceptionMessage</p>
+        </div>
+    </div>
+    }
 </div>
 
 <br/>
@@ -175,6 +184,40 @@
         gap: 10px;
         justify-content: flex-end;
         flex-shrink: 0;
+    }
+
+    .modal {
+        display: block; /* Show modal */
+        position: fixed;
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto; /* Center vertically and horizontally */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%; /* Set width */
+        text-align: center;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
     }
 </style>
 
