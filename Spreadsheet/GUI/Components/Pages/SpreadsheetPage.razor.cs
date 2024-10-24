@@ -275,6 +275,9 @@ public partial class SpreadsheetPage
     }
 
     #endregion
-    
-    
+
+    private class CellInfoChanged
+    {
+        
+    }
 }
