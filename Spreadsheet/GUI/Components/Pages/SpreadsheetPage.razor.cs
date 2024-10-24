@@ -104,7 +104,7 @@ public partial class SpreadsheetPage
 
     private string ContentsOfCell(string input)
     {
-        object contents = _spreadsheet.GetCellContents(input);
+        var contents = _spreadsheet.GetCellContents(input);
         if (contents is Formula)
         {
             return "=" + contents;
@@ -115,22 +115,26 @@ public partial class SpreadsheetPage
     private string ValueOfCell(string cell)
     {
         var value = _spreadsheet.GetCellValue(cell);
-        if (value is FormulaError)
+        if (value is FormulaError error)
         {
-            return ((FormulaError)value).Reason;
+            return error.Reason;
         }
         return value.ToString() ?? string.Empty;
     }
 
     private void ChangeCellContents(ChangeEventArgs args)
     {
-        var content = args.Value.ToString() ?? string.Empty;
+        ChangeCellContents(args.Value!.ToString() ?? string.Empty);
+    }
+
+    private void ChangeCellContents(string content)
+    {
         try
         {
             var list = _spreadsheet.SetContentsOfCell(_selectedCell, content);
-            foreach (string cell in list)
+            foreach (var cell in list)
             {
-                int[] coords = GetCellCoord(cell);
+                var coords = GetCellCoord(cell);
                 CellsBackingStore[coords[0], coords[1]] = ValueOfCell(cell);
             }
         }
@@ -182,6 +186,15 @@ public partial class SpreadsheetPage
     {
         await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName,
             "replace this with the json representation of the current spreadsheet");
+    }
+
+    private void ClearSpreadsheet()
+    {
+        var cellsToClear = _spreadsheet.GetNamesOfAllNonemptyCells();
+        foreach (var cell in cellsToClear)
+        {
+            //_spreadsheet.SetContentsOfCell();
+        }
     }
 
     /// <summary>
