@@ -7,6 +7,7 @@
 
 using CS3500.Formula;
 using CS3500.Spreadsheet;
+using HostingEnvironmentExtensions = Microsoft.Extensions.Hosting.HostingEnvironmentExtensions;
 
 namespace GUI.Client.Pages;
 
@@ -50,10 +51,22 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
+    ///     The backing value for FileSaveName.
+    ///     Default value of string.Empty
+    ///   </para>
+    /// </summary>
+    private string _fileSaveName = string.Empty;
+
+    /// <summary>
+    ///   <para>
     ///     Gets or sets the name of the file to be saved.
     ///   </para>
     /// </summary>
-    private string FileSaveName { get; set; } = "Spreadsheet.sprd";
+    private string FileSaveName
+    {
+        get => _fileSaveName;
+        set => SaveFileAs(value);
+    }
 
     /// <summary>
     ///   <para>
@@ -384,9 +397,16 @@ public partial class SpreadsheetPage
     /// <summary>
     /// Saves the current spreadsheet, by providing a download of a file
     /// containing the json representation of the spreadsheet.
+    /// Default name of "spreadsheet.sprd".
     /// </summary>
     private async void SaveFile()
     {
+        // Set to spreadsheet.sprd if empty
+        if (FileSaveName == string.Empty)
+        {
+            FileSaveName = "spreadsheet";
+        }
+
         await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName, _spreadsheet.JsonString());
     }
 
@@ -395,21 +415,19 @@ public partial class SpreadsheetPage
     ///     Save the file as the current FileSaveName member variable.
     ///     Accepts the input given by the user as the name + ".sprd"
     ///     If a file has been loaded the name will be the loaded file.
-    ///     If blank the default is "spreadsheet" + ".sprd".
     ///   </para>
     /// </summary>
-    /// <param name="args"></param>
-    private void SaveFileAs(ChangeEventArgs args)
+    /// <param name="input">The name to save the file as</param>
+    private void SaveFileAs(string input)
     {
         // Get the value which is the name the user inputs
-        var name = args.Value!.ToString() ?? string.Empty;
-        if ((string)args.Value! != string.Empty)
+        if (input != string.Empty)
         {
             // Set to be user inputted name
-            FileSaveName = name + ".sprd";
+            _fileSaveName = input + ".sprd";
             return;
         }
-        
+
         // Update the save name if the user hasn't inputted any value 
         UpdateFileSaveName();
     }
@@ -425,12 +443,12 @@ public partial class SpreadsheetPage
         if (_loadedFileName != string.Empty)
         {
             // Set to be the loaded file name
-            FileSaveName = _loadedFileName;
+            _fileSaveName = _loadedFileName;
             return;
         }
 
-        // Set to be the default name
-        FileSaveName = "spreadsheet.sprd";
+        // Set to the default value
+        _fileSaveName = string.Empty;
     }
 
     /// <summary>
@@ -447,9 +465,10 @@ public partial class SpreadsheetPage
         // Clear the forwards and backwards stacks
         _back.Clear();
         _forward.Clear();
-        
-        // Clear the current save file name
+
+        // Clear the current save file and loaded name
         FileSaveName = string.Empty;
+        _loadedFileName = string.Empty;
 
         // Revert the cell clicked to be "A1"
         CellClicked(0, 0);
@@ -491,7 +510,7 @@ public partial class SpreadsheetPage
                 return;
             }
 
-            // Set the _loadedFileName equal to the file name
+            // Set the _loadedFileName equal to the file name and update FileSaveName
             _loadedFileName = file.Name;
             UpdateFileSaveName();
 
