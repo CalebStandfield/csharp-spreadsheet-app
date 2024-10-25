@@ -11,7 +11,8 @@
 <div class="left-right">
     <!-- Left side -->
     <div class="line-style">
-        <span class = "cell-field" readonly>Cell: @_selectedCell</span>
+        <span class="cell-field" readonly>Cell:</span>
+        <textarea class="cell-value-field" readonly> @_selectedCell</textarea>
     </div>
 
     <!-- Right side -->
@@ -144,9 +145,19 @@
         overflow: hidden;
     }
 
+    .cell-value-field {
+        resize: none;
+        width: 45px;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
     .value-field {
         resize: none;
-        width: 600px;
+        width: 100%;
+        max-width: 1320px;
         height: 30px;
         padding: 5px;
         box-sizing: border-box;
@@ -178,7 +189,8 @@
     }
 
     .input-field {
-        width: 600px;
+        width: 100%;
+        max-width: 1320px;
         height: 30px;
         padding: 5px;
         box-sizing: border-box;
@@ -198,7 +210,7 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        padding: 0 10px;
+        padding: 0 13px;
         box-sizing: border-box;
         }
 
