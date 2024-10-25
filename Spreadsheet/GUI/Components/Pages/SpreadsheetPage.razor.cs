@@ -231,7 +231,7 @@ public partial class SpreadsheetPage
         // Get the value of args which is the contents of the input field
         var contents = args.Value!.ToString() ?? string.Empty;
         
-        ChangeCellContents(contents, _selectedCell);
+        ChangeCellContents(_selectedCell,contents);
         
         // Update the member variables to reflect this selected cell
         _selectedCellInput = contents;
@@ -280,9 +280,9 @@ public partial class SpreadsheetPage
     ///     Change the cell contents of the 
     ///   </para>
     /// </summary>
-    /// <param name="content"></param>
     /// <param name="name"></param>
-    private void ChangeCellContents(string content, string name)
+    /// <param name="content"></param>
+    private void ChangeCellContents(string name, string content)
     {
         try
         {
@@ -401,7 +401,7 @@ public partial class SpreadsheetPage
         var nonemptyCells = _spreadsheet.GetNamesOfAllNonemptyCells();
         foreach (var cell in nonemptyCells)
         {
-            ChangeCellContents(ContentsOfCell(cell), cell);
+            ChangeCellContents(cell, ContentsOfCell(cell));
         }
     }
 
@@ -478,6 +478,6 @@ public partial class SpreadsheetPage
         _selectedCell = change.Name;
         _selectedCellInput = change.Input;
         _selectedCellValue = change.Value;
-        ChangeCellContents(change.Input, change.Name);  
+        ChangeCellContents(change.Name, change.Input);  
     }
 }
