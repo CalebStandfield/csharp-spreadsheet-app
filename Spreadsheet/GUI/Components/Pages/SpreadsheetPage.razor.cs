@@ -48,14 +48,6 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     The current selected cell of the spreadsheet as a duo of numbers.
-    ///     Default value of [0,0].
-    ///   </para>
-    /// </summary>
-    private int[] _selectedCellCoords = [0, 0];
-
-    /// <summary>
-    ///   <para>
     ///     The current inputted string of the selected cell of the spreadsheet.
     ///     Default value of an empty string.
     ///   </para>
@@ -123,7 +115,6 @@ public partial class SpreadsheetPage
     {
         
         _selectedCell = GetCellName(row, col);
-        _selectedCellCoords = [row, col];
         _selectedCellInput = ContentsOfCell(_selectedCell);
         _selectedCellValue = ValueOfCell(_selectedCell);
         _oldCellInput = _selectedCellInput;
@@ -242,18 +233,28 @@ public partial class SpreadsheetPage
         }
     }
     
-    // This method handles the exception and shows the popup
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="e"></param>
     private void HandleException(Exception e)
     {
         _exceptionMessage = e.Message;
+        if (e is CircularException)
+        {
+            _exceptionMessage = "Circular Exception detected at Spreadsheet Cell: " + _selectedCell;
+        }
         _showPopup = true;
         StateHasChanged();
     }
 
-    // Close the popup
-    private void ClosePopup()
+    /// <summary>
+    /// 
+    /// </summary>
+    private async void ClosePopup()
     {
         _showPopup = false;
+        await SelectInput();
     }
 
     /// <summary>
