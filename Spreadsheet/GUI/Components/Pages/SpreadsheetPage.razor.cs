@@ -33,7 +33,7 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     The backing spreadsheet for the spreadsheet gui
+    ///     The backing spreadsheet for the spreadsheet GUI.
     ///   </para>
     /// </summary>
     private Spreadsheet _spreadsheet = new();
@@ -48,7 +48,7 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     The current inputted string of the selected cell of the spreadsheet.
+    ///     The current inputted string of the selected cell in the spreadsheet.
     ///     Default value of an empty string.
     ///   </para>
     /// </summary>
@@ -64,7 +64,7 @@ public partial class SpreadsheetPage
     
     /// <summary>
     ///   <para>
-    ///     The current inputted string of the selected cell of the spreadsheet.
+    ///     The old input of the selected cell.
     ///     Default value of an empty string.
     ///   </para>
     /// </summary>
@@ -72,38 +72,79 @@ public partial class SpreadsheetPage
     
     /// <summary>
     ///   <para>
-    ///     The current value of the selected cell of the spreadsheet.
+    ///     The old value of the selected cell.
     ///     Default value of an empty string.
     ///   </para>
     /// </summary>
     private string _oldCellValue = string.Empty;
 
     /// <summary>
-    /// Provides an easy way to convert from an index to a letter (0 -> A)
+    ///   <para>
+    ///     Provides an easy way to convert from an index to a letter (0 -> A).
+    ///   </para>
     /// </summary>
     private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
     
     /// <summary>
-    ///   Gets or sets the name of the file to be saved
+    ///   <para>
+    ///     Gets or sets the name of the file to be saved.
+    ///   </para>
     /// </summary>
     private string FileSaveName { get; set; } = "Spreadsheet.sprd";
     
     /// <summary>
-    ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
+    ///   <para>
+    ///     Gets or sets the data for all the cells in the spreadsheet GUI.
+    ///   </para>
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
 
-    private Stack<CellInfoChanged> _back = new();
+    /// <summary>
+    ///   <para>
+    ///     Holds each state of the spreadsheet in a stack.
+    ///     In the order from first state to last.
+    ///   </para>
+    /// </summary>
+    private readonly Stack<CellInfoChanged> _back = new();
 
-    private Stack<CellInfoChanged> _forward = new();
+    /// <summary>
+    ///   <para>
+    ///     Holds each state of the spreadsheet in a stack.
+    ///     In the order from last state to first.
+    ///   </para>
+    /// </summary>
+    private readonly Stack<CellInfoChanged> _forward = new();
 
+    /// <summary>
+    ///   <para>
+    ///     An ElementReference to the input field in the spreadsheet.
+    ///     Used to automatically select the input field.
+    ///   </para>
+    /// </summary>
     private ElementReference _inputElement;
     
+    /// <summary>
+    ///   <para>
+    ///     The exception message to be displayed.
+    ///     Default value of string.Empty.
+    ///   </para>
+    /// </summary>
     private string _exceptionMessage = string.Empty;
     
-    private bool _showPopup = false;
+    /// <summary>
+    ///   <para>
+    ///     A boolean to activate if the message popup is being displayed or not.
+    ///     True if displayed, false if not.
+    ///   </para>
+    /// </summary>
+    private bool _showPopup;
 
+    /// <summary>
+    ///   <para>
+    ///     The current file name to load this spreadsheet to.
+    ///   </para>
+    /// </summary>
     private string _loadedFileName = string.Empty;
     
     /// <summary>
@@ -113,12 +154,17 @@ public partial class SpreadsheetPage
     /// <param name="col">The column component of the cell's coordinates</param>
     private async void CellClicked(int row, int col)
     {
-        
+        // Get the name of the row, col equivalent 
         _selectedCell = GetCellName(row, col);
+        
+        // Get the input -- contents, and the value of this cell
         _selectedCellInput = ContentsOfCell(_selectedCell);
         _selectedCellValue = ValueOfCell(_selectedCell);
+        
+        // Get the old input and value of the cell
         _oldCellInput = _selectedCellInput;
         _oldCellValue = _selectedCellValue;
+        
         // Select input area
         await SelectInput();
     }
@@ -135,13 +181,15 @@ public partial class SpreadsheetPage
     }
 
     /// <summary>
-    /// 
+    ///   <para>
+    ///     Gets the StringForm of the contents of this cell.
+    ///   </para>
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    private string ContentsOfCell(string input)
+    /// <param name="name">The name of the cell to retrieve from</param>
+    /// <returns>The StringForm of the contents</returns>
+    private string ContentsOfCell(string name)
     {
-        var contents = _spreadsheet.GetCellContents(input);
+        var contents = _spreadsheet.GetCellContents(name);
         if (contents is Formula)
         {
             return "=" + contents;
@@ -151,13 +199,17 @@ public partial class SpreadsheetPage
     }
 
     /// <summary>
-    /// 
+    ///   <para>
+    ///     Gets the value of the cell
+    ///   </para>
     /// </summary>
-    /// <param name="cell"></param>
-    /// <returns></returns>
-    private string ValueOfCell(string cell)
+    /// <param name="name">The name of the cell to retrieve from</param>
+    /// <returns>The string version of the value</returns>
+    private string ValueOfCell(string name)
     {
-        var value = _spreadsheet.GetCellValue(cell);
+        var value = _spreadsheet.GetCellValue(name);
+        
+        // Check that the value is an error to later display
         if (value is FormulaError error)
         {
             return error.Reason;
@@ -173,14 +225,22 @@ public partial class SpreadsheetPage
     ///     Once the user has done this a value will be calculated and any possible exceptions will be thrown.
     ///   </para>
     /// </summary>
-    /// <param name="args"></param>
+    /// <param name="args">The supplied information about a change that has occured</param>
     private void ChangeCellContents(ChangeEventArgs args)
     {
+        // Get the value of args which is the contents of the input field
         var contents = args.Value!.ToString() ?? string.Empty;
+        
         ChangeCellContents(contents, _selectedCell);
+        
+        // Update the member variables to reflect this selected cell
         _selectedCellInput = contents;
         _selectedCellValue = ValueOfCell(_selectedCell);
+        
+        // Push this information into the _back stack for later use of undo
         _back.Push(new CellInfoChanged(_selectedCell, _oldCellInput, _oldCellValue));
+        
+        // The forward stack must be cleared, similar to excel or a webpage
         _forward.Clear();
     }
     
@@ -197,19 +257,28 @@ public partial class SpreadsheetPage
     ///     data that this method might temporarily place into the spreadsheet
     ///   </para>
     /// </summary>
-    /// <param name="args"></param>
+    /// <param name="args">The supplied information about a change that has occured</param>
     private void UpdateUiWithoutCalculation(ChangeEventArgs args)
     {
+        // Get the value of args which is the contents of the input field
         var contents = args.Value!.ToString() ?? string.Empty;
+        
+        // Update the member variables to reflect this selected cell
         _selectedCellInput = contents;
-        var coords = GetCellCoord(_selectedCell);
         _selectedCellValue = contents;
+        
+        // Get coords fo this selected cell
+        var coords = GetCellCoord(_selectedCell);
+        
+        // This will update the backing store to the contents without having to calculate the value
         CellsBackingStore[coords[0], coords[1]] = contents;
         
     }
 
     /// <summary>
-    /// 
+    ///   <para>
+    ///     Change the cell contents of the 
+    ///   </para>
     /// </summary>
     /// <param name="content"></param>
     /// <param name="name"></param>
