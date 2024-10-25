@@ -32,6 +32,43 @@ public partial class SpreadsheetPage
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
     private const int Cols = 26;
+    
+    /// <summary>
+    ///   <para>
+    ///     Provides an easy way to convert from an index to a letter (0 -> A).
+    ///   </para>
+    /// </summary>
+    private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+    
+    /// <summary>
+    ///   <para>
+    ///     Gets or sets the data for all the cells in the spreadsheet GUI.
+    ///   </para>
+    ///   <remarks>Backing Store for HTML</remarks>
+    /// </summary>
+    private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
+    
+    /// <summary>
+    ///   <para>
+    ///     Gets or sets the name of the file to be saved.
+    ///   </para>
+    /// </summary>
+    private string FileSaveName { get; set; } = "Spreadsheet.sprd";
+    
+    /// <summary>
+    ///   <para>
+    ///     The current file name to load this spreadsheet to.
+    ///   </para>
+    /// </summary>
+    private string _loadedFileName = string.Empty;
+    
+    /// <summary>
+    ///   <para>
+    ///     An ElementReference to the input field in the spreadsheet.
+    ///     Used to automatically select the input field.
+    ///   </para>
+    /// </summary>
+    private ElementReference _inputElement;
 
     /// <summary>
     ///   <para>
@@ -82,28 +119,6 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     Provides an easy way to convert from an index to a letter (0 -> A).
-    ///   </para>
-    /// </summary>
-    private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-
-    /// <summary>
-    ///   <para>
-    ///     Gets or sets the name of the file to be saved.
-    ///   </para>
-    /// </summary>
-    private string FileSaveName { get; set; } = "Spreadsheet.sprd";
-
-    /// <summary>
-    ///   <para>
-    ///     Gets or sets the data for all the cells in the spreadsheet GUI.
-    ///   </para>
-    ///   <remarks>Backing Store for HTML</remarks>
-    /// </summary>
-    private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
-
-    /// <summary>
-    ///   <para>
     ///     Holds each state of the spreadsheet in a stack.
     ///     In the order from first state to last.
     ///   </para>
@@ -120,14 +135,6 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     An ElementReference to the input field in the spreadsheet.
-    ///     Used to automatically select the input field.
-    ///   </para>
-    /// </summary>
-    private ElementReference _inputElement;
-
-    /// <summary>
-    ///   <para>
     ///     The exception message to be displayed.
     ///     Default value of string.Empty.
     ///   </para>
@@ -141,13 +148,6 @@ public partial class SpreadsheetPage
     ///   </para>
     /// </summary>
     private bool _showPopup;
-
-    /// <summary>
-    ///   <para>
-    ///     The current file name to load this spreadsheet to.
-    ///   </para>
-    /// </summary>
-    private string _loadedFileName = string.Empty;
 
     /// <summary>
     /// Handler for when a cell is clicked
