@@ -478,6 +478,7 @@ public partial class SpreadsheetPage
                 return;
             }
 
+            // Set the _loadedFileName equal to the file name
             _loadedFileName = file.Name;
 
             using var stream = file.OpenReadStream();
