@@ -111,6 +111,8 @@ public partial class SpreadsheetPage
     private string _exceptionMessage = string.Empty;
     
     private bool _showPopup = false;
+
+    private string _loadedFileName = string.Empty;
     
     /// <summary>
     /// Handler for when a cell is clicked
@@ -289,12 +291,21 @@ public partial class SpreadsheetPage
         await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName, _spreadsheet.JsonString());
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="args"></param>
     private void SaveFileAs(ChangeEventArgs args)
     {
         var name = args.Value!.ToString() ?? string.Empty;
         if ((string)args.Value! != string.Empty)
         {
             FileSaveName = name + ".sprd";
+            return;
+        }
+        if (_loadedFileName != string.Empty)
+        {
+            FileSaveName = _loadedFileName;
             return;
         }
         FileSaveName = "spreadsheet.sprd"; ;
@@ -343,6 +354,7 @@ public partial class SpreadsheetPage
             {
                 return;
             }
+            _loadedFileName = file.Name;
 
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);
@@ -366,9 +378,9 @@ public partial class SpreadsheetPage
 
     private class CellInfoChanged(string name, string input, string value)
     {
-        public string Name = name;
-        public string Input = input;
-        public string Value = value;
+        public readonly string Name = name;
+        public readonly string Input = input;
+        public readonly string Value = value;
     }
 
     private void Undo()
