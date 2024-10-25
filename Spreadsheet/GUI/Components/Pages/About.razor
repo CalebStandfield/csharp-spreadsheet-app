@@ -65,10 +65,13 @@
 <h3>Save Button</h3>
 <p>
     The field next to the save button will allow you to choose your own name for the save file created when clicking save.<br />
-    The default name is "spreadsheet.sprd" each file contains the suffix .sprd appended on at the end automatically.
+    The default name is "spreadsheet.sprd" each file contains the suffix .sprd appended on at the end automatically.<br />
+    When loading from a file, the file name will be implicitly selected as the current name to save the spreadsheet too.
 </p>
 
 <h3>Load Button</h3>
 <p>
-    Select a file that contains a valid json 
+    Select a file that contains a valid json representation of a spreadsheet.<br />
+    If the file is not formatted as such nothing will be loaded.<br />
+    When loading a correct file each cell will be populated with the corresponding values.
 </p>
