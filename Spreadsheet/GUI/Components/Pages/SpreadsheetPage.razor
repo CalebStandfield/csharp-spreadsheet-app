@@ -8,7 +8,7 @@
 
 <PageTitle>Spreadsheet</PageTitle>
 
-<div class = "left-right">
+<div class="left-right">
     <!-- Left side -->
     <div class="line-style">
         <textarea class = "cell-field" readonly>Cell: @_selectedCell</textarea>
@@ -17,15 +17,15 @@
 
     <!-- Right side -->
     <div class="button-group">
-        <button @onclick = "Undo">Back</button>
-        <button @onclick = "Redo">Forward</button>
-        <button @onclick = "ClearSpreadsheet">Clear</button>
+        <button @onclick="Undo">Back</button>
+        <button @onclick="Redo">Forward</button>
+        <button @onclick="ClearSpreadsheet">Clear</button>
     </div>
 </div>
 
 <div class="input-row">
-    <span class = "input-label" readonly>Input --></span>
-    <input class = "input-field" @onchange = "ChangeCellContents" @oninput = "UpdateUiWithoutCalculation" value = "@_selectedCellInput"  @ref = "_inputElement"/>
+    <span class="input-label" readonly>Input --></span>
+    <input class="input-field" @onchange="ChangeCellContents" @oninput="UpdateUiWithoutCalculation" value="@_selectedCellInput" @ref="_inputElement"/>
 </div>
 
 <br/>
@@ -67,21 +67,25 @@
     </div>
     @if (_showPopup)
     {
-    <div class="modal">
-        <div class="modal-content">
-            <span class="close" @onclick="ClosePopup">&times;</span>
-            <p>@_exceptionMessage</p>
+        <div class="modal">
+            <div class="modal-content">
+                <span class="close" @onclick="ClosePopup">&times;</span>
+                <p>@_exceptionMessage</p>
+            </div>
         </div>
-    </div>
     }
 </div>
 
 <br/>
 
-<span>
+<span class="input-group">
+    <label>Save as:</label>
+    <input class="save-field" @onchange="SaveFileAs" placeholder="Enter file name"/>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
-    <input class = "Save as:" @onchange = "SaveFileAs" enterkeyhint="_.sprd"/>
-    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser"/>
+</span>
+<span class="input-group-load">
+    <label>Load:</label>
+    <InputFile type="file" class="button-group" OnChange="HandleFileChooser"/>
 </span>
 
 <style>
@@ -155,9 +159,31 @@
         box-sizing: border-box;
         overflow: hidden;
     }
+    
+    .input-group {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 20px;
+        gap: 10px;
+    }
+
+    .input-group-load{
+        display: inline-flex;
+        align-items: center;
+        margin-right: 20px;
+        gap: 30px;
+    }
 
     .input-field {
-        width: 600px;
+        width: 610px;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .save-field {
+        width: 200px;
         height: 30px;
         padding: 5px;
         box-sizing: border-box;

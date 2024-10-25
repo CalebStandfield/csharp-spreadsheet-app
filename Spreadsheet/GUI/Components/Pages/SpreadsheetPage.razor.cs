@@ -291,7 +291,13 @@ public partial class SpreadsheetPage
 
     private void SaveFileAs(ChangeEventArgs args)
     {
-        FileSaveName = (args.Value ?? "spreadsheet") + ".sprd";
+        var name = args.Value!.ToString() ?? string.Empty;
+        if ((string)args.Value! != string.Empty)
+        {
+            FileSaveName = name + ".sprd";
+            return;
+        }
+        FileSaveName = "spreadsheet.sprd"; ;
     }
 
     /// <summary>
