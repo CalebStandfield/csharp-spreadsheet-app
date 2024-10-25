@@ -1,4 +1,9 @@
-﻿@namespace GUI.Client.Pages
+﻿<!-- This razor page contains all the formatting, buttons, and grid which connects to the backend allowing the spreadsheet to have functionality -->
+<!-- Author, Caleb Standfield -->
+<!-- Author, Ethan Perkins -->
+<!-- Date, 10/24/24 -->
+
+@namespace GUI.Client.Pages
 @page "/sheets"
 @using System.Diagnostics
 @using Microsoft.JSInterop
@@ -19,7 +24,7 @@
     <div class="button-group">
         <button @onclick="Undo">Back</button>
         <button @onclick="Redo">Forward</button>
-        <button title = "This action cannot be undone!" @onclick="ClearSpreadsheet">Clear</button>
+        <button title="This action cannot be undone!" @onclick="ClearSpreadsheet">Clear</button>
     </div>
 </div>
 <div class="input-row">

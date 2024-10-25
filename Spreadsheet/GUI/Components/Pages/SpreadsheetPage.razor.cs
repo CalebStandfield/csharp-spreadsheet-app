@@ -2,7 +2,7 @@
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 // Author, Caleb Standfield
-// Author, Ethan Parkins
+// Author, Ethan Perkins
 // Data, 10/24/24
 
 using CS3500.Formula;
