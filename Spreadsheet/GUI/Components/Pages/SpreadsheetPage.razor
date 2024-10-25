@@ -11,8 +11,7 @@
 <div class="left-right">
     <!-- Left side -->
     <div class="line-style">
-        <textarea class = "cell-field" readonly>Cell: @_selectedCell</textarea>
-        <textarea class = "value-field" readonly>Value: @_selectedCellValue</textarea>
+        <span class = "cell-field" readonly>Cell: @_selectedCell</span>
     </div>
 
     <!-- Right side -->
@@ -22,9 +21,13 @@
         <button @onclick="ClearSpreadsheet">Clear</button>
     </div>
 </div>
+<div class="input-row">
+    <span class="input-label" readonly>Value:</span>
+    <textarea class = "value-field" readonly> @_selectedCellValue</textarea>
+</div>
 
 <div class="input-row">
-    <span class="input-label" readonly>Input --></span>
+    <span class="input-label" readonly>Input:</span>
     <input class="input-field" @onchange="ChangeCellContents" @oninput="UpdateUiWithoutCalculation" value="@_selectedCellInput" @ref="_inputElement"/>
 </div>
 
@@ -134,7 +137,7 @@
 
     .cell-field {
         resize: none;
-        width: 85px;
+        width: 70px;
         height: 30px;
         padding: 5px;
         box-sizing: border-box;
@@ -153,7 +156,7 @@
     .input-label {
         text-align: center;
         resize: none;
-        width: 85px;
+        width: 80px;
         height: 30px;
         padding: 5px;
         box-sizing: border-box;
@@ -175,7 +178,7 @@
     }
 
     .input-field {
-        width: 610px;
+        width: 600px;
         height: 30px;
         padding: 5px;
         box-sizing: border-box;
