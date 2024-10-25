@@ -7,7 +7,6 @@
 
 using CS3500.Formula;
 using CS3500.Spreadsheet;
-using Microsoft.AspNetCore.Mvc;
 
 namespace GUI.Client.Pages;
 
