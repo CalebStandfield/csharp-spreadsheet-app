@@ -448,13 +448,13 @@ public partial class SpreadsheetPage
         _back.Clear();
         _forward.Clear();
         
-        // Clear the name to save to
+        // Clear the current save file name
         FileSaveName = string.Empty;
 
         // Revert the cell clicked to be "A1"
         CellClicked(0, 0);
     }
-d
+
     /// <summary>
     ///   <para>
     ///     Loads the spreadsheet and UI from the current state of the _spreadsheet member variable.
