@@ -2,6 +2,73 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Spreadsheetへようこそ！</h1>
 
-Welcome to your new app.
+<h3>Cell and Value</h3>
+<p>
+    These two areas at the top of the spreadsheet are where your selected cell and its corresponding value will be displayed.
+</p>
+
+<h3>Input</h3>
+<p>
+    The input field will be automatically selected each time you select a new cell.<br/>
+    Type your string, number, or formula into the input field.
+</p>
+
+<h3>The Back and Forward buttons</h3>
+<p>
+    These two buttons will act as undo and redo buttons.<br/>
+    The undo button can take the spreadsheet all the way back to its original state of being blank, or its loaded state after load.<br/>
+    If you press Back, then set a cells contents, the Forward button will lose its memory -- just like a webpage or excel.
+</p>
+
+<h3>Clear button</h3>
+<p>
+    The clear button will set each cell to be empty and this action cannot be undone!
+</p>
+
+<h3>The Grid</h3>
+<p>
+    The grid consists of 26 columns --All letters of the alphabet-- and 50 rows<br/>
+    Click on a cell to activate the input area to input your desired contents.<br/>
+    The value field and text inside the cell will automatically be updated for each key you enter.<br/>
+    When ready to calculate your value just click enter or click off the input field to see your final value.
+</p>
+
+<h3>Values in Grid</h3>
+<p>
+    If the input is a number or string the value will just be that number or string.<br/>
+    An input of a formula will only calculate the value once enter or a click off has occured which will result<br/>
+    in a numerical value being shown in the cell and value field or one of three errors.
+</p>
+
+<h3>Types of Errors</h3>
+<h4>FormulaError</h4>
+<p>
+    A FormulaError will appear if the formula references a cell that would not evaluate the formula to be a number.<br/>
+    This error will be shown inside the value field and grid cell.<br/>
+    These next two errors will cause a popup on screen and will result in the value of the box not being computed.
+</p>
+
+<h4>FormulaFormatException</h4>
+<p>
+    A FormulaFormatException will appear if the formula does not adhere to mathematical syntax.<br/>
+    This will result in nothing being inputted into the cell, and thus no value being calculated.
+</p>
+
+<h4>CircularException</h4>
+<p>
+    A CircularException will appear if the formula references itself directly or indirectly through a chain of formulas.<br/>
+    If a CircularException happens then the spreadsheet will revert back to its last state.
+</p>
+
+<h3>Save Button</h3>
+<p>
+    The field next to the save button will allow you to choose your own name for the save file created when clicking save.<br />
+    The default name is "spreadsheet.sprd" each file contains the suffix .sprd appended on at the end automatically.
+</p>
+
+<h3>Load Button</h3>
+<p>
+    Select a file that contains a valid json 
+</p>
