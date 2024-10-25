@@ -32,14 +32,14 @@ public partial class SpreadsheetPage
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
     private const int Cols = 26;
-    
+
     /// <summary>
     ///   <para>
     ///     Provides an easy way to convert from an index to a letter (0 -> A).
     ///   </para>
     /// </summary>
     private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-    
+
     /// <summary>
     ///   <para>
     ///     Gets or sets the data for all the cells in the spreadsheet GUI.
@@ -47,21 +47,21 @@ public partial class SpreadsheetPage
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
-    
+
     /// <summary>
     ///   <para>
     ///     Gets or sets the name of the file to be saved.
     ///   </para>
     /// </summary>
     private string FileSaveName { get; set; } = "Spreadsheet.sprd";
-    
+
     /// <summary>
     ///   <para>
     ///     The current file name to load this spreadsheet to.
     ///   </para>
     /// </summary>
     private string _loadedFileName = string.Empty;
-    
+
     /// <summary>
     ///   <para>
     ///     An ElementReference to the input field in the spreadsheet.
@@ -181,7 +181,7 @@ public partial class SpreadsheetPage
     {
         await _inputElement.FocusAsync();
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Get the name of the clicked cell.
@@ -209,7 +209,7 @@ public partial class SpreadsheetPage
         int.TryParse(cell[1..], out var num);
         return [num - 1, Array.IndexOf(Alphabet, cell[0])];
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Updates the Ui of the spreadsheet without actually calculating the values.
@@ -265,7 +265,7 @@ public partial class SpreadsheetPage
         // The forward stack must be cleared, similar to excel or a webpage
         _forward.Clear();
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Change the cell contents of the given cell.
@@ -303,7 +303,7 @@ public partial class SpreadsheetPage
             HandleException(e);
         }
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Gets the StringForm of the contents of this cell.
@@ -321,7 +321,7 @@ public partial class SpreadsheetPage
 
         return contents.ToString() ?? string.Empty;
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Gets the value of the cell
@@ -341,7 +341,7 @@ public partial class SpreadsheetPage
 
         return value.ToString() ?? string.Empty;
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Handle Any exception passed into this method.
@@ -403,7 +403,6 @@ public partial class SpreadsheetPage
     {
         // Get the value which is the name the user inputs
         var name = args.Value!.ToString() ?? string.Empty;
-
         if ((string)args.Value! != string.Empty)
         {
             // Set to be user inputted name
@@ -411,6 +410,11 @@ public partial class SpreadsheetPage
             return;
         }
 
+        UpdateFileSaveName();
+    }
+
+    private void UpdateFileSaveName()
+    {
         if (_loadedFileName != string.Empty)
         {
             // Set to be the loaded file name
