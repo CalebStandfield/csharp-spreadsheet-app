@@ -181,71 +181,35 @@ public partial class SpreadsheetPage
     {
         await _inputElement.FocusAsync();
     }
-
+    
     /// <summary>
     ///   <para>
-    ///     Gets the StringForm of the contents of this cell.
+    ///     Get the name of the clicked cell.
+    ///     Converts the row and col to its alphabetical equivalent and number.
     ///   </para>
     /// </summary>
-    /// <param name="name">The name of the cell to retrieve from</param>
-    /// <returns>The StringForm of the contents</returns>
-    private string ContentsOfCell(string name)
+    /// <param name="row">The row component of the cell's coordinates</param>
+    /// <param name="col">The column component of the cell's coordinates</param>
+    private string GetCellName(int row, int col)
     {
-        var contents = _spreadsheet.GetCellContents(name);
-        if (contents is Formula)
-        {
-            return "=" + contents;
-        }
-
-        return contents.ToString() ?? string.Empty;
+        return Alphabet[col].ToString() + (row + 1);
     }
 
     /// <summary>
     ///   <para>
-    ///     Gets the value of the cell
+    ///     Get the coordinates of the clicked cell from name.
+    ///     Converts name to coords. Stores the coordinates in an array.
+    ///     Example, "A1" to [0, 0]
     ///   </para>
     /// </summary>
-    /// <param name="name">The name of the cell to retrieve from</param>
-    /// <returns>The string version of the value</returns>
-    private string ValueOfCell(string name)
+    /// <param name="cell">The name of the cell to translate</param>
+    /// <returns>The array of numbers representing the cell name</returns>
+    private int[] GetCellCoord(string cell)
     {
-        var value = _spreadsheet.GetCellValue(name);
-
-        // Check that the value is an error to later display
-        if (value is FormulaError error)
-        {
-            return error.Reason;
-        }
-
-        return value.ToString() ?? string.Empty;
+        int.TryParse(cell[1..], out var num);
+        return [num - 1, Array.IndexOf(Alphabet, cell[0])];
     }
-
-    /// <summary>
-    ///   <para>
-    ///     Changes the contents of the cell selected in the UI.
-    ///     This Method only triggers once the user presses enter or clicks away from the cell.
-    ///     Once the user has done this a value will be calculated and any possible exceptions will be thrown.
-    ///   </para>
-    /// </summary>
-    /// <param name="args">The supplied information about a change that has occured</param>
-    private void ChangeCellContents(ChangeEventArgs args)
-    {
-        // Get the value of args which is the contents of the input field
-        var contents = args.Value!.ToString() ?? string.Empty;
-
-        ChangeCellContents(_selectedCell, contents);
-
-        // Update the member variables to reflect this selected cell
-        _selectedCellInput = contents;
-        _selectedCellValue = ValueOfCell(_selectedCell);
-
-        // Push this information into the _back stack for later use of undo
-        _back.Push(new CellInfoChanged(_selectedCell, _oldCellInput, _oldCellValue));
-
-        // The forward stack must be cleared, similar to excel or a webpage
-        _forward.Clear();
-    }
-
+    
     /// <summary>
     ///   <para>
     ///     Updates the Ui of the spreadsheet without actually calculating the values.
@@ -276,6 +240,32 @@ public partial class SpreadsheetPage
         CellsBackingStore[coords[0], coords[1]] = contents;
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Changes the contents of the cell selected in the UI.
+    ///     This Method only triggers once the user presses enter or clicks away from the cell.
+    ///     Once the user has done this a value will be calculated and any possible exceptions will be thrown.
+    ///   </para>
+    /// </summary>
+    /// <param name="args">The supplied information about a change that has occured</param>
+    private void ChangeCellContents(ChangeEventArgs args)
+    {
+        // Get the value of args which is the contents of the input field
+        var contents = args.Value!.ToString() ?? string.Empty;
+
+        ChangeCellContents(_selectedCell, contents);
+
+        // Update the member variables to reflect this selected cell
+        _selectedCellInput = contents;
+        _selectedCellValue = ValueOfCell(_selectedCell);
+
+        // Push this information into the _back stack for later use of undo
+        _back.Push(new CellInfoChanged(_selectedCell, _oldCellInput, _oldCellValue));
+
+        // The forward stack must be cleared, similar to excel or a webpage
+        _forward.Clear();
+    }
+    
     /// <summary>
     ///   <para>
     ///     Change the cell contents of the given cell.
@@ -313,7 +303,45 @@ public partial class SpreadsheetPage
             HandleException(e);
         }
     }
+    
+    /// <summary>
+    ///   <para>
+    ///     Gets the StringForm of the contents of this cell.
+    ///   </para>
+    /// </summary>
+    /// <param name="name">The name of the cell to retrieve from</param>
+    /// <returns>The StringForm of the contents</returns>
+    private string ContentsOfCell(string name)
+    {
+        var contents = _spreadsheet.GetCellContents(name);
+        if (contents is Formula)
+        {
+            return "=" + contents;
+        }
 
+        return contents.ToString() ?? string.Empty;
+    }
+    
+    /// <summary>
+    ///   <para>
+    ///     Gets the value of the cell
+    ///   </para>
+    /// </summary>
+    /// <param name="name">The name of the cell to retrieve from</param>
+    /// <returns>The string version of the value</returns>
+    private string ValueOfCell(string name)
+    {
+        var value = _spreadsheet.GetCellValue(name);
+
+        // Check that the value is an error to later display
+        if (value is FormulaError error)
+        {
+            return error.Reason;
+        }
+
+        return value.ToString() ?? string.Empty;
+    }
+    
     /// <summary>
     ///   <para>
     ///     Handle Any exception passed into this method.
@@ -349,34 +377,6 @@ public partial class SpreadsheetPage
 
         // Select the input field for easy typing access in the UI
         await SelectInput();
-    }
-
-    /// <summary>
-    ///   <para>
-    ///     Get the name of the clicked cell.
-    ///     Converts the row and col to its alphabetical equivalent and number.
-    ///   </para>
-    /// </summary>
-    /// <param name="row">The row component of the cell's coordinates</param>
-    /// <param name="col">The column component of the cell's coordinates</param>
-    private string GetCellName(int row, int col)
-    {
-        return Alphabet[col].ToString() + (row + 1);
-    }
-
-    /// <summary>
-    ///   <para>
-    ///     Get the coordinates of the clicked cell from name.
-    ///     Converts name to coords. Stores the coordinates in an array.
-    ///     Example, "A1" to [0, 0]
-    ///   </para>
-    /// </summary>
-    /// <param name="cell">The name of the cell to translate</param>
-    /// <returns>The array of numbers representing the cell name</returns>
-    private int[] GetCellCoord(string cell)
-    {
-        int.TryParse(cell[1..], out var num);
-        return [num - 1, Array.IndexOf(Alphabet, cell[0])];
     }
 
     #region SaveClearLoad
