@@ -307,7 +307,7 @@ public class Formula
         }
 
         // If reached then it is an invalid token
-        throw new FormulaFormatException("Invalid token:" + token);
+        throw new FormulaFormatException("Invalid token: " + token);
     }
 
     /// <summary>
