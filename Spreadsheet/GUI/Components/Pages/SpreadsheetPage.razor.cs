@@ -409,10 +409,17 @@ public partial class SpreadsheetPage
             FileSaveName = name + ".sprd";
             return;
         }
-
+        
+        // Update the save name if the user hasn't inputted any value 
         UpdateFileSaveName();
     }
 
+    /// <summary>
+    ///   <para>
+    ///     Updates the FileSaveName to the loaded file name if the user has loaded a file
+    ///     If the user has not then the FileSaveName is the default value of "spreadsheet.sprd"
+    ///   </para>
+    /// </summary>
     private void UpdateFileSaveName()
     {
         if (_loadedFileName != string.Empty)
@@ -440,11 +447,14 @@ public partial class SpreadsheetPage
         // Clear the forwards and backwards stacks
         _back.Clear();
         _forward.Clear();
+        
+        // Clear the name to save to
+        FileSaveName = string.Empty;
 
         // Revert the cell clicked to be "A1"
         CellClicked(0, 0);
     }
-
+d
     /// <summary>
     ///   <para>
     ///     Loads the spreadsheet and UI from the current state of the _spreadsheet member variable.
@@ -483,6 +493,7 @@ public partial class SpreadsheetPage
 
             // Set the _loadedFileName equal to the file name
             _loadedFileName = file.Name;
+            UpdateFileSaveName();
 
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);

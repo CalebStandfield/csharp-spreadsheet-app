@@ -89,7 +89,7 @@
 
 <span class="input-group">
     <label>Save as:</label>
-    <input class="save-field" @onchange="SaveFileAs" placeholder="Enter file name"/>
+    <input class="save-field" @bind="FileSaveName" @onchange="SaveFileAs" placeholder="Enter file name"/>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
 </span>
 <span class="input-group-load">
