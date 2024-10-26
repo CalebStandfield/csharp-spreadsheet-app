@@ -34,7 +34,7 @@
 
 <div class="input-row">
     <span class="input-label" readonly>Input:</span>
-    <input class="input-field" @onchange="ChangeCellContents" @oninput="UpdateUiWithoutCalculation" value="@_selectedCellInput" @ref="_inputElement"/>
+    <input class="input-field" @onchange="ChangeCellContents" @onkeydown="HandleKeyDown" @oninput="UpdateUiWithoutCalculation" value="@_selectedCellInput" @ref="_inputElement"/>
 </div>
 
 <br/>
@@ -161,8 +161,7 @@
 
     .value-field {
         resize: none;
-        width: 100%;
-        max-width: 1320px;
+        width: calc(100% - 100px);
         height: 30px;
         padding: 5px;
         box-sizing: border-box;
@@ -194,8 +193,7 @@
     }
 
     .input-field {
-        width: 100%;
-        max-width: 1320px;
+        width: calc(100% - 100px);
         height: 30px;
         padding: 5px;
         box-sizing: border-box;

@@ -5,6 +5,7 @@
 // Author, Ethan Perkins
 // Data, 10/24/24
 
+using System.Reflection.Metadata;
 using CS3500.Formula;
 using CS3500.Spreadsheet;
 using HostingEnvironmentExtensions = Microsoft.Extensions.Hosting.HostingEnvironmentExtensions;
@@ -193,6 +194,29 @@ public partial class SpreadsheetPage
     private async Task SelectInput()
     {
         await _inputElement.FocusAsync();
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     De-focuses the input box whenever the "enter" key is pressed.
+    ///   </para>
+    /// </summary>
+    private async void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key.Equals("Enter"))
+        {
+            await DeFocusInput();
+        }
+    }
+    
+    /// <summary>
+    ///   <para>
+    ///     Private method for defocusing the input box.
+    ///   </para>
+    /// </summary>
+    private async Task DeFocusInput()
+    {
+        await JSRuntime.InvokeVoidAsync("document.activeElement.blur");
     }
 
     /// <summary>
