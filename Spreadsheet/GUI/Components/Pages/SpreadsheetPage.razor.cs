@@ -534,10 +534,6 @@ public partial class SpreadsheetPage
                 return;
             }
 
-            // Set the _loadedFileName equal to the file name and update FileSaveName
-            _loadedFileName = file.Name;
-            UpdateFileSaveName();
-
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);
 
@@ -553,6 +549,10 @@ public partial class SpreadsheetPage
             // Load the UI component
             LoadFromSpreadsheet();
             StateHasChanged();
+            
+            // Set the _loadedFileName equal to the file name and update FileSaveName
+            _loadedFileName = file.Name;
+            UpdateFileSaveName();
         }
         catch (Exception e)
         {
