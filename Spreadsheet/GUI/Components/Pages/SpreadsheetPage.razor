@@ -29,7 +29,7 @@
 </div>
 <div class="input-row">
     <span class="input-label" readonly>Value:</span>
-    <textarea class = "value-field" readonly> @_selectedCellValue</textarea>
+    <textarea class = "input-field" readonly> @_selectedCellValue</textarea>
 </div>
 
 <div class="input-row">
@@ -92,7 +92,7 @@
     <input class="save-field" @bind="_fileSaveName" placeholder="Enter file name"/>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
 </span>
-<span class="input-group-load">
+<span class="input-group">
     <label>Load:</label>
     <InputFile type="file" class="button-group" OnChange="HandleFileChooser"/>
 </span>
@@ -153,15 +153,6 @@
         overflow: hidden;
     }
 
-    .value-field {
-        resize: none;
-        width: calc(100% - 100px);
-        height: 30px;
-        padding: 5px;
-        box-sizing: border-box;
-        overflow: hidden;
-    }
-
     .input-label {
         text-align: center;
         resize: none;
@@ -179,15 +170,9 @@
         gap: 10px;
     }
 
-    .input-group-load{
-        display: inline-flex;
-        align-items: center;
-        margin-right: 20px;
-        gap: 30px;
-    }
-
     .input-field {
         width: calc(100% - 100px);
+        resize: none;
         height: 30px;
         padding: 5px;
         box-sizing: border-box;
