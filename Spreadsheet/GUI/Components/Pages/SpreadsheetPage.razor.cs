@@ -539,6 +539,10 @@ public partial class SpreadsheetPage
 
             // fileContent will contain the contents of the loaded file
             fileContent = await reader.ReadToEndAsync();
+            
+            // Set the _loadedFileName equal to the file name and update FileSaveName
+            _loadedFileName = file.Name;
+            UpdateFileSaveName();
 
             // Clear
             ClearSpreadsheet();
@@ -549,10 +553,6 @@ public partial class SpreadsheetPage
             // Load the UI component
             LoadFromSpreadsheet();
             StateHasChanged();
-            
-            // Set the _loadedFileName equal to the file name and update FileSaveName
-            _loadedFileName = file.Name;
-            UpdateFileSaveName();
         }
         catch (Exception e)
         {
