@@ -5,10 +5,8 @@
 // Author, Ethan Perkins
 // Data, 10/25/24
 
-using System.Reflection.Metadata;
 using CS3500.Formula;
 using CS3500.Spreadsheet;
-using HostingEnvironmentExtensions = Microsoft.Extensions.Hosting.HostingEnvironmentExtensions;
 
 namespace GUI.Client.Pages;
 
