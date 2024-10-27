@@ -60,21 +60,15 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     Gets or sets the name of the file to be saved.
+    ///     The backing value for FileSaveName.
+    ///     Default value of string.Empty
     ///   </para>
     /// </summary>
-    private string FileSaveName
+    public string UserSaveName
     {
         get => _fileSaveName;
-        set => SaveFileAs(value);
+        set => _fileSaveName = value;
     }
-
-    /// <summary>
-    ///   <para>
-    ///     The current file name to load this spreadsheet to.
-    ///   </para>
-    /// </summary>
-    private string _loadedFileName = string.Empty;
 
     /// <summary>
     ///   <para>
@@ -208,7 +202,7 @@ public partial class SpreadsheetPage
             await DeFocusInput();
         }
     }
-    
+
     /// <summary>
     ///   <para>
     ///     Private method for defocusing the input box.
@@ -426,53 +420,17 @@ public partial class SpreadsheetPage
     private async void SaveFile()
     {
         // Set to spreadsheet.sprd if empty
-        if (FileSaveName == string.Empty)
+        if (_fileSaveName == string.Empty)
         {
-            FileSaveName = "spreadsheet";
+            _fileSaveName = "spreadsheet.sprd";
+        }
+        else if (!_fileSaveName.EndsWith(".sprd"))
+        {
+            // Add ".sprd" to the file
+            _fileSaveName += ".sprd";
         }
 
-        await JSRuntime.InvokeVoidAsync("downloadFile", FileSaveName, _spreadsheet.JsonString());
-    }
-
-    /// <summary>
-    ///   <para>
-    ///     Save the file as the current FileSaveName member variable.
-    ///     Accepts the input given by the user as the name + ".sprd"
-    ///     If a file has been loaded the name will be the loaded file.
-    ///   </para>
-    /// </summary>
-    /// <param name="input">The name to save the file as</param>
-    private void SaveFileAs(string input)
-    {
-        // Get the value which is the name the user inputs
-        if (input != string.Empty)
-        {
-            // Set to be user inputted name
-            _fileSaveName = input + ".sprd";
-            return;
-        }
-
-        // Update the save name if the user hasn't inputted any value 
-        UpdateFileSaveName();
-    }
-
-    /// <summary>
-    ///   <para>
-    ///     Updates the FileSaveName to the loaded file name if the user has loaded a file
-    ///     If the user has not then the FileSaveName is the default value of "spreadsheet.sprd"
-    ///   </para>
-    /// </summary>
-    private void UpdateFileSaveName()
-    {
-        if (_loadedFileName != string.Empty)
-        {
-            // Set to be the loaded file name
-            _fileSaveName = _loadedFileName;
-            return;
-        }
-
-        // Set to the default value
-        _fileSaveName = string.Empty;
+        await JSRuntime.InvokeVoidAsync("downloadFile", _fileSaveName, _spreadsheet.JsonString());
     }
 
     /// <summary>
@@ -482,17 +440,25 @@ public partial class SpreadsheetPage
     /// </summary>
     private void ClearSpreadsheet()
     {
+        // Reset the spreadsheet
+        _spreadsheet = new Spreadsheet();
+        ClearUi();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void ClearUi()
+    {
         // Reset CellsBackingStore and spreadsheet member variables
         CellsBackingStore = new string[Rows, Cols];
-        _spreadsheet = new Spreadsheet();
 
         // Clear the forwards and backwards stacks
         _back.Clear();
         _forward.Clear();
 
         // Clear the current save file and loaded name
-        FileSaveName = string.Empty;
-        _loadedFileName = string.Empty;
+        _fileSaveName = string.Empty;
 
         // Revert the cell clicked to be "A1"
         CellClicked(0, 0);
@@ -539,24 +505,27 @@ public partial class SpreadsheetPage
 
             // fileContent will contain the contents of the loaded file
             fileContent = await reader.ReadToEndAsync();
-            
-            // Set the _loadedFileName equal to the file name and update FileSaveName
-            _loadedFileName = file.Name;
-            UpdateFileSaveName();
-
-            // Clear
-            ClearSpreadsheet();
 
             // Make the new spreadsheet form the file 
             _spreadsheet.CreateSpreadSheet(fileContent);
 
+            // Clear the old UI elements
+            ClearUi();
+
+            // Set the _loadedFileName equal to the file name and update FileSaveName
+            UserSaveName = file.Name;
+
             // Load the UI component
             LoadFromSpreadsheet();
-            StateHasChanged();
         }
         catch (Exception e)
         {
+            _fileSaveName = string.Empty;
             Debug.WriteLine("an error occurred while loading the file..." + e);
+        }
+        finally
+        {
+            StateHasChanged();
         }
     }
 
