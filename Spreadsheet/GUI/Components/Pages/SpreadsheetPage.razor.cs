@@ -191,7 +191,7 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     Private method for defocusing the input box.
+    ///     Private method for de-focusing the input box.
     ///   </para>
     /// </summary>
     private async Task DeFocusInput()
