@@ -58,18 +58,6 @@ public partial class SpreadsheetPage
 
     /// <summary>
     ///   <para>
-    ///     The backing value for FileSaveName.
-    ///     Default value of string.Empty
-    ///   </para>
-    /// </summary>
-    public string UserSaveName
-    {
-        get => _fileSaveName;
-        set => _fileSaveName = value;
-    }
-
-    /// <summary>
-    ///   <para>
     ///     An ElementReference to the input field in the spreadsheet.
     ///     Used to automatically select the input field.
     ///   </para>
@@ -511,7 +499,7 @@ public partial class SpreadsheetPage
             ClearUi();
 
             // Set the _loadedFileName equal to the file name and update FileSaveName
-            UserSaveName = file.Name;
+            _fileSaveName = file.Name;
 
             // Load the UI component
             LoadFromSpreadsheet();
