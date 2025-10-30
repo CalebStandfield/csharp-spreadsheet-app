@@ -1,0 +1,289 @@
+﻿<!-- This razor page contains all the formatting, buttons, and grid which connects to the backend allowing the spreadsheet to have functionality -->
+<!-- Author, Caleb Standfield -->
+<!-- Author, Ethan Perkins -->
+<!-- Date, 10/25/24 -->
+
+@namespace GUI.Client.Pages
+@page "/sheets"
+@using System.Diagnostics
+@using Microsoft.JSInterop
+@rendermode InteractiveServer
+@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Spreadsheet</PageTitle>
+
+<div class="left-right">
+    <!-- Left side -->
+    <div class="line-style">
+        <span class="cell-field" readonly>Cell:</span>
+        <textarea class="cell-value-field" readonly> @_selectedCell</textarea>
+    </div>
+
+    <!-- Right side -->
+    <div class="button-group">
+        <button @onclick="Undo">Back</button>
+        <button @onclick="Redo">Forward</button>
+        <button title="This action cannot be undone!" @onclick="ClearSpreadsheet">Clear</button>
+    </div>
+</div>
+<div class="input-row">
+    <span class="input-label" readonly>Value:</span>
+    <textarea class = "input-field" readonly> @_selectedCellValue</textarea>
+</div>
+
+<div class="input-row">
+    <span class="input-label" readonly>Input:</span>
+    <input class="input-field" @onchange="ChangeCellContents" @onkeydown="HandleKeyDown" @oninput="UpdateUiWithoutCalculation" value="@_selectedCellInput" @ref="_inputElement"/>
+</div>
+
+<br/>
+<br/>
+
+<div>
+    <div class="table-container">
+        <div class="scrollable">
+            <table class="table table-bordered">
+                <thead>
+                <tr class="fixed-header">
+                    <th scope="col">&nbsp;</th>
+                    @for (var col = 0; col < Cols; col++)
+                    {
+                        <th scope="col">@Alphabet[col]</th>
+                    }
+                </tr>
+                </thead>
+
+                <tbody>
+                @for (var row = 0; row < Rows; row++)
+                {
+                    <tr style="padding:0 !important;">
+                        <th style="padding:0 !important;" scope="row" class="fixed-column">@(row + 1)</th>
+                        @for (var col = 0; col < Cols; col++)
+                        {
+                            var r = row;
+                            var c = col;
+
+                            <td @onclick="() => CellClicked(r, c)" class="spreadsheet-cell">
+                                <p class="spreadcell"> @CellsBackingStore[r, c] </p>
+                            </td>
+                        }
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (_showPopup)
+    {
+        <div class="modal">
+            <div class="modal-content">
+                <span class="close" @onclick="ClosePopup">&times;</span>
+                <p>@_exceptionMessage</p>
+            </div>
+        </div>
+    }
+</div>
+
+<br/>
+
+<span class="input-group">
+    <label>Save as:</label>
+    <input class="save-field" @bind="_fileSaveName" placeholder="Enter file name"/>
+    <button class="btn btn-primary" @onclick="SaveFile">Save</button>
+</span>
+<span class="input-group">
+    <label>Load:</label>
+    <InputFile type="file" class="button-group" OnChange="HandleFileChooser"/>
+</span>
+
+<style>
+    .spreadsheet-cell {
+        padding: 0 !important;
+        white-space: normal;
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+
+    .spreadcell {
+        width: 150px;
+        height: 55px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .fixed-header, .fixed-column {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: #ffffff !important;
+        text-align: center;
+    }
+
+    .scrollable {
+        white-space: nowrap;
+        width: 1000px;
+        height: 500px;
+        margin: -1px;
+    }
+
+    .input-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .cell-field {
+        resize: none;
+        width: 67px;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .cell-value-field {
+        resize: none;
+        width: 45px;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .input-label {
+        text-align: center;
+        resize: none;
+        width: 80px;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    .input-group {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 20px;
+        gap: 10px;
+    }
+
+    .input-field {
+        width: calc(100% - 100px);
+        resize: none;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .save-field {
+        width: 200px;
+        height: 30px;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    .left-right {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0 13px;
+        box-sizing: border-box;
+        }
+
+    .line-style {
+        display: flex;
+        flex: 1;
+        gap: 10px;
+        justify-content: flex-start;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
+
+    .modal {
+        display: block;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+        text-align: center;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
+<script type="text/javascript">
+    function focusElement(id) {
+        console.log(`looking for: ${id}`);
+        var element = document.getElementById(id);
+        if (element) {
+            console.log(`focusing element: ${id} ${element}`)
+            element.focus();
+        }
+    }
+
+    window.addKeyPressListener = function (dotNetObject) {
+        console.log("registering key press event handler");
+        document.addEventListener('keydown', function (event) {
+            console.log(`got key: ${event.key}`);
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                event.preventDefault(); // Prevent arrow keys from scrolling
+            }
+            dotNetObject.invokeMethodAsync('HandleKeyPress', event.key);
+        });
+    };
+
+    function downloadFile(fileName, fileContent) {
+        console.log(`download file ${fileName}`);
+        // Create a blob with the file content
+        const blob = new Blob([fileContent], {type: "text/plain"});
+
+        // Create a link element
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+
+        // Append the anchor element to the body
+        document.body.appendChild(a);
+
+        // Click the link to trigger download
+        a.click();
+
+        // Remove the anchor element from the DOM
+        document.body.removeChild(a);
+    }
+
+</script>

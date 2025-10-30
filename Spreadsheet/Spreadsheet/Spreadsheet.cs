@@ -9,6 +9,8 @@
 // Implementation by Caleb Standfield
 // Date, 09/26/24
 
+using System.Runtime.Serialization;
+
 namespace CS3500.Spreadsheet;
 
 using CS3500.Formula;
@@ -89,7 +91,7 @@ public class Spreadsheet
     ///     The dependencyGraph that will keep track dependencies of the cells.
     ///   </para>
     /// </summary>
-    private readonly DependencyGraph _dependencyGraph = new();
+    private DependencyGraph _dependencyGraph = new();
 
     /// <summary>
     ///   <para>
@@ -140,15 +142,28 @@ public class Spreadsheet
     /// <param name="filename">The path to the file containing the spreadsheet to load</param>
     public Spreadsheet(string filename)
     {
+        if (!File.Exists(filename))
+        {
+            throw new SpreadsheetReadWriteException("File does not exist.");
+        }
+
+        CreateSpreadSheet(File.ReadAllText(filename));
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Creates a new spreadsheet from the string form of a json.
+    ///     This overrides the current state of the SpreadSheet effectively replacing the existing spreadsheet
+    ///     With a new one.
+    ///   </para>
+    /// </summary>
+    /// <param name="json">The json of which to create the file from</param>
+    public void CreateSpreadSheet(string json)
+    {
         try
         {
-            if (!File.Exists(filename))
-            {
-                throw new SpreadsheetReadWriteException("File does not exist.");
-            }
-
             // Attempt to deserialize the file into a temporary dictionary 
-            var tempSpreadSheet = JsonSerializer.Deserialize<Spreadsheet>(File.ReadAllText(filename))
+            var tempSpreadSheet = JsonSerializer.Deserialize<Spreadsheet>(json)
                                   // If null throw exception
                                   ?? throw new SpreadsheetReadWriteException(
                                       "Deserialized Spreadsheet resulted in a null Spreadsheet.");
@@ -159,13 +174,17 @@ public class Spreadsheet
                 if (tempSpreadSheet._spreadsheet.TryGetValue(name, out var cell))
                 {
                     // Will throw CircularException if one occurs
-                    SetContentsOfCell(name, cell.StringForm);
+                    tempSpreadSheet.SetContentsOfCell(name, cell.StringForm);
                 }
             }
 
             // Set to false as SetContents of cell set it to true
             // A new spreadSheet should start with changed as false
             Changed = false;
+
+            // Change succeeded 
+            _spreadsheet = tempSpreadSheet._spreadsheet;
+            _dependencyGraph = tempSpreadSheet._dependencyGraph;
         }
         // Catch all exceptions
         catch (Exception ex)
@@ -241,7 +260,7 @@ public class Spreadsheet
         try
         {
             // Serialize the dictionary into the json format and write to file path
-            File.WriteAllText(filename, JsonSerializer.Serialize(new { Cells = _spreadsheet }, JsonOptions));
+            File.WriteAllText(filename, JsonString());
 
             // Will throw before reaching this line if it fails
             // Changed is now false
@@ -252,6 +271,17 @@ public class Spreadsheet
             // Handle any exceptions and throw a SpreadsheetReadWriteException
             throw new SpreadsheetReadWriteException("Failed to save the spreadsheet: " + ex.Message);
         }
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Serializes the current spreadsheet into a Json.
+    ///   </para>
+    /// </summary>
+    /// <returns>The string form of the jason</returns>
+    public string JsonString()
+    {
+        return JsonSerializer.Serialize(new { Cells = _spreadsheet }, JsonOptions);
     }
 
     /// <summary>

@@ -1033,4 +1033,31 @@ public class SpreadSheetTests
     }
 
     #endregion
+    
+    // --- ReplaceSpreadSheet
+    
+    #region ReplaceSpreadSheet
+
+    [TestMethod]
+    public void ReplaceSpreadSheet_EmptySpreadSheet_NewSpreadSheet()
+    {
+        var s = new Spreadsheet();
+        var tempList = s.GetNamesOfAllNonemptyCells();
+        var tempString = s.JsonString();
+        s.CreateSpreadSheet(tempString);
+        Assert.IsTrue(tempList.SequenceEqual(s.GetNamesOfAllNonemptyCells()));
+    }
+    
+    [TestMethod]
+    public void ReplaceSpreadSheet_SmallSpreadSheet_SameSpreadSheet()
+    {
+        var s = new Spreadsheet();
+        s.SetContentsOfCell("A1", "hi!");
+        var tempList = s.GetNamesOfAllNonemptyCells();
+        var tempString = s.JsonString();
+        s.CreateSpreadSheet(tempString);
+        Assert.IsTrue(tempList.SequenceEqual(s.GetNamesOfAllNonemptyCells()));
+    }
+    
+    #endregion
 }

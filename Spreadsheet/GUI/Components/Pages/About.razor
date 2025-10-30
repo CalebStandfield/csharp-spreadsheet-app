@@ -1,0 +1,96 @@
+﻿<!-- The is the introduction page to the spreadsheet which informs the user how to use it properly -->
+<!-- Author, Caleb Standfield -->
+<!-- Author, Ethan Perkins -->
+<!-- Date, 10/25/24 -->
+
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<div class="text-format">
+    <div class="center">
+        <h1>Spreadsheetへようこそ！</h1>
+    </div>
+    <br/>
+    <div class="center">
+        <p><i>Welcome!</i></p>
+    </div>
+    <br/>
+    <h3>About the Spreadsheet</h3>
+    <p>
+        &emsp; This spreadsheet holds an assortment of numbers and strings in the form of a grid, and also allows the user to make calculations on said numbers if necessary.
+        Each of the "cells" of the grid can hold either one number (a double), a string, or a formula for calculations.
+        The user is also able to save and load spreadsheets. See below for more details.
+    </p>
+
+    <h3>Cell, Value, and Input</h3>
+    <p>
+        &emsp; Starting from the top of the spreadsheet page are three areas where the currently selected cell, its corresponding value contained in the cell, and the inputted string from the user are displayed in said order.<br/>
+        Once a cell is selected, the areas will be updated to display current information stored in the cell and the input field will be highlighted.
+        The user is then able to add or update the inputted string, after which clicking off the box or pressing "Enter" will update the spreadsheet and unhighlight the box.
+    </p>
+
+    <h3>The Back, Forward, and Clear buttons</h3>
+    <p>
+        &emsp; These three buttons are found in the top right of the spreadsheet.
+        The Back button will undo any changes made to the spreadsheet since its creation (i.e. when it was blank), or when it was loaded.
+        Similarly, the Forward button will redo any undone changes, back to the last change made to the spreadsheet.
+        The Clear button will set each cell to be empty. This action cannot be undone, so beware!
+    </p>
+
+    <h3>The Grid</h3>
+    <p>
+        &emsp; The grid consists of 26 columns --All letters of the alphabet-- and 50 rows of numbers.
+        Each one of the cells is represented by a letter, followed by a number, such as A1.
+        The value field and text inside the cell will automatically be updated for each key entered into the input box, but changes to other cells will not occur until the box is deselected, or "Enter" has been pressed.<br/>
+    </p>
+
+    <h3>Values of Cells</h3>
+    <p>
+        &emsp; If the input is a number or string the value will be said number or string.
+        A formula (a string beginning with =) once inputted will automatically calculate simple arithmetic operations and can also include other cells.
+        For example, the formula =A1+A2 will get the values contained in cells A1 and A2, then display their sum in the value field and the cell.
+    </p>
+
+    <h3>Save and Load Buttons</h3>
+    <p>
+        &emsp; At the bottom of the spreadsheet are two buttons, and a text field.
+        When the save button is clicked, the spreadsheet will save the contents in the grid to a new .sprd file, defaulted to be "spreadsheet.sprd".
+        The field next to the save button will allow the user to choose a custom name for the save file when clicking save (no .sprd needed as it is appended automatically).<br/><br/>
+
+        &emsp;The load button will allow the user to select a valid spreadsheet file and load its contents into the spreadsheet.
+        If a correct file is given, each cell will be populated with the correct corresponding values.
+        If the user saves after loading a valid spreadsheet, the new contents of the spreadsheet will be saved to a file of the same name as the loaded file by default.
+        If the file is not formatted properly, nothing will be loaded and the save button will default to spreadsheet.sprd.
+    </p>
+
+    <h3>Types of Errors</h3>
+    <h4>FormulaError</h4>
+    <p>
+        &emsp; A FormulaError will appear inside the value field and grid if a given formula references a cell that doesn't have a numerical value stored in it.
+    </p>
+    <p>
+        <i>The following errors will cause a pop-up message to appear, and no changes to the spreadsheet will occur. The user is still free to edit their inputted string as necessary.</i>
+    </p>
+    <h4>FormulaFormatException</h4>
+    <p>
+        &emsp; A FormulaFormatException will appear if the formula does not adhere to mathematical syntax (e.g. 1++1, or (2-)1). 
+        <i>Note that implicit multiplication such as 2(2) or negative numbers will not evaluate.</i>
+    </p>
+
+    <h4>CircularException</h4>
+    <p>
+        &emsp; A CircularException will appear if the formula references itself directly or indirectly through a chain of formulas (e.g. A1:=B2, B2:=A1).
+    </p>
+</div>
+
+<style>
+    .text-format {
+        width: 950px;
+        word-wrap: break-word;
+        margin: 0 auto;
+    }
+    .center {
+        text-align: center;
+    }
+</style>
